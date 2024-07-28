@@ -1,0 +1,34 @@
+{
+  "primary": "#005CA9",
+  "secondary": "#2783EC",
+
+  "blue": {
+    "semiLight": "#0561CA"
+  },
+
+  "red": "#CE3036",
+
+  "gray": {
+    "50": "#FBFBFB",
+    "100": "#F3F3F3",
+    "150": "#F3F5F9",
+    "200": "#E8E8E8",
+    "250": "#DFDFDF",
+    "300": "#D0D7DE",
+    "350": "#C4C4C4",
+    "500": "#818181",
+    "550": "#707070",
+    "700": "#313136",
+    "800": "#1D1D20",
+    "900": "#151519"
+  },
+
+  "success": "#23DC99",
+  "danger": "#FF5472",
+  "warning": "#FFB651",
+  "info": "#4299FF",
+
+  "white": "#FFFFFF",
+  "black": "#000000",
+  "transparent": "transparent"
+}
