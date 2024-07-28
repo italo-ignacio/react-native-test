@@ -12,9 +12,28 @@
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
-    "plugins": ["expo-router"],
-    "experiments": {
-      "typedRoutes": true
+    "plugins": ["expo-router", "react-native-ble-plx"],
+    "android": {
+      "permissions": [
+        "BLUETOOTH",
+        "BLUETOOTH_ADMIN",
+        "BLUETOOTH_SCAN",
+        "BLUETOOTH_CONNECT",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT"
+      ],
+      "package": "com.my.app"
+    },
+    "ios": {
+      "infoPlist": {
+        "NSBluetoothAlwaysUsageDescription": "O aplicativo usa Bluetooth para se conectar a dispositivos",
+        "NSBluetoothPeripheralUsageDescription": "O aplicativo usa Bluetooth para se conectar a dispositivos",
+        "NSLocationWhenInUseUsageDescription": "O aplicativo usa sua localização para encontrar dispositivos Bluetooth"
+      },
+      "bundleIdentifier": "com.my.app"
     }
   }
 }

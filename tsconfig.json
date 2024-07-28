@@ -5,7 +5,11 @@
     "strictNullChecks": true,
     "baseUrl": "src",
     "target": "ESNext",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
+    ],
     "jsx": "react-native",
     "useDefineForClassFields": true,
     "module": "ESNext",
@@ -19,5 +23,8 @@
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": false
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ]
 }
