@@ -12,24 +12,15 @@
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
-    "plugins": [
-      "expo-router",
-      "react-native-ble-plx"
-    ],
+    "plugins": ["expo-router", "react-native-ble-plx"],
     "android": {
       "permissions": [
         "INTERNET",
         "BLUETOOTH",
         "BLUETOOTH_ADMIN",
-        "BLUETOOTH_SCAN",
         "BLUETOOTH_CONNECT",
         "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION",
-        "android.permission.BLUETOOTH",
-        "android.permission.BLUETOOTH_ADMIN",
-        "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.INTERNET",
-        "android.permission.BLUETOOTH_CONNECT"
+        "ACCESS_COARSE_LOCATION"
       ],
       "package": "com.itilocao.app"
     },

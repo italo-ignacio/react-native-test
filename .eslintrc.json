@@ -830,6 +830,7 @@
       "rules": {
         "max-lines-per-function": "off",
         "max-statements": "off",
+        "@typescript-eslint/no-use-before-define": "off",
         "max-lines": "off"
       }
     }
@@ -864,6 +865,7 @@
     "/test/**",
     "/tmp/**",
     "/node_modules",
+    "**/data/bluetooth/**",
     "index.js",
     "metro.config.js",
     "tailwind.config.js",
