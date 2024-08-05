@@ -2,7 +2,6 @@
 import { ActivityIndicator, Button, Text, TouchableOpacity, View } from 'react-native';
 import { CharacteristicConst, CharacteristicType } from 'domain/enums';
 import { Container } from 'presentation/atomic-component/atom';
-import { EngineSpeedDecoder } from 'data/bluetooth';
 import { type FC, type ReactNode, useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import { colors } from 'presentation/style';
@@ -22,6 +21,7 @@ export const SplashScreen: FC = () => {
     isScanning,
     startReading,
     rpm,
+    startMonitor,
 
     // data,
     setCode,
@@ -34,7 +34,9 @@ export const SplashScreen: FC = () => {
   } = useBle();
 
   // const [searchingServices, setSearchingServices] = useState(false);
-  const [selectedValue, setSelectedValue] = useState<string | null>(null);
+  const [selectedValue, setSelectedValue] = useState<CharacteristicType | null>(
+    CharacteristicType.engineSpeed
+  );
 
   const getItemState = (device: Device): ReactNode => {
     if (state && state?.device.id === device.id)
@@ -86,11 +88,15 @@ export const SplashScreen: FC = () => {
 
       <Button
         onPress={(): void => {
-          const decode = new EngineSpeedDecoder('41 0C 2c 70');
+          startMonitor();
 
-          console.log(decode.decode());
+          // if (selectedV/alue) {
+          //   const decode = decodeCharacteristicResponse(selectedValue, '');
+
+          //   console.log(decode);
+          // }
         }}
-        title={'aa'}
+        title={'Printar'}
       />
 
       {/* <View className={'flex flex-col mt-8'} style={{ gap: 6 }}>
@@ -136,19 +142,17 @@ export const SplashScreen: FC = () => {
                 backgroundColor: colors.gray[300]
               }}
             >
-              {Object.keys(CharacteristicConst).map((key) => (
-                <Picker.Item
-                  key={CharacteristicType[key as keyof typeof CharacteristicType]}
-                  label={key}
-                  value={CharacteristicType[key as keyof typeof CharacteristicType]}
-                />
+              {Object.entries(CharacteristicConst).map(([, { name, code }]) => (
+                <Picker.Item key={code} label={name} value={code} />
               ))}
             </Picker>
 
             <TouchableOpacity
               activeOpacity={0.5}
               className={'bg-gray-500 shadow-md p-3 rounded-md border border-gray-300'}
-              onPress={startReading}
+              onPress={(): void => {
+                if (selectedValue) startReading(selectedValue);
+              }}
             >
               <Text>Comecar rodar</Text>
             </TouchableOpacity>

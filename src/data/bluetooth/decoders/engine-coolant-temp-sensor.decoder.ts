@@ -30,7 +30,7 @@ export class EngineCoolantTempSensorDecoder extends BaseDecoder {
 
     return {
       sensorA: sensorAValue,
-      sensorB: sensorBValue,
+      sensorB: sensorBValue
     };
   }
 }

@@ -1,5 +1,5 @@
-/* eslint-disable max-lines */
 /* eslint-disable sort-keys-fix/sort-keys-fix */
+/* eslint-disable max-lines */
 export enum CharacteristicType {
   vin = '0902\r',
   monitorStatus = '0101\r',
@@ -197,178 +197,561 @@ export interface MonitorStatus {
 }
 
 export const CharacteristicConst = {
-  auxInputStatus: '011e',
-  calcEngineLoad: '0104',
-  commandedSecondaryAirStatus: '0112',
-  distanceWithMILON: '0121',
-  engineCoolantTemp: '0105',
-  commandedEGR: '012c',
-  engineSpeed: '010c',
-  commandedEvaporativePurge: '012e',
-  freezeFrameDTC: '0102',
-  egrError: '012d',
-  fuelPressure: '010a',
-  distanceTraveledSinceCodesCleared: '0131',
-  fuelRailPressure: '0122',
-  absoluteBarometricPressure: '0133',
-  fuelRailPressureGauge: '0123',
-  evapSystemVaporPressure: '0132',
-  fuelSystemStatus: '0103',
-  fuelTankLevelInput: '012f',
-  fuelTrimBank1LongTerm: '0107',
-  fuelTrimBank1ShortTerm: '0106',
-  fuelTrimBank2LongTerm: '0109',
-  fuelTrimBank2ShortTerm: '0108',
-  intakeAirTemperature: '010f',
-  catalystTempBank1Sensor1: '013c',
-  intakeManifoldPressure: '010b',
-  catalystTempBank1Sensor2: '013e',
-  mafAirFlowRate: '0110',
-  catalystTempBank2Sensor1: '013d',
-  monitorStatus: '0101',
-  catalystTempBank2Sensor2: '013f',
-  obdStandard: '011c',
-  absoluteLoadValue: '0143',
-  oxygenSensor1AB_CD_Current: '0134',
-  commandedAFR: '0144',
-  oxygenSensor1AFR_CD_Voltage: '0124',
-  ambientAirTemperature: '0146',
-  oxygenSensor2AB_CD_Current: '0135',
-  absoluteThrottlePositionB: '0147',
-  oxygenSensor2AFR_CD_Voltage: '0125',
-  absoluteThrottlePositionC: '0148',
-  vin: '0902',
-  acceleratorPedalPositionD: '0149',
-  acceleratorPedalPositionE: '014a',
-  oxygenSensorVoltageB1S1: '0114',
-  acceleratorPedalPositionF: '014b',
-  oxygenSensorVoltageB1S2: '0115',
-  commandedThrottleActuator: '014c',
-  oxygenSensorVoltageB1S3: '0116',
-  absoluteEvapSystemVaporPressure: '0153',
-  oxygenSensorVoltageB1S4: '0117',
-  controlModuleVoltage: '0142',
-  timingAdvance: '010e',
-  ethanolFuelPercentage: '0152',
-  vehicleSpeed: '010d',
-  evapSystemVaporPressure2: '0154',
-  oxygenSensorVoltageB2S1: '0118',
-  fuelRailAbsolutePressure: '0159',
-  throttlePosition: '0111',
-  fuelType: '0151',
-  oxygenSensorsPresentBanks2: '0113',
-  engineOilTemperature: '015c',
-  oxygenSensorVoltageB2S2: '0119',
-  engineFuelRate: '015e',
-  oxygenSensorVoltageB2S3: '011a',
-  emissionRequirements: '015f',
-  oxygenSensorVoltageB2S4: '011b',
-  driversDemandEnginePercentTorque: '0161',
-  oxygenSensorsPresentBanks4: '011d',
-  actualEnginePercentTorque: '0162',
-  pidsSupported_21_40: '0120',
-  enginePercentTorqueData: '0164',
-  runtimeSinceEngineStart: '011f',
-  auxiliaryInputOutputSupported: '0165',
-  oxygenSensor3AFR_CD_Voltage: '0126',
-  engineCoolantTemperatureSensor: '0167',
-  oxygenSensor4AFR_CD_Voltage: '0127',
-  actualEGR_CommandedEGR_EGRError: '0169',
-  oxygenSensor5AFR_CD_Voltage: '0128',
-  commandedDieselIntakeAirFlowControl_RelativeIntakeAirFlowPosition: '016a',
-  oxygenSensor6AFR_CD_Voltage: '0129',
-  commandedThrottleActuatorControl_RelativeThrottlePosition: '016c',
-  oxygenSensor7AFR_CD_Voltage: '012a',
-  boostPressureControl: '0170',
-  oxygenSensor8AFR_CD_Voltage: '012b',
-  engineReferenceTorque: '0163',
-  exhaustGasRecirculationTemperature: '016b',
-  oxygenSensor3AB_CD_Current: '0136',
-  chargeAirCoolerTemperature: '0177',
-  warmUpsSinceCodesCleared: '0130',
-  exhaustGasTemperature_Bank1: '0178',
-  dieselParticulateFilterDifferentialPressure: '017a',
-  oxygenSensor4AB_CD_Current: '0137',
-  dieselParticulateFilter: '017b',
-  oxygenSensor5AB_CD_Current: '0138',
-  NOxNTENotToExceedControlAreaStatus: '017d',
-  oxygenSensor6AB_CD_Current: '0139',
-  PMNTENotToExceedControlAreaStatus: '017e',
-  oxygenSensor7AB_CD_Current: '013a',
-  dieselParticulateFilterTemperature: '017c',
-  oxygenSensor8AB_CD_Current: '013b',
-  NOxSensor: '0183',
-  NOxReagentSystem: '0185',
-  monitorStatusThisDriveCycle: '0141',
-  engineRunTimeForAECD_11_15: '0181',
-  pidsSupported_41_60: '0140',
-  SCRInduceSystem: '0188',
-  dieselAftertreatment: '018b',
-  hybridBatteryPackRemainingLife: '015b',
-  O2Sensor_WideRange: '018c',
-  relativeThrottlePosition: '0145',
-  engineFriction_PercentTorque: '018e',
-  PMSensor_Bank1_Bank2: '018f',
-  longTermSecondaryOxygenSensorTrimB1B3: '0156',
-  engineRunTimeForAECD_16_20: '0182',
-  maxValuesAFR_Voltage_Current_IMAP: '014f',
-  NOxWarningAndInducementSystem: '0194',
-  timeRunWithMILOn: '014d',
-  engineRunTime_B: '017f',
-  timeSinceTroubleCodesCleared: '014e',
-  dieselExhaustFluidSensorData: '019b',
-  maxAirFlowRateFromMAF: '0150',
-  O2SensorData: '019c',
-  engineExhaustFlowRate: '019e',
-  longTermSecondaryOxygenSensorTrimB2B4: '0158',
-  NOxSensorCorrectedData: '01a1',
-  shortTermSecondaryOxygenSensorTrimB1B3: '0155',
-  cylinderFuelRate: '01a2',
-  shortTermSecondaryOxygenSensorTrimB2B4: '0157',
-  commandedDieselExhaustFluidDosing: '01a5',
-  NOxSensorConcentrationSensors3And4: '01a7',
-  relativeAcceleratorPedalPosition: '015a',
-  NOxSensorCorrectedConcentrationSensors3And4: '01a8',
-  absDisableSwitchState: '01a9',
-  fuelInjectionTiming: '015d',
-  engineFuelRate_B: '019d',
-  distanceSinceReflashOrModuleReplacement: '01c7',
-  pidsSupported_61_80: '0160',
-  NOxControlDiagnostic_NCD_PartD_ControlLampStatus: '01c8',
-  exhaustPressure: '0173',
-  evapSystemVaporPressure_B2: '01a3',
-  fuelPressureControlSystem: '016d',
-  exhaustGasTemperatureSensor: '0198',
-  massAirFlowSensor: '0166',
-  exhaustGasTemperatureSensor_Bank2: '0199',
-  intakeAirTemperatureSensor: '0168',
-  exhaustGasTemperature_Bank2: '0179',
-  injectionPressureControlSystem: '016e',
-  exhaustParticulateControlSystemDiagnosticTimeCount: '01c4',
-  turbochargerCompressorInletPressure: '016f',
-  fuelLevelInput_AB: '01c3',
-  turbochargerRPM: '0174',
-  fuelPressure_AB: '01c5',
-  variableGeometryTurboControl: '0171',
-  fuelSystemControl: '0192',
-  wastegateControl: '0172',
-  fuelSystemPercentageUse: '019f',
-  turbochargerTemperature: '0175',
-  hybridEVVehicleSystemData_Battery_Voltage: '019a',
-  turbochargerTemperature_B2: '0176',
-  intakeManifoldAbsolutePressure: '0187',
-  manifoldSurfaceTemperature: '0184',
-  odometer: '01a6',
-  particulateControl_Byte1_Byte2_3_Byte4_5_Byte6_7: '01c6',
-  particulateMatterSensor: '0186',
-  pidsSupported_81_A0: '0180',
-  pidsSupported_A1_C0: '01a0',
-  pidsSupported_C1_E0: '01c0',
-  runTimeForAECD_11_15: '0189',
-  runTimeForAECD_16_20: '018a',
-  throttlePositionG: '018d',
-  transmissionActualGear: '01a4',
-  wwhOBDOBDCountersSupport: '0193',
-  wwhOBDOBDSystemInformation: '0190',
-  wwhOBDOBDSystemInformation_B: '0191'
-} as const;
+  engineSpeed: {
+    name: 'Velocidade do Motor',
+    code: '010c\r'
+  },
+  vehicleSpeed: {
+    name: 'Velocidade do Veículo',
+    code: '010d\r'
+  },
+  distanceTraveledSinceCodesCleared: {
+    name: 'Distância Percorrida Desde a Limpeza dos Códigos',
+    code: '0131\r'
+  },
+  distanceSinceReflashOrModuleReplacement: {
+    name: 'Distância Desde a Reprogramação ou Substituição do Módulo',
+    code: '01c7\r'
+  },
+  runtimeSinceLastReset: {
+    name: 'Tempo de Funcionamento Desde o Último Reset',
+    code: '01f2\r'
+  },
+  engineCoolantTemp: {
+    name: 'Temperatura do Líquido de Arrefecimento do Motor',
+    code: '0105\r'
+  },
+  intakeAirTemperature: {
+    name: 'Temperatura do Ar de Admissão',
+    code: '010f\r'
+  },
+  intakeManifoldAbsolutePressure: {
+    name: 'Pressão Absoluta do Coletor de Admissão',
+    code: '010b\r'
+  },
+  throttlePosition: {
+    name: 'Posição do Acelerador',
+    code: '0111\r'
+  },
+  fuelLevelInput: {
+    name: 'Nível de Combustível',
+    code: '012f\r'
+  },
+  fuelPressure: {
+    name: 'Pressão do Combustível',
+    code: '010a\r'
+  },
+  fuelTrimBank1LongTerm: {
+    name: 'Trim de Combustível Banco 1 a Longo Prazo',
+    code: '0107\r'
+  },
+  fuelTrimBank1ShortTerm: {
+    name: 'Trim de Combustível Banco 1 a Curto Prazo',
+    code: '0106\r'
+  },
+  fuelTrimBank2LongTerm: {
+    name: 'Trim de Combustível Banco 2 a Longo Prazo',
+    code: '0109\r'
+  },
+  fuelTrimBank2ShortTerm: {
+    name: 'Trim de Combustível Banco 2 a Curto Prazo',
+    code: '0108\r'
+  },
+  engineFuelRate: {
+    name: 'Taxa de Combustível do Motor',
+    code: '015e\r'
+  },
+  engineOilTemperature: {
+    name: 'Temperatura do Óleo do Motor',
+    code: '015c\r'
+  },
+  mafAirFlowRate: {
+    name: 'Taxa de Fluxo de Ar MAF',
+    code: '0110\r'
+  },
+  runtimeSinceEngineStart: {
+    name: 'Tempo de Funcionamento Desde a Partida do Motor',
+    code: '011f\r'
+  },
+  vin: {
+    name: 'VIN (Número de Identificação do Veículo)',
+    code: '0902\r'
+  },
+  distanceWithMILON: {
+    name: 'Distância Percorrida com MIL Ligada',
+    code: '0121\r'
+  },
+
+  commandedEGR: {
+    name: 'EGR Comandada',
+    code: '012c\r'
+  },
+  commandedThrottleActuator: {
+    name: 'Atuador do Acelerador Comandado',
+    code: '014c\r'
+  },
+  actualEGR_CommandedEGR_EGRError: {
+    name: 'Erro EGR Real/Comandada',
+    code: '0169\r'
+  },
+  commandedAFR: {
+    name: 'Relação Ar-Combustível Comandada',
+    code: '0144\r'
+  },
+  controlModuleVoltage: {
+    name: 'Tensão do Módulo de Controle',
+    code: '0142\r'
+  },
+  obdStandard: {
+    name: 'Padrão OBD',
+    code: '011c\r'
+  },
+  fuelType: {
+    name: 'Tipo de Combustível',
+    code: '0151\r'
+  },
+  monitorStatus: {
+    name: 'Status do Monitor',
+    code: '0101\r'
+  },
+  monitorStatusThisDriveCycle: {
+    name: 'Status do Monitor Neste Ciclo de Condução',
+    code: '0141\r'
+  },
+  warmUpsSinceCodesCleared: {
+    name: 'Aquecimentos Desde a Limpeza dos Códigos',
+    code: '0130\r'
+  },
+  timeSinceTroubleCodesCleared: {
+    name: 'Tempo Desde a Limpeza dos Códigos de Falha',
+    code: '014e\r'
+  },
+  timeRunWithMILOn: {
+    name: 'Tempo de Funcionamento com MIL Ligada',
+    code: '014d\r'
+  },
+  NOxControlDiagnostic_NCD_PartD_ControlLampStatus: {
+    name: 'Status da Lâmpada de Controle NCD Parte D',
+    code: '01c8\r'
+  },
+  NOxNTENotToExceedControlAreaStatus: {
+    name: 'Status da Área de Controle NTE',
+    code: '017d\r'
+  },
+  NOxReagentSystem: {
+    name: 'Sistema de Reagente NOx',
+    code: '0185\r'
+  },
+  NOxSensor: {
+    name: 'Sensor NOx',
+    code: '0183\r'
+  },
+  NOxSensorConcentrationSensors3And4: {
+    name: 'Sensores de Concentração NOx 3 e 4',
+    code: '01a7\r'
+  },
+  NOxSensorCorrectedConcentrationSensors3And4: {
+    name: 'Concentração Corrigida dos Sensores NOx 3 e 4',
+    code: '01a8\r'
+  },
+  NOxSensorCorrectedData: {
+    name: 'Dados Corrigidos do Sensor NOx',
+    code: '01a1\r'
+  },
+  NOxWarningAndInducementSystem: {
+    name: 'Sistema de Aviso e Indução NOx',
+    code: '0194\r'
+  },
+  O2SensorData: {
+    name: 'Dados do Sensor O2',
+    code: '019c\r'
+  },
+  O2Sensor_WideRange: {
+    name: 'Sensor O2 de Faixa Ampla',
+    code: '018c\r'
+  },
+  PMNTENotToExceedControlAreaStatus: {
+    name: 'Status da Área de Controle de PM NTE',
+    code: '017e\r'
+  },
+  PMSensor_Bank1_Bank2: {
+    name: 'Sensor PM Banco 1 e Banco 2',
+    code: '018f\r'
+  },
+  SCRInduceSystem: {
+    name: 'Sistema de Indução SCR',
+    code: '0188\r'
+  },
+  absDisableSwitchState: {
+    name: 'Estado do Interruptor de Desativação ABS',
+    code: '01a9\r'
+  },
+  absoluteBarometricPressure: {
+    name: 'Pressão Barométrica Absoluta',
+    code: '0133\r'
+  },
+  absoluteEvapSystemVaporPressure: {
+    name: 'Pressão de Vapor do Sistema de Evaporação Absoluta',
+    code: '0153\r'
+  },
+  absoluteLoadValue: {
+    name: 'Valor de Carga Absoluta',
+    code: '0143\r'
+  },
+  absoluteThrottlePositionB: {
+    name: 'Posição Absoluta do Acelerador B',
+    code: '0147\r'
+  },
+  absoluteThrottlePositionC: {
+    name: 'Posição Absoluta do Acelerador C',
+    code: '0148\r'
+  },
+  acceleratorPedalPositionD: {
+    name: 'Posição do Pedal do Acelerador D',
+    code: '0149\r'
+  },
+  acceleratorPedalPositionE: {
+    name: 'Posição do Pedal do Acelerador E',
+    code: '014a\r'
+  },
+  acceleratorPedalPositionF: {
+    name: 'Posição do Pedal do Acelerador F',
+    code: '014b\r'
+  },
+  actualEnginePercentTorque: {
+    name: 'Torque Percentual Real do Motor',
+    code: '0162\r'
+  },
+  ambientAirTemperature: {
+    name: 'Temperatura do Ar Ambiente',
+    code: '0146\r'
+  },
+  auxInputStatus: {
+    name: 'Status da Entrada Auxiliar',
+    code: '011e\r'
+  },
+  auxiliaryInputOutputSupported: {
+    name: 'Entrada/Saída Auxiliar Suportada',
+    code: '0165\r'
+  },
+  boostPressureControl: {
+    name: 'Controle de Pressão de Turboalimentação',
+    code: '0170\r'
+  },
+  calcEngineLoad: {
+    name: 'Carga do Motor Calculada',
+    code: '0104\r'
+  },
+  catalystTempBank1Sensor1: {
+    name: 'Temperatura do Catalisador Banco 1 Sensor 1',
+    code: '013c\r'
+  },
+  catalystTempBank1Sensor2: {
+    name: 'Temperatura do Catalisador Banco 1 Sensor 2',
+    code: '013e\r'
+  },
+  catalystTempBank2Sensor1: {
+    name: 'Temperatura do Catalisador Banco 2 Sensor 1',
+    code: '013d\r'
+  },
+  catalystTempBank2Sensor2: {
+    name: 'Temperatura do Catalisador Banco 2 Sensor 2',
+    code: '013f\r'
+  },
+  chargeAirCoolerTemperature: {
+    name: 'Temperatura do Resfriador de Ar',
+    code: '0177\r'
+  },
+  commandedDieselExhaustFluidDosing: {
+    name: 'Dosagem de Fluido de Escape Diesel Comandada',
+    code: '01a5\r'
+  },
+  commandedDieselIntakeAirFlowControl_RelativeIntakeAirFlowPosition: {
+    name: 'Controle de Fluxo de Ar de Admissão Diesel Comandado/Posição Relativa',
+    code: '016a\r'
+  },
+  commandedEvaporativePurge: {
+    name: 'Purga Evaporativa Comandada',
+    code: '012e\r'
+  },
+  commandedSecondaryAirStatus: {
+    name: 'Status do Ar Secundário Comandado',
+    code: '0112\r'
+  },
+  commandedThrottleActuatorControl_RelativeThrottlePosition: {
+    name: 'Controle do Atuador do Acelerador Comandado/Posição Relativa do Acelerador',
+    code: '016c\r'
+  },
+  cylinderFuelRate: {
+    name: 'Taxa de Combustível por Cilindro',
+    code: '01a2\r'
+  },
+  dieselAftertreatment: {
+    name: 'Tratamento Pós-Combustão Diesel',
+    code: '018b\r'
+  },
+  dieselExhaustFluidSensorData: {
+    name: 'Dados do Sensor de Fluido de Escape Diesel',
+    code: '019b\r'
+  },
+  dieselParticulateFilter: {
+    name: 'Filtro de Partículas Diesel',
+    code: '017b\r'
+  },
+  dieselParticulateFilterDifferentialPressure: {
+    name: 'Pressão Diferencial do Filtro de Partículas Diesel',
+    code: '017a\r'
+  },
+  dieselParticulateFilterTemperature: {
+    name: 'Temperatura do Filtro de Partículas Diesel',
+    code: '017c\r'
+  },
+  driversDemandEnginePercentTorque: {
+    name: 'Torque Percentual do Motor Demandado pelo Motorista',
+    code: '0161\r'
+  },
+  egrError: {
+    name: 'Erro EGR',
+    code: '012d\r'
+  },
+  emissionRequirements: {
+    name: 'Requisitos de Emissão',
+    code: '015f\r'
+  },
+  engineCoolantTemperatureSensor: {
+    name: 'Sensor de Temperatura do Líquido de Arrefecimento do Motor',
+    code: '0167\r'
+  },
+  engineExhaustFlowRate: {
+    name: 'Taxa de Fluxo de Escape do Motor',
+    code: '019e\r'
+  },
+  engineFriction_PercentTorque: {
+    name: 'Atrito do Motor/Percentual de Torque',
+    code: '018e\r'
+  },
+  engineFuelRate_B: {
+    name: 'Taxa de Combustível do Motor B',
+    code: '019d\r'
+  },
+  enginePercentTorqueData: {
+    name: 'Dados do Percentual de Torque do Motor',
+    code: '0164\r'
+  },
+  engineReferenceTorque: {
+    name: 'Torque de Referência do Motor',
+    code: '0163\r'
+  },
+  engineRunTimeForAECD_11_15: {
+    name: 'Tempo de Funcionamento do Motor para AECD 11-15',
+    code: '0181\r'
+  },
+  engineRunTimeForAECD_16_20: {
+    name: 'Tempo de Funcionamento do Motor para AECD 16-20',
+    code: '0182\r'
+  },
+  engineRunTime_B: {
+    name: 'Tempo de Funcionamento do Motor B',
+    code: '017f\r'
+  },
+  ethanolFuelPercentage: {
+    name: 'Percentual de Combustível Etanol',
+    code: '0152\r'
+  },
+  evapSystemVaporPressure: {
+    name: 'Pressão de Vapor do Sistema de Evaporação',
+    code: '0132\r'
+  },
+  evapSystemVaporPressure2: {
+    name: 'Pressão de Vapor do Sistema de Evaporação 2',
+    code: '0154\r'
+  },
+  evapSystemVaporPressure_B2: {
+    name: 'Pressão de Vapor do Sistema de Evaporação B2',
+    code: '01a3\r'
+  },
+  exhaustGasRecirculationTemperature: {
+    name: 'Temperatura da Recirculação de Gases de Escape',
+    code: '016b\r'
+  },
+  exhaustGasTemperatureSensor: {
+    name: 'Sensor de Temperatura dos Gases de Escape',
+    code: '0198\r'
+  },
+  exhaustGasTemperatureSensor_Bank2: {
+    name: 'Sensor de Temperatura dos Gases de Escape Banco 2',
+    code: '0199\r'
+  },
+  exhaustGasTemperature_Bank1: {
+    name: 'Temperatura dos Gases de Escape Banco 1',
+    code: '0178\r'
+  },
+  exhaustGasTemperature_Bank2: {
+    name: 'Temperatura dos Gases de Escape Banco 2',
+    code: '0179\r'
+  },
+  exhaustParticulateControlSystemDiagnosticTimeCount: {
+    name: 'Tempo de Diagnóstico do Sistema de Controle de Partículas de Escape',
+    code: '01c4\r'
+  },
+  exhaustPressure: {
+    name: 'Pressão de Escape',
+    code: '0173\r'
+  },
+  freezeFrameDTC: {
+    name: 'Congelamento de Quadro DTC',
+    code: '0102\r'
+  },
+  fuelInjectionTiming: {
+    name: 'Tempo de Injeção de Combustível',
+    code: '015d\r'
+  },
+  fuelLevelInput_AB: {
+    name: 'Nível de Combustível AB',
+    code: '01c3\r'
+  },
+  fuelPressureControlSystem: {
+    name: 'Sistema de Controle de Pressão do Combustível',
+    code: '016d\r'
+  },
+  fuelPressure_AB: {
+    name: 'Pressão do Combustível AB',
+    code: '01c5\r'
+  },
+  fuelRailAbsolutePressure: {
+    name: 'Pressão Absoluta do Trilho de Combustível',
+    code: '0159\r'
+  },
+  fuelRailPressure: {
+    name: 'Pressão do Trilho de Combustível',
+    code: '0122\r'
+  },
+  fuelRailPressureGauge: {
+    name: 'Manômetro de Pressão do Trilho de Combustível',
+    code: '0123\r'
+  },
+  fuelSystemControl: {
+    name: 'Controle do Sistema de Combustível',
+    code: '0192\r'
+  },
+  fuelSystemPercentageUse: {
+    name: 'Percentual de Uso do Sistema de Combustível',
+    code: '019f\r'
+  },
+  fuelSystemStatus: {
+    name: 'Status do Sistema de Combustível',
+    code: '0103\r'
+  },
+  fuelTankLevelInput: {
+    name: 'Nível de Combustível do Tanque',
+    code: '012f\r'
+  },
+  hybridBatteryPackRemainingLife: {
+    name: 'Vida Útil Restante da Bateria Híbrida',
+    code: '015b\r'
+  },
+  hybridEVVehicleSystemData_Battery_Voltage: {
+    name: 'Dados do Sistema do Veículo Híbrido EV/Bateria/Tensão',
+    code: '019a\r'
+  },
+  injectionPressureControlSystem: {
+    name: 'Sistema de Controle da Pressão de Injeção',
+    code: '016e\r'
+  },
+  intakeAirTemperatureSensor: {
+    name: 'Sensor de Temperatura do Ar de Admissão',
+    code: '0175\r'
+  },
+  intakeManifoldPressure: {
+    name: 'Pressão do Coletor de Admissão',
+    code: '0135\r'
+  },
+  intakeManifoldPressure_AB: {
+    name: 'Pressão do Coletor de Admissão AB',
+    code: '01c6\r'
+  },
+  lambdaSensor: {
+    name: 'Sensor Lambda',
+    code: '01a0\r'
+  },
+  lambdaSensor_Bank1: {
+    name: 'Sensor Lambda Banco 1',
+    code: '01a1\r'
+  },
+  lambdaSensor_Bank2: {
+    name: 'Sensor Lambda Banco 2',
+    code: '01a2\r'
+  },
+  lastDTC: {
+    name: 'Último DTC',
+    code: '0101\r'
+  },
+  manufacturerSpecificData: {
+    name: 'Dados Específicos do Fabricante',
+    code: '01d0\r'
+  },
+  measuredEngineLoad: {
+    name: 'Carga do Motor Medida',
+    code: '0104\r'
+  },
+  measuredFuelLevel: {
+    name: 'Nível de Combustível Medido',
+    code: '012f\r'
+  },
+  measuredIntakeAirTemperature: {
+    name: 'Temperatura do Ar de Admissão Medida',
+    code: '010f\r'
+  },
+  measuredIntakeManifoldPressure: {
+    name: 'Pressão do Coletor de Admissão Medida',
+    code: '0135\r'
+  },
+  measuredThrottlePosition: {
+    name: 'Posição do Acelerador Medida',
+    code: '0110\r'
+  },
+  obdIIStandard: {
+    name: 'Padrão OBDII',
+    code: '01c1\r'
+  },
+  oilTemperature: {
+    name: 'Temperatura do Óleo',
+    code: '015c\r'
+  },
+  oxygenSensor: {
+    name: 'Sensor de Oxigênio',
+    code: '019c\r'
+  },
+  parkingBrakeSwitch: {
+    name: 'Interruptor de Freio de Estacionamento',
+    code: '015a\r'
+  },
+  powertrainControlModuleVoltage: {
+    name: 'Tensão do Módulo de Controle da Transmissão',
+    code: '015f\r'
+  },
+  speedOfVehicle: {
+    name: 'Velocidade do Veículo',
+    code: '010d\r'
+  },
+  throttlePositionSensor: {
+    name: 'Sensor de Posição do Acelerador',
+    code: '0156\r'
+  },
+  tirePressure: {
+    name: 'Pressão dos Pneus',
+    code: '0184\r'
+  },
+  totalDistanceTraveled: {
+    name: 'Distância Total Percorrida',
+    code: '0125\r'
+  },
+  turboBoostPressure: {
+    name: 'Pressão do Turboalimentador',
+    code: '014a\r'
+  },
+  vehicleIdentificationNumber: {
+    name: 'Número de Identificação do Veículo (VIN)',
+    code: '0902\r'
+  }
+};
