@@ -150,15 +150,15 @@ export const useBle = (): BluetoothLowEnergyApi => {
     characteristic: Characteristic | null
   ): string | undefined => {
     if (error) {
-      console.log(error);
+      console.error(error);
       return 'No response';
     }
     if (!characteristic?.value) {
-      console.log('No Data was received');
+      console.error('No Data was received');
       return 'No Data was received';
     }
     if (code === null) {
-      console.log('No Code');
+      console.error('No Code');
       return 'No Code';
     }
 
@@ -170,7 +170,7 @@ export const useBle = (): BluetoothLowEnergyApi => {
     if (decodedData.substring(decodedData.length - 1) === '>') {
       const decodedResponse = decodeCharacteristicResponse(code, rawResponse);
 
-      console.log(decodedResponse);
+      console.info(decodedResponse);
 
       // responseDeferred.resolve({
       //   decoded: decodedResponse,
@@ -283,13 +283,13 @@ export const useBle = (): BluetoothLowEnergyApi => {
   };
 
   const startMonitor = (): void => {
-    console.log('aaa');
+    console.info('aaa');
   };
 
   const startReading = async (characteristicToFind: CharacteristicType): Promise<void> => {
     if (connectedDevice)
       try {
-        console.log(`characteristic: ${characteristicToFind.toString()}`);
+        console.info(`characteristic: ${characteristicToFind.toString()}`);
 
         const encodedCharacteristicToFind = base64.encode(characteristicToFind);
 
@@ -298,26 +298,6 @@ export const useBle = (): BluetoothLowEnergyApi => {
           WRITE_CHARACTERISTIC,
           encodedCharacteristicToFind
         );
-
-        // console.info();
-        // console.info('############# READING #############');
-        // console.info();
-        // console.info('Characteristic value: ', characteristicResponse?.value);
-
-        // const decodedValue = base64.decode(characteristicResponse?.value ?? '');
-
-        // console.info('Decoded value: ', decodedValue);
-
-        // const rawValue1 = decodedValue
-        //   .split('')
-        //   .map((char) => char.charCodeAt(0).toString(16).padStart(2, '0'))
-        //   .join('');
-
-        // console.info('Raw hex value:', rawValue1);
-
-        // console.info();
-        // console.info('############# READING #############');
-        // console.info();
       } catch (error) {
         console.error('2 reading error: ', error);
       }
