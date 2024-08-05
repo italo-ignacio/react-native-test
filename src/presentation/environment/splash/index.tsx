@@ -15,25 +15,17 @@ export const SplashScreen: FC = () => {
     allDevices,
     startScan,
     connectedDevice,
-
-    // getDeviceServicesAndCharacteristics,
-    // rawResponse,
     isScanning,
     startReading,
     rpm,
     startMonitor,
-
-    // data,
     setCode,
-
-    // startStreaming,
     disconnectFromDevice,
     stopScan,
     connectToDevice,
     state
   } = useBle();
 
-  // const [searchingServices, setSearchingServices] = useState(false);
   const [selectedValue, setSelectedValue] = useState<CharacteristicType | null>(
     CharacteristicType.engineSpeed
   );
@@ -90,42 +82,14 @@ export const SplashScreen: FC = () => {
         onPress={(): void => {
           startMonitor();
 
-          // if (selectedV/alue) {
+          // if (selectedValue) {
           //   const decode = decodeCharacteristicResponse(selectedValue, '');
 
-          //   console.log(decode);
+          //   console.info(decode);
           // }
         }}
         title={'Printar'}
       />
-
-      {/* <View className={'flex flex-col mt-8'} style={{ gap: 6 }}>
-        {connectedDevice ? (
-          <>
-            <Text className={'text-center text-2xl mb-3 font-semibold'}>
-              {connectedDevice.name} - Conectado
-            </Text>
-
-            <TouchableOpacity
-              activeOpacity={0.5}
-              className={'bg-gray-200 shadow-md p-3 rounded-md border border-gray-300'}
-              disabled={searchingServices}
-              onPress={async (): Promise<void> => {
-                try {
-                  setSearchingServices(true);
-                  await getDeviceServicesAndCharacteristics(connectedDevice);
-                } catch (error) {
-                  console.log(error);
-                } finally {
-                  setSearchingServices(false);
-                }
-              }}
-            >
-              <Text>{searchingServices ? 'Buscando servicos...' : 'Buscar Servicos'}</Text>
-            </TouchableOpacity>
-          </>
-        ) : null}
-      </View> */}
 
       <View className={'flex flex-col mt-8'} style={{ gap: 6 }}>
         {connectedDevice ? (
