@@ -1,18 +1,12 @@
-/* eslint-disable max-lines */
 /* eslint-disable consistent-return */
-/* eslint-disable no-restricted-properties */
-/* eslint-disable @typescript-eslint/init-declarations */
-/* eslint-disable max-depth */
-/* eslint-disable max-statements */
 /* eslint-disable max-lines-per-function */
 import * as ExpoDevice from 'expo-device';
 import { BleManager } from 'react-native-ble-plx';
 import { PermissionsAndroid, Platform } from 'react-native';
 import { useMemo, useState } from 'react';
 import base64 from 'react-native-base64';
-import decodeCharacteristicResponse from 'data/bluetooth/decode-characteristic-response';
 import type { BleError, Characteristic, Device } from 'react-native-ble-plx';
-import type { CharacteristicType } from 'domain/enums';
+import type { CharacteristicType, CharacteristicValues } from 'domain/enums';
 import type { Dispatch, SetStateAction } from 'react';
 
 const SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
@@ -39,36 +33,30 @@ export interface Array2 {
 }
 
 interface BluetoothLowEnergyApi {
-  requestPermissions: () => Promise<boolean>;
   startScan: () => void;
-  startMonitor: () => void;
   stopScan: () => void;
   connectToDevice: (deviceId: Device) => Promise<void>;
   disconnectFromDevice: () => void;
-  connectedDevice: Device | null;
-  setCode: Dispatch<SetStateAction<CharacteristicType | null>>;
+  requestPermissions: () => Promise<boolean>;
+  readCharacteristic: (characteristicToFind: CharacteristicType) => void;
   allDevices: Device[];
-  rpm: number | null;
-  rawResponse: string;
-  startStreaming: () => void;
-  startReading: (characteristicToFind: CharacteristicType) => void;
+  connectedDevice: Device | null;
   isScanning: boolean;
   state: state;
-  data: Array2[];
 }
 
-export const useBle = (): BluetoothLowEnergyApi => {
+export const useBle = ({
+  selectedItems,
+  setData
+}: {
+  selectedItems: { label: string; value: string }[];
+  setData: Dispatch<SetStateAction<{ [key in CharacteristicValues]?: number | string | null }>>;
+}): BluetoothLowEnergyApi => {
   const bleManager = useMemo(() => new BleManager(), []);
   const [allDevices, setAllDevices] = useState<Device[]>([]);
   const [isScanning, setIsScanning] = useState(false);
-  const [code, setCode] = useState<CharacteristicType | null>(null);
   const [state, setState] = useState<state>(null);
-  const [data, setData] = useState<Array2[]>([]);
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
-  const [rpm, setRpm] = useState<number | null>(null);
-
-  // const responseDeferred = new Deferred<BLEResponse>();
-  let rawResponse = '';
 
   const requestAndroid31Permissions = async (): Promise<boolean> => {
     const bluetoothScanPermission = await PermissionsAndroid.request(
@@ -153,39 +141,21 @@ export const useBle = (): BluetoothLowEnergyApi => {
       console.error(error);
       return 'No response';
     }
-    if (!characteristic?.value) {
-      console.error('No Data was received');
-      return 'No Data was received';
+
+    const decodedValue = base64.decode(characteristic?.value ?? '');
+
+    if (decodedValue && decodedValue.length > 0 && decodedValue?.split(' ')?.[0].length === 2) {
+      console.info();
+      console.info('############# START MONITOR #############');
+      console.info();
+      console.info('Characteristic value: ', characteristic?.value);
+
+      console.info('Decoded value: ', decodedValue);
+      console.info();
+      console.info('############# END MONITOR #############');
+
+      console.info();
     }
-    if (code === null) {
-      console.error('No Code');
-      return 'No Code';
-    }
-
-    const decodedData = base64.decode(characteristic.value);
-
-    rawResponse += decodedData;
-
-    // Every message from the device ends with '>', so look for that, then process it
-    if (decodedData.substring(decodedData.length - 1) === '>') {
-      const decodedResponse = decodeCharacteristicResponse(code, rawResponse);
-
-      console.info(decodedResponse);
-
-      // responseDeferred.resolve({
-      //   decoded: decodedResponse,
-      //   raw: rawResponse
-      // });
-    }
-  };
-
-  const startStreaming = (): void => {
-    if (connectedDevice)
-      connectedDevice.monitorCharacteristicForService(
-        SERVICE_UUID,
-        READ_CHARACTERISTIC,
-        onResponseUpdate
-      );
   };
 
   const connectToDevice = async (device: Device): Promise<void> => {
@@ -228,47 +198,10 @@ export const useBle = (): BluetoothLowEnergyApi => {
             base64.encode(command)
           );
 
-        // const encodePassword = base64.encode('AUTH 1234');
-        // const authResponse = await newDeviceConnection.writeCharacteristicWithoutResponseForService(
-        //   SERVICE_UUID,
-        //   WRITE_CHARACTERISTIC,
-        //   encodePassword
-        // );
-
-        // console.info('############# AUTH RESPONSE #############');
-        // console.info('Characteristic value: ', authResponse?.value);
-
-        // const decodedAuth = base64.decode(authResponse?.value ?? '');
-
-        // console.info('Decoded value: ', decodedAuth);
-        // console.info('############# AUTH RESPONSE #############');
-
         newDeviceConnection.monitorCharacteristicForService(
           SERVICE_UUID,
           READ_CHARACTERISTIC,
-          (error, characteristic) => {
-            if (error) {
-              console.error(error);
-              return;
-            }
-
-            const decodedValue = base64.decode(characteristic?.value ?? '');
-
-            console.info('aaaaaaa', decodedValue);
-
-            if (decodedValue?.split(' ')?.[0].length === 2) {
-              console.info();
-              console.info('############# MONITOR #############');
-              console.info();
-              console.info('Characteristic value: ', characteristic?.value);
-
-              console.info('Decoded value: ', decodedValue);
-              console.info();
-              console.info('############# MONITOR #############');
-
-              console.info();
-            }
-          }
+          onResponseUpdate
         );
 
         setConnectedDevice(newDeviceConnection);
@@ -282,15 +215,9 @@ export const useBle = (): BluetoothLowEnergyApi => {
       }
   };
 
-  const startMonitor = (): void => {
-    console.info('aaa');
-  };
-
-  const startReading = async (characteristicToFind: CharacteristicType): Promise<void> => {
+  const readCharacteristic = async (characteristicToFind: CharacteristicType): Promise<void> => {
     if (connectedDevice)
       try {
-        console.info(`characteristic: ${characteristicToFind.toString()}`);
-
         const encodedCharacteristicToFind = base64.encode(characteristicToFind);
 
         await connectedDevice.writeCharacteristicWithoutResponseForService(
@@ -299,7 +226,7 @@ export const useBle = (): BluetoothLowEnergyApi => {
           encodedCharacteristicToFind
         );
       } catch (error) {
-        console.error('2 reading error: ', error);
+        console.error('Reading error: ', error);
       }
   };
 
@@ -313,8 +240,6 @@ export const useBle = (): BluetoothLowEnergyApi => {
       bleManager.cancelDeviceConnection(connectedDevice.id);
       setConnectedDevice(null);
       setState(null);
-      setData([]);
-      setRpm(0);
     }
   };
 
@@ -322,17 +247,11 @@ export const useBle = (): BluetoothLowEnergyApi => {
     allDevices,
     connectToDevice,
     connectedDevice,
-    data,
     disconnectFromDevice,
     isScanning,
-    rawResponse,
+    readCharacteristic,
     requestPermissions,
-    rpm,
-    setCode,
-    startMonitor,
-    startReading,
     startScan,
-    startStreaming,
     state,
     stopScan
   };

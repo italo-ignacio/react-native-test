@@ -21,7 +21,7 @@ export class EnginePercentTorqueDataDecoder extends BaseDecoder {
       point1: b - 125,
       point2: c - 125,
       point3: d - 125,
-      point4: e - 125,
+      point4: e - 125
     };
   }
 }

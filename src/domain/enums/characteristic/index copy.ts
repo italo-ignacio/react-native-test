@@ -209,14 +209,6 @@ export const CharacteristicConst = {
     name: 'Distância Percorrida Desde a Limpeza dos Códigos',
     code: '0131\r'
   },
-  distanceSinceReflashOrModuleReplacement: {
-    name: 'Distância Desde a Reprogramação ou Substituição do Módulo',
-    code: '01c7\r'
-  },
-  runtimeSinceLastReset: {
-    name: 'Tempo de Funcionamento Desde o Último Reset',
-    code: '01f2\r'
-  },
   engineCoolantTemp: {
     name: 'Temperatura do Líquido de Arrefecimento do Motor',
     code: '0105\r'

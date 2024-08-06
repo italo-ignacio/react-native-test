@@ -1,34 +1,39 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-array-index-key */
-import { ActivityIndicator, Button, Text, TouchableOpacity, View } from 'react-native';
-import { CharacteristicConst, CharacteristicType } from 'domain/enums';
+import {
+  ActivityIndicator,
+  Button,
+  FlatList,
+  Modal,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import { CharacteristicSelectValues } from 'domain/enums';
 import { Container } from 'presentation/atomic-component/atom';
 import { type FC, type ReactNode, useState } from 'react';
-import { Picker } from '@react-native-picker/picker';
-import { colors } from 'presentation/style';
 import { useBle } from 'data/hooks';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import type { CharacteristicValues } from 'domain/enums';
 import type { Device } from 'react-native-ble-plx';
 
 export const SplashScreen: FC = () => {
+  const [selectedItems, setSelectedItems] = useState<{ label: string; value: string }[]>([]);
+  const [data, setData] = useState<{ [key in CharacteristicValues]?: number | string | null }>({});
+
   const {
     allDevices,
     startScan,
     connectedDevice,
     isScanning,
-    startReading,
-    rpm,
-    startMonitor,
-    setCode,
     disconnectFromDevice,
     stopScan,
     connectToDevice,
     state
-  } = useBle();
+  } = useBle({ selectedItems, setData });
 
-  const [selectedValue, setSelectedValue] = useState<CharacteristicType | null>(
-    CharacteristicType.engineSpeed
-  );
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
   const getItemState = (device: Device): ReactNode => {
     if (state && state?.device.id === device.id)
@@ -79,58 +84,68 @@ export const SplashScreen: FC = () => {
       </View>
 
       <Button
-        onPress={(): void => {
-          startMonitor();
-
-          // if (selectedValue) {
-          //   const decode = decodeCharacteristicResponse(selectedValue, '');
-
-          //   console.info(decode);
-          // }
-        }}
-        title={'Printar'}
+        onPress={(): void => setIsDropdownVisible(!isDropdownVisible)}
+        title={isDropdownVisible ? 'Fechar Seleção' : 'Abrir Seleção'}
       />
 
-      <View className={'flex flex-col mt-8'} style={{ gap: 6 }}>
-        {connectedDevice ? (
-          <>
-            <Text className={'text-center text-2xl mb-3 font-semibold'}>Lista de Servicos</Text>
+      <Modal visible={isDropdownVisible}>
+        <View className={'h-[70vh] w-[70vw] m-auto mt-[20%]'}>
+          <TouchableOpacity
+            className={'flex items-end'}
+            onPress={(): void => setIsDropdownVisible(!isDropdownVisible)}
+          >
+            <Text className={'text-2xl p-3'}>X</Text>
+          </TouchableOpacity>
 
-            <Picker
-              onValueChange={(itemValue): void => {
-                setSelectedValue(itemValue);
-                setCode(itemValue as unknown as CharacteristicType);
-              }}
-              selectedValue={selectedValue}
-              style={{
-                backgroundColor: colors.gray[300]
-              }}
-            >
-              {Object.entries(CharacteristicConst).map(([, { name, code }]) => (
-                <Picker.Item key={code} label={name} value={code} />
-              ))}
-            </Picker>
+          <View>
+            <FlatList
+              contentContainerStyle={{ gap: 10, paddingHorizontal: 6 }}
+              data={CharacteristicSelectValues}
+              keyExtractor={(item): string => item.value}
+              renderItem={({ item }): any => (
+                <TouchableOpacity
+                  className={`shadow-md p-3 rounded-md border border-gray-300 ${
+                    selectedItems.find((list) => list.value === item.value)
+                      ? 'bg-success'
+                      : 'bg-gray-300'
+                  }`}
+                  onPress={(): void => {
+                    const oldSelectedItems = [...selectedItems];
 
-            <TouchableOpacity
-              activeOpacity={0.5}
-              className={'bg-gray-500 shadow-md p-3 rounded-md border border-gray-300'}
-              onPress={(): void => {
-                if (selectedValue) startReading(selectedValue);
-              }}
-            >
-              <Text>Comecar rodar</Text>
-            </TouchableOpacity>
+                    if (oldSelectedItems.find((seItem) => item.value === seItem.value))
+                      setSelectedItems(
+                        oldSelectedItems.filter((seItem) => seItem.value !== item.value)
+                      );
+                    else setSelectedItems([...oldSelectedItems, item]);
+                  }}
+                >
+                  <Text>{item.label}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
 
-            {rpm ? (
-              <TouchableOpacity
-                activeOpacity={0.5}
-                className={'bg-gray-300 shadow-md p-3 rounded-md border border-gray-500'}
-              >
-                <Text>rpm: {rpm}</Text>
-              </TouchableOpacity>
+      <View className={'flex flex-row flex-wrap mt-8 mx-auto'} style={{ gap: 6 }}>
+        {selectedItems.map((item) => (
+          <TouchableOpacity
+            key={item.value}
+            activeOpacity={0}
+            className={'p-4 rounded-md border justify-between flex flex-col bg-primary w-[45vw]'}
+            style={{ gap: 16 }}
+          >
+            <Text className={'text-white text-center'} ellipsizeMode={'tail'} numberOfLines={2}>
+              {item.label}
+            </Text>
+
+            {data[item.value as unknown as CharacteristicValues] ? (
+              <Text className={'text-white text-center font-black'}>
+                {data[item.value as unknown as CharacteristicValues]}
+              </Text>
             ) : null}
-          </>
-        ) : null}
+          </TouchableOpacity>
+        ))}
       </View>
     </Container>
   );
