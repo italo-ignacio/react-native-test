@@ -1,12 +1,14 @@
+/* eslint-disable max-lines */
 /* eslint-disable consistent-return */
 /* eslint-disable max-lines-per-function */
 import * as ExpoDevice from 'expo-device';
 import { BleManager } from 'react-native-ble-plx';
 import { PermissionsAndroid, Platform } from 'react-native';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import base64 from 'react-native-base64';
+import decodeCharacteristicResponse from 'data/bluetooth/decode-characteristic-response';
 import type { BleError, Characteristic, Device } from 'react-native-ble-plx';
-import type { CharacteristicType, CharacteristicValues } from 'domain/enums';
+import type { CharacteristicType } from 'domain/enums';
 import type { Dispatch, SetStateAction } from 'react';
 
 const SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
@@ -36,25 +38,36 @@ interface BluetoothLowEnergyApi {
   startScan: () => void;
   stopScan: () => void;
   connectToDevice: (deviceId: Device) => Promise<void>;
+  logVehicleData: (code: CharacteristicType) => Promise<void>;
   disconnectFromDevice: () => void;
   requestPermissions: () => Promise<boolean>;
-  readCharacteristic: (characteristicToFind: CharacteristicType) => void;
   allDevices: Device[];
   connectedDevice: Device | null;
   isScanning: boolean;
+  isMonitoring: boolean;
+  setIsMonitoring: Dispatch<SetStateAction<boolean>>;
   state: state;
 }
 
 export const useBle = ({
   selectedItems,
-  setData
+  setData,
+  data
 }: {
-  selectedItems: { label: string; value: string }[];
-  setData: Dispatch<SetStateAction<{ [key in CharacteristicValues]?: number | string | null }>>;
+  selectedItems: { label: string; value: CharacteristicType }[];
+  data: {
+    [key in CharacteristicType]?: number | string | null;
+  };
+  setData: Dispatch<
+    SetStateAction<{
+      [key in CharacteristicType]?: number | string | null;
+    }>
+  >;
 }): BluetoothLowEnergyApi => {
   const bleManager = useMemo(() => new BleManager(), []);
   const [allDevices, setAllDevices] = useState<Device[]>([]);
   const [isScanning, setIsScanning] = useState(false);
+  const [isMonitoring, setIsMonitoring] = useState(false);
   const [state, setState] = useState<state>(null);
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
 
@@ -90,7 +103,6 @@ export const useBle = ({
       fineLocationPermission === 'granted'
     );
   };
-
   const requestPermissions = async (): Promise<boolean> => {
     if (Platform.OS === 'android') {
       if ((ExpoDevice.platformApiLevel ?? -1) < 31) {
@@ -111,7 +123,6 @@ export const useBle = ({
     }
     return true;
   };
-
   const isDuplicatedDevice = (devices: Device[], nextDevice: Device): boolean =>
     devices.findIndex((device) => nextDevice.id === device.id) > -1;
 
@@ -133,28 +144,71 @@ export const useBle = ({
     }
   };
 
-  const onResponseUpdate = (
-    error: BleError | null,
-    characteristic: Characteristic | null
-  ): string | undefined => {
-    if (error) {
-      console.error(error);
-      return 'No response';
+  // eslint-disable-next-line prefer-const
+  let char: {
+    [key in CharacteristicType]?: Characteristic;
+  } = {};
+
+  const startMonitor = async (code: CharacteristicType): Promise<void> => {
+    const characteristic = char[code];
+
+    if (characteristic) await characteristic.writeWithoutResponse(base64.encode(code));
+    else {
+      const newCharacteristic = await connectedDevice?.writeCharacteristicWithoutResponseForService(
+        SERVICE_UUID,
+        READ_CHARACTERISTIC,
+        base64.encode(code)
+      );
+
+      Object.assign(char, { [code]: newCharacteristic });
+
+      newCharacteristic?.monitor(
+        (error: BleError | null, characteristicMonitor: Characteristic | null) => {
+          if (error) {
+            console.error(error);
+            return 'No response';
+          }
+
+          const decodedValue = base64.decode(characteristicMonitor?.value ?? '');
+
+          const value = decodeCharacteristicResponse(code, decodedValue);
+
+          if (data[code] !== value && value !== undefined && value !== null)
+            setData((prevState) => ({
+              ...prevState,
+              [code]: value
+            }));
+        }
+      );
     }
+  };
 
-    const decodedValue = base64.decode(characteristic?.value ?? '');
+  const logVehicleData = async (code: CharacteristicType): Promise<void> => {
+    if (connectedDevice) {
+      const newCharacteristic = await connectedDevice?.writeCharacteristicWithoutResponseForService(
+        SERVICE_UUID,
+        READ_CHARACTERISTIC,
+        base64.encode(code)
+      );
 
-    if (decodedValue && decodedValue.length > 0 && decodedValue?.split(' ')?.[0].length === 2) {
-      console.info();
-      console.info('############# START MONITOR #############');
-      console.info();
-      console.info('Characteristic value: ', characteristic?.value);
+      const sub = newCharacteristic?.monitor(
+        (error: BleError | null, characteristicMonitor: Characteristic | null) => {
+          if (error) {
+            console.error(error);
+            return 'No response';
+          }
 
-      console.info('Decoded value: ', decodedValue);
-      console.info();
-      console.info('############# END MONITOR #############');
+          const decodedValue = base64.decode(characteristicMonitor?.value ?? '');
 
-      console.info();
+          const value = decodeCharacteristicResponse(code, decodedValue);
+
+          if (value !== undefined && value !== null) console.log(value);
+
+          setTimeout(() => {
+            sub?.remove();
+          }, 2000);
+        }
+      );
     }
   };
 
@@ -198,12 +252,6 @@ export const useBle = ({
             base64.encode(command)
           );
 
-        newDeviceConnection.monitorCharacteristicForService(
-          SERVICE_UUID,
-          READ_CHARACTERISTIC,
-          onResponseUpdate
-        );
-
         setConnectedDevice(newDeviceConnection);
 
         bleManager.stopDeviceScan();
@@ -215,20 +263,15 @@ export const useBle = ({
       }
   };
 
-  const readCharacteristic = async (characteristicToFind: CharacteristicType): Promise<void> => {
-    if (connectedDevice)
-      try {
-        const encodedCharacteristicToFind = base64.encode(characteristicToFind);
+  useEffect(() => {
+    if (isMonitoring) {
+      const interval = setInterval(async (): Promise<void> => {
+        for await (const element of selectedItems) await startMonitor(element.value);
+      }, 500);
 
-        await connectedDevice.writeCharacteristicWithoutResponseForService(
-          SERVICE_UUID,
-          WRITE_CHARACTERISTIC,
-          encodedCharacteristicToFind
-        );
-      } catch (error) {
-        console.error('Reading error: ', error);
-      }
-  };
+      return () => clearInterval(interval);
+    }
+  }, [isMonitoring]);
 
   const stopScan = (): void => {
     bleManager.stopDeviceScan();
@@ -248,9 +291,11 @@ export const useBle = ({
     connectToDevice,
     connectedDevice,
     disconnectFromDevice,
+    isMonitoring,
     isScanning,
-    readCharacteristic,
+    logVehicleData,
     requestPermissions,
+    setIsMonitoring,
     startScan,
     state,
     stopScan

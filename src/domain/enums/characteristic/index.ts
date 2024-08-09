@@ -2,6 +2,8 @@
 /* eslint-disable max-lines */
 export enum CharacteristicType {
   vin = '0902',
+  vin2 = '0904',
+  vin3 = '090A',
   monitorStatus = '0101',
   freezeFrameDTC = '0102',
   fuelSystemStatus = '0103',
@@ -377,6 +379,10 @@ export const CharacteristicConst = {
   engineSpeed: {
     name: 'Velocidade do Motor',
     code: '010c'
+  },
+  odometer: {
+    name: 'Odometro',
+    code: '01A6'
   },
   vehicleSpeed: {
     name: 'Velocidade do Veículo',
@@ -928,311 +934,276 @@ export const CharacteristicConst = {
     code: '0902'
   }
 };
+
 export const CharacteristicConst2 = {
-  '41 0C': 'engineSpeed',
-  '41 0D': 'vehicleSpeed',
-  '41 31': 'distanceTraveledSinceCodesCleared',
-  '41 05': 'engineCoolantTemp',
-  '41 5C': 'engineOilTemperature',
-  '41 1F': 'runtimeSinceEngineStart',
-  '41 51': 'fuelType',
-  '41 01': 'monitorStatus',
-  '41 41': 'monitorStatusThisDriveCycle',
-
-  actualEnginePercentTorque: {
-    name: 'Torque Percentual Real do Motor',
-    code: '0162'
-  },
-  ambientAirTemperature: {
-    name: 'Temperatura do Ar Ambiente',
-    code: '0146'
-  },
-  calcEngineLoad: {
-    name: 'Carga do Motor Calculada',
-    code: '0104'
-  },
-
-  chargeAirCoolerTemperature: {
-    name: 'Temperatura do Resfriador de Ar',
-    code: '0177'
-  },
-
-  engineCoolantTemperatureSensor: {
-    name: 'Sensor de Temperatura do Líquido de Arrefecimento do Motor',
-    code: '0167'
-  },
-  engineExhaustFlowRate: {
-    name: 'Taxa de Fluxo de Escape do Motor',
-    code: '019e'
-  },
-
-  exhaustGasTemperatureSensor: {
-    name: 'Sensor de Temperatura dos Gases de Escape',
-    code: '0198'
-  },
-
-  exhaustPressure: {
-    name: 'Pressão de Escape',
-    code: '0173'
-  },
-
-  fuelLevelInput_AB: {
-    name: 'Nível de Combustível AB',
-    code: '01c3'
-  },
-
-  fuelSystemControl: {
-    name: 'Controle do Sistema de Combustível',
-    code: '0192'
-  },
-  fuelSystemPercentageUse: {
-    name: 'Percentual de Uso do Sistema de Combustível',
-    code: '019f'
-  },
-  fuelSystemStatus: {
-    name: 'Status do Sistema de Combustível',
-    code: '0103'
-  },
-  fuelTankLevelInput: {
-    name: 'Nível de Combustível do Tanque',
-    code: '012f'
-  },
-
-  intakeAirTemperatureSensor: {
-    name: 'Sensor de Temperatura do Ar de Admissão',
-    code: '0175'
-  },
-  measuredEngineLoad: {
-    name: 'Carga do Motor Medida',
-    code: '0104'
-  },
-  measuredFuelLevel: {
-    name: 'Nível de Combustível Medido',
-    code: '012f'
-  },
-  measuredIntakeAirTemperature: {
-    name: 'Temperatura do Ar de Admissão Medida',
-    code: '010f'
-  },
-  measuredIntakeManifoldPressure: {
-    name: 'Pressão do Coletor de Admissão Medida',
-    code: '0135'
-  },
-  measuredThrottlePosition: {
-    name: 'Posição do Acelerador Medida',
-    code: '0110'
-  },
-  oilTemperature: {
-    name: 'Temperatura do Óleo',
-    code: '015c'
-  },
-  oxygenSensor: {
-    name: 'Sensor de Oxigênio',
-    code: '019c'
-  },
-  parkingBrakeSwitch: {
-    name: 'Interruptor de Freio de Estacionamento',
-    code: '015a'
-  },
-  throttlePositionSensor: {
-    name: 'Sensor de Posição do Acelerador',
-    code: '0156'
-  },
-  tirePressure: {
-    name: 'Pressão dos Pneus',
-    code: '0184'
-  },
-  totalDistanceTraveled: {
-    name: 'Distância Total Percorrida',
-    code: '0125'
-  }
+  '41 0C': '010c',
+  '41 0D': '010d',
+  '41 31': '0131',
+  '41 05': '0105',
+  '41 5C': '015c',
+  '41 1F': '011f',
+  '41 51': '0151',
+  '41 01': '0101',
+  '41 41': '0141',
+  '41 62': '0162',
+  '41 46': '0146',
+  '41 04': '0104',
+  '41 5E': '015e',
+  '41 A6': '01A6',
+  '41 67': '0167',
+  '41 10': '0110',
+  '41 03': '0103',
+  '41 2F': '012f',
+  '41 68': '0168'
+};
+export const CharacteristicConst3 = {
+  '010c': 'engineSpeed',
+  '010d': 'vehicleSpeed',
+  '0131': 'distanceTraveledSinceCodesCleared',
+  '0105': 'engineCoolantTemp',
+  '015c': 'engineOilTemperature',
+  '011f': 'runtimeSinceEngineStart',
+  '015e': 'engineFuelRate',
+  '01A6': 'odometer',
+  '0151': 'fuelType',
+  '0101': 'monitorStatus',
+  '0110': 'mafAirFlowRate',
+  '0141': 'monitorStatusThisDriveCycle',
+  '0162': 'actualEnginePercentTorque',
+  '0146': 'ambientAirTemperature',
+  '0104': 'calcEngineLoad',
+  '0167': 'engineCoolantTemperatureSensor',
+  '0103': 'fuelSystemStatus',
+  '012f': 'fuelTankLevelInput',
+  '0168': 'intakeAirTemperatureSensor'
 };
 
-export const CharacteristicSelectValues = [
-  { label: 'Velocidade do Motor', value: 'engineSpeed' },
-  { label: 'Velocidade do Veículo', value: 'vehicleSpeed' },
+export const CharacteristicSelectValues: { label: string; value: CharacteristicType }[] = [
+  { label: 'Velocidade do Motor', value: CharacteristicType.engineSpeed },
+  { label: 'Velocidade do Veículo', value: CharacteristicType.vehicleSpeed },
   {
     label: 'Distância Percorrida Desde a Limpeza dos Códigos',
-    value: 'distanceTraveledSinceCodesCleared'
+    value: CharacteristicType.distanceTraveledSinceCodesCleared
   },
+  { label: 'Taxa de Fluxo de Ar MAF', value: CharacteristicType.mafAirFlowRate },
+  { label: 'Odometro', value: CharacteristicType.odometer },
+  { label: 'Taxa de Combustível do Motor', value: CharacteristicType.engineFuelRate },
   {
-    label: 'Distância Desde a Reprogramação ou Substituição do Módulo',
-    value: 'distanceSinceReflashOrModuleReplacement'
+    label: 'Temperatura do Líquido de Arrefecimento do Motor',
+    value: CharacteristicType.engineCoolantTemp
   },
-  { label: 'Tempo de Funcionamento Desde o Último Reset', value: 'runtimeSinceLastReset' },
-  { label: 'Temperatura do Líquido de Arrefecimento do Motor', value: 'engineCoolantTemp' },
-  { label: 'Temperatura do Ar de Admissão', value: 'intakeAirTemperature' },
-  { label: 'Pressão Absoluta do Coletor de Admissão', value: 'intakeManifoldAbsolutePressure' },
-  { label: 'Posição do Acelerador', value: 'throttlePosition' },
-  { label: 'Nível de Combustível', value: 'fuelLevelInput' },
-  { label: 'Pressão do Combustível', value: 'fuelPressure' },
-  { label: 'Trim de Combustível Banco 1 a Longo Prazo', value: 'fuelTrimBank1LongTerm' },
-  { label: 'Trim de Combustível Banco 1 a Curto Prazo', value: 'fuelTrimBank1ShortTerm' },
-  { label: 'Trim de Combustível Banco 2 a Longo Prazo', value: 'fuelTrimBank2LongTerm' },
-  { label: 'Trim de Combustível Banco 2 a Curto Prazo', value: 'fuelTrimBank2ShortTerm' },
-  { label: 'Taxa de Combustível do Motor', value: 'engineFuelRate' },
-  { label: 'Temperatura do Óleo do Motor', value: 'engineOilTemperature' },
-  { label: 'Taxa de Fluxo de Ar MAF', value: 'mafAirFlowRate' },
-  { label: 'Tempo de Funcionamento Desde a Partida do Motor', value: 'runtimeSinceEngineStart' },
-  { label: 'VIN (Número de Identificação do Veículo)', value: 'vin' },
-  { label: 'Distância Percorrida com MIL Ligada', value: 'distanceWithMILON' },
-  { label: 'EGR Comandada', value: 'commandedEGR' },
-  { label: 'Atuador do Acelerador Comandado', value: 'commandedThrottleActuator' },
-  { label: 'Erro EGR Real/Comandada', value: 'actualEGR_CommandedEGR_EGRError' },
-  { label: 'Relação Ar-Combustível Comandada', value: 'commandedAFR' },
-  { label: 'Tensão do Módulo de Controle', value: 'controlModuleVoltage' },
-  { label: 'Padrão OBD', value: 'obdStandard' },
-  { label: 'Tipo de Combustível', value: 'fuelType' },
-  { label: 'Status do Monitor', value: 'monitorStatus' },
-  { label: 'Status do Monitor Neste Ciclo de Condução', value: 'monitorStatusThisDriveCycle' },
-  { label: 'Aquecimentos Desde a Limpeza dos Códigos', value: 'warmUpsSinceCodesCleared' },
-  { label: 'Tempo Desde a Limpeza dos Códigos de Falha', value: 'timeSinceTroubleCodesCleared' },
-  { label: 'Tempo de Funcionamento com MIL Ligada', value: 'timeRunWithMILOn' },
+  { label: 'Temperatura do Óleo do Motor', value: CharacteristicType.engineOilTemperature },
   {
-    label: 'Status da Lâmpada de Controle NCD Parte D',
-    value: 'NOxControlDiagnostic_NCD_PartD_ControlLampStatus'
+    label: 'Tempo de Funcionamento Desde a Partida do Motor',
+    value: CharacteristicType.runtimeSinceEngineStart
   },
-  { label: 'Status da Área de Controle NTE', value: 'NOxNTENotToExceedControlAreaStatus' },
-  { label: 'Sistema de Reagente NOx', value: 'NOxReagentSystem' },
-  { label: 'Sensor NOx', value: 'NOxSensor' },
-  { label: 'Sensores de Concentração NOx 3 e 4', value: 'NOxSensorConcentrationSensors3And4' },
+  { label: 'Tipo de Combustível', value: CharacteristicType.fuelType },
+  { label: 'Status do Monitor', value: CharacteristicType.monitorStatus },
   {
-    label: 'Concentração Corrigida dos Sensores NOx 3 e 4',
-    value: 'NOxSensorCorrectedConcentrationSensors3And4'
+    label: 'Status do Monitor Neste Ciclo de Condução',
+    value: CharacteristicType.monitorStatusThisDriveCycle
   },
-  { label: 'Dados Corrigidos do Sensor NOx', value: 'NOxSensorCorrectedData' },
-  { label: 'Sistema de Aviso e Indução NOx', value: 'NOxWarningAndInducementSystem' },
-  { label: 'Dados do Sensor O2', value: 'O2SensorData' },
-  { label: 'Sensor O2 de Faixa Ampla', value: 'O2Sensor_WideRange' },
-  { label: 'Status da Área de Controle de PM NTE', value: 'PMNTENotToExceedControlAreaStatus' },
-  { label: 'Sensor PM Banco 1 e Banco 2', value: 'PMSensor_Bank1_Bank2' },
-  { label: 'Sistema de Indução SCR', value: 'SCRInduceSystem' },
-  { label: 'Estado do Interruptor de Desativação ABS', value: 'absDisableSwitchState' },
-  { label: 'Pressão Barométrica Absoluta', value: 'absoluteBarometricPressure' },
-  {
-    label: 'Pressão de Vapor do Sistema de Evaporação Absoluta',
-    value: 'absoluteEvapSystemVaporPressure'
-  },
-  { label: 'Valor de Carga Absoluta', value: 'absoluteLoadValue' },
-  { label: 'Posição Absoluta do Acelerador B', value: 'absoluteThrottlePositionB' },
-  { label: 'Posição Absoluta do Acelerador C', value: 'absoluteThrottlePositionC' },
-  { label: 'Posição do Pedal do Acelerador D', value: 'acceleratorPedalPositionD' },
-  { label: 'Posição do Pedal do Acelerador E', value: 'acceleratorPedalPositionE' },
-  { label: 'Posição do Pedal do Acelerador F', value: 'acceleratorPedalPositionF' },
-  { label: 'Torque Percentual Real do Motor', value: 'actualEnginePercentTorque' },
-  { label: 'Temperatura do Ar Ambiente', value: 'ambientAirTemperature' },
-  { label: 'Status da Entrada Auxiliar', value: 'auxInputStatus' },
-  { label: 'Entrada/Saída Auxiliar Suportada', value: 'auxiliaryInputOutputSupported' },
-  { label: 'Controle de Pressão de Turboalimentação', value: 'boostPressureControl' },
-  { label: 'Carga do Motor Calculada', value: 'calcEngineLoad' },
-  { label: 'Temperatura do Catalisador Banco 1 Sensor 1', value: 'catalystTempBank1Sensor1' },
-  { label: 'Temperatura do Catalisador Banco 1 Sensor 2', value: 'catalystTempBank1Sensor2' },
-  { label: 'Temperatura do Catalisador Banco 2 Sensor 1', value: 'catalystTempBank2Sensor1' },
-  { label: 'Temperatura do Catalisador Banco 2 Sensor 2', value: 'catalystTempBank2Sensor2' },
-  { label: 'Temperatura do Resfriador de Ar', value: 'chargeAirCoolerTemperature' },
-  {
-    label: 'Dosagem de Fluido de Escape Diesel Comandada',
-    value: 'commandedDieselExhaustFluidDosing'
-  },
-  {
-    label: 'Controle de Fluxo de Ar de Admissão Diesel Comandado/Posição Relativa',
-    value: 'commandedDieselIntakeAirFlowControl_RelativeIntakeAirFlowPosition'
-  },
-  { label: 'Purga Evaporativa Comandada', value: 'commandedEvaporativePurge' },
-  { label: 'Status do Ar Secundário Comandado', value: 'commandedSecondaryAirStatus' },
-  {
-    label: 'Controle do Atuador do Acelerador Comandado/Posição Relativa do Acelerador',
-    value: 'commandedThrottleActuatorControl_RelativeThrottlePosition'
-  },
-  { label: 'Taxa de Combustível por Cilindro', value: 'cylinderFuelRate' },
-  { label: 'Tratamento Pós-Combustão Diesel', value: 'dieselAftertreatment' },
-  { label: 'Dados do Sensor de Fluido de Escape Diesel', value: 'dieselExhaustFluidSensorData' },
-  { label: 'Filtro de Partículas Diesel', value: 'dieselParticulateFilter' },
-  {
-    label: 'Pressão Diferencial do Filtro de Partículas Diesel',
-    value: 'dieselParticulateFilterDifferentialPressure'
-  },
-  {
-    label: 'Temperatura do Filtro de Partículas Diesel',
-    value: 'dieselParticulateFilterTemperature'
-  },
-  {
-    label: 'Torque Percentual do Motor Demandado pelo Motorista',
-    value: 'driversDemandEnginePercentTorque'
-  },
-  { label: 'Erro EGR', value: 'egrError' },
-  { label: 'Requisitos de Emissão', value: 'emissionRequirements' },
+  { label: 'Torque Percentual Real do Motor', value: CharacteristicType.actualEnginePercentTorque },
+  { label: 'Temperatura do Ar Ambiente', value: CharacteristicType.ambientAirTemperature },
+  { label: 'Carga do Motor Calculada', value: CharacteristicType.calcEngineLoad },
   {
     label: 'Sensor de Temperatura do Líquido de Arrefecimento do Motor',
-    value: 'engineCoolantTemperatureSensor'
+    value: CharacteristicType.engineCoolantTemperatureSensor
   },
-  { label: 'Taxa de Fluxo de Escape do Motor', value: 'engineExhaustFlowRate' },
-  { label: 'Atrito do Motor/Percentual de Torque', value: 'engineFriction_PercentTorque' },
-  { label: 'Taxa de Combustível do Motor B', value: 'engineFuelRate_B' },
-  { label: 'Dados do Percentual de Torque do Motor', value: 'enginePercentTorqueData' },
-  { label: 'Torque de Referência do Motor', value: 'engineReferenceTorque' },
-  { label: 'Tempo de Funcionamento do Motor para AECD 11-15', value: 'engineRunTimeForAECD_11_15' },
-  { label: 'Tempo de Funcionamento do Motor para AECD 16-20', value: 'engineRunTimeForAECD_16_20' },
-  { label: 'Tempo de Funcionamento do Motor B', value: 'engineRunTime_B' },
-  { label: 'Percentual de Combustível Etanol', value: 'ethanolFuelPercentage' },
-  { label: 'Pressão de Vapor do Sistema de Evaporação', value: 'evapSystemVaporPressure' },
-  { label: 'Pressão de Vapor do Sistema de Evaporação 2', value: 'evapSystemVaporPressure2' },
-  { label: 'Pressão de Vapor do Sistema de Evaporação B2', value: 'evapSystemVaporPressure_B2' },
+  { label: 'Status do Sistema de Combustível', value: CharacteristicType.fuelSystemStatus },
+  { label: 'Nível de Combustível do Tanque', value: CharacteristicType.fuelTankLevelInput },
   {
-    label: 'Temperatura da Recirculação de Gases de Escape',
-    value: 'exhaustGasRecirculationTemperature'
+    label: 'Sensor de Temperatura do Ar de Admissão',
+    value: CharacteristicType.intakeAirTemperatureSensor
   },
-  { label: 'Sensor de Temperatura dos Gases de Escape', value: 'exhaustGasTemperatureSensor' },
-  {
-    label: 'Sensor de Temperatura dos Gases de Escape Banco 2',
-    value: 'exhaustGasTemperatureSensor_Bank2'
-  },
-  { label: 'Temperatura dos Gases de Escape Banco 1', value: 'exhaustGasTemperature_Bank1' },
-  { label: 'Temperatura dos Gases de Escape Banco 2', value: 'exhaustGasTemperature_Bank2' },
-  {
-    label: 'Tempo de Diagnóstico do Sistema de Controle de Partículas de Escape',
-    value: 'exhaustParticulateControlSystemDiagnosticTimeCount'
-  },
-  { label: 'Pressão de Escape', value: 'exhaustPressure' },
-  { label: 'Congelamento de Quadro DTC', value: 'freezeFrameDTC' },
-  { label: 'Tempo de Injeção de Combustível', value: 'fuelInjectionTiming' },
-  { label: 'Nível de Combustível AB', value: 'fuelLevelInput_AB' },
-  { label: 'Sistema de Controle de Pressão do Combustível', value: 'fuelPressureControlSystem' },
-  { label: 'Pressão do Combustível AB', value: 'fuelPressure_AB' },
-  { label: 'Pressão Absoluta do Trilho de Combustível', value: 'fuelRailAbsolutePressure' },
-  { label: 'Pressão do Trilho de Combustível', value: 'fuelRailPressure' },
-  { label: 'Manômetro de Pressão do Trilho de Combustível', value: 'fuelRailPressureGauge' },
-  { label: 'Controle do Sistema de Combustível', value: 'fuelSystemControl' },
-  { label: 'Percentual de Uso do Sistema de Combustível', value: 'fuelSystemPercentageUse' },
-  { label: 'Status do Sistema de Combustível', value: 'fuelSystemStatus' },
-  { label: 'Nível de Combustível do Tanque', value: 'fuelTankLevelInput' },
-  { label: 'Vida Útil Restante da Bateria Híbrida', value: 'hybridBatteryPackRemainingLife' },
-  {
-    label: 'Dados do Sistema do Veículo Híbrido EV/Bateria/Tensão',
-    value: 'hybridEVVehicleSystemData_Battery_Voltage'
-  },
-  { label: 'Sistema de Controle da Pressão de Injeção', value: 'injectionPressureControlSystem' },
-  { label: 'Sensor de Temperatura do Ar de Admissão', value: 'intakeAirTemperatureSensor' },
-  { label: 'Pressão do Coletor de Admissão', value: 'intakeManifoldPressure' },
-  { label: 'Pressão do Coletor de Admissão AB', value: 'intakeManifoldPressure_AB' },
-  { label: 'Sensor Lambda', value: 'lambdaSensor' },
-  { label: 'Sensor Lambda Banco 1', value: 'lambdaSensor_Bank1' },
-  { label: 'Sensor Lambda Banco 2', value: 'lambdaSensor_Bank2' },
-  { label: 'Dados Específicos do Fabricante', value: 'manufacturerSpecificData' },
-  { label: 'Carga do Motor Medida', value: 'measuredEngineLoad' },
-  { label: 'Nível de Combustível Medido', value: 'measuredFuelLevel' },
-  { label: 'Temperatura do Ar de Admissão Medida', value: 'measuredIntakeAirTemperature' },
-  { label: 'Pressão do Coletor de Admissão Medida', value: 'measuredIntakeManifoldPressure' },
-  { label: 'Posição do Acelerador Medida', value: 'measuredThrottlePosition' },
-  { label: 'Padrão OBDII', value: 'obdIIStandard' },
-  { label: 'Temperatura do Óleo', value: 'oilTemperature' },
-  { label: 'Sensor de Oxigênio', value: 'oxygenSensor' },
-  { label: 'Interruptor de Freio de Estacionamento', value: 'parkingBrakeSwitch' },
-  { label: 'Tensão do Módulo de Controle da Transmissão', value: 'powertrainControlModuleVoltage' },
-  { label: 'Velocidade do Veículo', value: 'speedOfVehicle' },
-  { label: 'Sensor de Posição do Acelerador', value: 'throttlePositionSensor' },
-  { label: 'Pressão dos Pneus', value: 'tirePressure' },
-  { label: 'Distância Total Percorrida', value: 'totalDistanceTraveled' },
-  { label: 'Pressão do Turboalimentador', value: 'turboBoostPressure' },
-  { label: 'Número de Identificação do Veículo (VIN)', value: 'vehicleIdentificationNumber' }
+  { label: 'VIN 1', value: CharacteristicType.vin },
+  { label: 'VIN 2', value: CharacteristicType.vin2 },
+  { label: 'VIN 3', value: CharacteristicType.vin3 }
+
+  // { label: 'Velocidade do Motor', value: 'engineSpeed' },
+  // { label: 'Velocidade do Veículo', value: 'vehicleSpeed' },
+  // {
+  //   label: 'Distância Percorrida Desde a Limpeza dos Códigos',
+  //   value: 'distanceTraveledSinceCodesCleared'
+  // },
+  // {
+  //   label: 'Distância Desde a Reprogramação ou Substituição do Módulo',
+  //   value: 'distanceSinceReflashOrModuleReplacement'
+  // },
+  // { label: 'Tempo de Funcionamento Desde o Último Reset', value: 'runtimeSinceLastReset' },
+  // { label: 'Temperatura do Líquido de Arrefecimento do Motor', value: 'engineCoolantTemp' },
+  // { label: 'Temperatura do Ar de Admissão', value: 'intakeAirTemperature' },
+  // { label: 'Pressão Absoluta do Coletor de Admissão', value: 'intakeManifoldAbsolutePressure' },
+  // { label: 'Posição do Acelerador', value: 'throttlePosition' },
+  // { label: 'Nível de Combustível', value: 'fuelLevelInput' },
+  // { label: 'Pressão do Combustível', value: 'fuelPressure' },
+  // { label: 'Trim de Combustível Banco 1 a Longo Prazo', value: 'fuelTrimBank1LongTerm' },
+  // { label: 'Trim de Combustível Banco 1 a Curto Prazo', value: 'fuelTrimBank1ShortTerm' },
+  // { label: 'Trim de Combustível Banco 2 a Longo Prazo', value: 'fuelTrimBank2LongTerm' },
+  // { label: 'Trim de Combustível Banco 2 a Curto Prazo', value: 'fuelTrimBank2ShortTerm' },
+  // { label: 'Taxa de Combustível do Motor', value: 'engineFuelRate' },
+  // { label: 'Temperatura do Óleo do Motor', value: 'engineOilTemperature' },
+  // { label: 'Taxa de Fluxo de Ar MAF', value: 'mafAirFlowRate' },
+  // { label: 'Tempo de Funcionamento Desde a Partida do Motor', value: 'runtimeSinceEngineStart' },
+  // { label: 'VIN (Número de Identificação do Veículo)', value: 'vin' },
+  // { label: 'Distância Percorrida com MIL Ligada', value: 'distanceWithMILON' },
+  // { label: 'EGR Comandada', value: 'commandedEGR' },
+  // { label: 'Atuador do Acelerador Comandado', value: 'commandedThrottleActuator' },
+  // { label: 'Erro EGR Real/Comandada', value: 'actualEGR_CommandedEGR_EGRError' },
+  // { label: 'Relação Ar-Combustível Comandada', value: 'commandedAFR' },
+  // { label: 'Tensão do Módulo de Controle', value: 'controlModuleVoltage' },
+  // { label: 'Padrão OBD', value: 'obdStandard' },
+  // { label: 'Tipo de Combustível', value: 'fuelType' },
+  // { label: 'Status do Monitor', value: 'monitorStatus' },
+  // { label: 'Status do Monitor Neste Ciclo de Condução', value: 'monitorStatusThisDriveCycle' },
+  // { label: 'Aquecimentos Desde a Limpeza dos Códigos', value: 'warmUpsSinceCodesCleared' },
+  // { label: 'Tempo Desde a Limpeza dos Códigos de Falha', value: 'timeSinceTroubleCodesCleared' },
+  // { label: 'Tempo de Funcionamento com MIL Ligada', value: 'timeRunWithMILOn' },
+  // {
+  //   label: 'Status da Lâmpada de Controle NCD Parte D',
+  //   value: 'NOxControlDiagnostic_NCD_PartD_ControlLampStatus'
+  // },
+  // { label: 'Status da Área de Controle NTE', value: 'NOxNTENotToExceedControlAreaStatus' },
+  // { label: 'Sistema de Reagente NOx', value: 'NOxReagentSystem' },
+  // { label: 'Sensor NOx', value: 'NOxSensor' },
+  // { label: 'Sensores de Concentração NOx 3 e 4', value: 'NOxSensorConcentrationSensors3And4' },
+  // {
+  //   label: 'Concentração Corrigida dos Sensores NOx 3 e 4',
+  //   value: 'NOxSensorCorrectedConcentrationSensors3And4'
+  // },
+  // { label: 'Dados Corrigidos do Sensor NOx', value: 'NOxSensorCorrectedData' },
+  // { label: 'Sistema de Aviso e Indução NOx', value: 'NOxWarningAndInducementSystem' },
+  // { label: 'Dados do Sensor O2', value: 'O2SensorData' },
+  // { label: 'Sensor O2 de Faixa Ampla', value: 'O2Sensor_WideRange' },
+  // { label: 'Status da Área de Controle de PM NTE', value: 'PMNTENotToExceedControlAreaStatus' },
+  // { label: 'Sensor PM Banco 1 e Banco 2', value: 'PMSensor_Bank1_Bank2' },
+  // { label: 'Sistema de Indução SCR', value: 'SCRInduceSystem' },
+  // { label: 'Estado do Interruptor de Desativação ABS', value: 'absDisableSwitchState' },
+  // { label: 'Pressão Barométrica Absoluta', value: 'absoluteBarometricPressure' },
+  // {
+  //   label: 'Pressão de Vapor do Sistema de Evaporação Absoluta',
+  //   value: 'absoluteEvapSystemVaporPressure'
+  // },
+  // { label: 'Valor de Carga Absoluta', value: 'absoluteLoadValue' },
+  // { label: 'Posição Absoluta do Acelerador B', value: 'absoluteThrottlePositionB' },
+  // { label: 'Posição Absoluta do Acelerador C', value: 'absoluteThrottlePositionC' },
+  // { label: 'Posição do Pedal do Acelerador D', value: 'acceleratorPedalPositionD' },
+  // { label: 'Posição do Pedal do Acelerador E', value: 'acceleratorPedalPositionE' },
+  // { label: 'Posição do Pedal do Acelerador F', value: 'acceleratorPedalPositionF' },
+  // { label: 'Torque Percentual Real do Motor', value: 'actualEnginePercentTorque' },
+  // { label: 'Temperatura do Ar Ambiente', value: 'ambientAirTemperature' },
+  // { label: 'Status da Entrada Auxiliar', value: 'auxInputStatus' },
+  // { label: 'Entrada/Saída Auxiliar Suportada', value: 'auxiliaryInputOutputSupported' },
+  // { label: 'Controle de Pressão de Turboalimentação', value: 'boostPressureControl' },
+  // { label: 'Carga do Motor Calculada', value: 'calcEngineLoad' },
+  // { label: 'Temperatura do Catalisador Banco 1 Sensor 1', value: 'catalystTempBank1Sensor1' },
+  // { label: 'Temperatura do Catalisador Banco 1 Sensor 2', value: 'catalystTempBank1Sensor2' },
+  // { label: 'Temperatura do Catalisador Banco 2 Sensor 1', value: 'catalystTempBank2Sensor1' },
+  // { label: 'Temperatura do Catalisador Banco 2 Sensor 2', value: 'catalystTempBank2Sensor2' },
+  // { label: 'Temperatura do Resfriador de Ar', value: 'chargeAirCoolerTemperature' },
+  // {
+  //   label: 'Dosagem de Fluido de Escape Diesel Comandada',
+  //   value: 'commandedDieselExhaustFluidDosing'
+  // },
+  // {
+  //   label: 'Controle de Fluxo de Ar de Admissão Diesel Comandado/Posição Relativa',
+  //   value: 'commandedDieselIntakeAirFlowControl_RelativeIntakeAirFlowPosition'
+  // },
+  // { label: 'Purga Evaporativa Comandada', value: 'commandedEvaporativePurge' },
+  // { label: 'Status do Ar Secundário Comandado', value: 'commandedSecondaryAirStatus' },
+  // {
+  //   label: 'Controle do Atuador do Acelerador Comandado/Posição Relativa do Acelerador',
+  //   value: 'commandedThrottleActuatorControl_RelativeThrottlePosition'
+  // },
+  // { label: 'Taxa de Combustível por Cilindro', value: 'cylinderFuelRate' },
+  // { label: 'Tratamento Pós-Combustão Diesel', value: 'dieselAftertreatment' },
+  // { label: 'Dados do Sensor de Fluido de Escape Diesel', value: 'dieselExhaustFluidSensorData' },
+  // { label: 'Filtro de Partículas Diesel', value: 'dieselParticulateFilter' },
+  // {
+  //   label: 'Pressão Diferencial do Filtro de Partículas Diesel',
+  //   value: 'dieselParticulateFilterDifferentialPressure'
+  // },
+  // {
+  //   label: 'Temperatura do Filtro de Partículas Diesel',
+  //   value: 'dieselParticulateFilterTemperature'
+  // },
+  // {
+  //   label: 'Torque Percentual do Motor Demandado pelo Motorista',
+  //   value: 'driversDemandEnginePercentTorque'
+  // },
+  // { label: 'Erro EGR', value: 'egrError' },
+  // { label: 'Requisitos de Emissão', value: 'emissionRequirements' },
+  // {
+  //   label: 'Sensor de Temperatura do Líquido de Arrefecimento do Motor',
+  //   value: 'engineCoolantTemperatureSensor'
+  // },
+  // { label: 'Taxa de Fluxo de Escape do Motor', value: 'engineExhaustFlowRate' },
+  // { label: 'Atrito do Motor/Percentual de Torque', value: 'engineFriction_PercentTorque' },
+  // { label: 'Taxa de Combustível do Motor B', value: 'engineFuelRate_B' },
+  // { label: 'Dados do Percentual de Torque do Motor', value: 'enginePercentTorqueData' },
+  // { label: 'Torque de Referência do Motor', value: 'engineReferenceTorque' },
+  // { label: 'Tempo de Funcionamento do Motor para AECD 11-15', value: 'engineRunTimeForAECD_11_15' },
+  // { label: 'Tempo de Funcionamento do Motor para AECD 16-20', value: 'engineRunTimeForAECD_16_20' },
+  // { label: 'Tempo de Funcionamento do Motor B', value: 'engineRunTime_B' },
+  // { label: 'Percentual de Combustível Etanol', value: 'ethanolFuelPercentage' },
+  // { label: 'Pressão de Vapor do Sistema de Evaporação', value: 'evapSystemVaporPressure' },
+  // { label: 'Pressão de Vapor do Sistema de Evaporação 2', value: 'evapSystemVaporPressure2' },
+  // { label: 'Pressão de Vapor do Sistema de Evaporação B2', value: 'evapSystemVaporPressure_B2' },
+  // {
+  //   label: 'Temperatura da Recirculação de Gases de Escape',
+  //   value: 'exhaustGasRecirculationTemperature'
+  // },
+  // { label: 'Sensor de Temperatura dos Gases de Escape', value: 'exhaustGasTemperatureSensor' },
+  // {
+  //   label: 'Sensor de Temperatura dos Gases de Escape Banco 2',
+  //   value: 'exhaustGasTemperatureSensor_Bank2'
+  // },
+  // { label: 'Temperatura dos Gases de Escape Banco 1', value: 'exhaustGasTemperature_Bank1' },
+  // { label: 'Temperatura dos Gases de Escape Banco 2', value: 'exhaustGasTemperature_Bank2' },
+  // {
+  //   label: 'Tempo de Diagnóstico do Sistema de Controle de Partículas de Escape',
+  //   value: 'exhaustParticulateControlSystemDiagnosticTimeCount'
+  // },
+  // { label: 'Pressão de Escape', value: 'exhaustPressure' },
+  // { label: 'Congelamento de Quadro DTC', value: 'freezeFrameDTC' },
+  // { label: 'Tempo de Injeção de Combustível', value: 'fuelInjectionTiming' },
+  // { label: 'Nível de Combustível AB', value: 'fuelLevelInput_AB' },
+  // { label: 'Sistema de Controle de Pressão do Combustível', value: 'fuelPressureControlSystem' },
+  // { label: 'Pressão do Combustível AB', value: 'fuelPressure_AB' },
+  // { label: 'Pressão Absoluta do Trilho de Combustível', value: 'fuelRailAbsolutePressure' },
+  // { label: 'Pressão do Trilho de Combustível', value: 'fuelRailPressure' },
+  // { label: 'Manômetro de Pressão do Trilho de Combustível', value: 'fuelRailPressureGauge' },
+  // { label: 'Controle do Sistema de Combustível', value: 'fuelSystemControl' },
+  // { label: 'Percentual de Uso do Sistema de Combustível', value: 'fuelSystemPercentageUse' },
+  // { label: 'Status do Sistema de Combustível', value: 'fuelSystemStatus' },
+  // { label: 'Nível de Combustível do Tanque', value: 'fuelTankLevelInput' },
+  // { label: 'Vida Útil Restante da Bateria Híbrida', value: 'hybridBatteryPackRemainingLife' },
+  // {
+  //   label: 'Dados do Sistema do Veículo Híbrido EV/Bateria/Tensão',
+  //   value: 'hybridEVVehicleSystemData_Battery_Voltage'
+  // },
+  // { label: 'Sistema de Controle da Pressão de Injeção', value: 'injectionPressureControlSystem' },
+  // { label: 'Sensor de Temperatura do Ar de Admissão', value: 'intakeAirTemperatureSensor' },
+  // { label: 'Pressão do Coletor de Admissão', value: 'intakeManifoldPressure' },
+  // { label: 'Pressão do Coletor de Admissão AB', value: 'intakeManifoldPressure_AB' },
+  // { label: 'Sensor Lambda', value: 'lambdaSensor' },
+  // { label: 'Sensor Lambda Banco 1', value: 'lambdaSensor_Bank1' },
+  // { label: 'Sensor Lambda Banco 2', value: 'lambdaSensor_Bank2' },
+  // { label: 'Dados Específicos do Fabricante', value: 'manufacturerSpecificData' },
+  // { label: 'Carga do Motor Medida', value: 'measuredEngineLoad' },
+  // { label: 'Nível de Combustível Medido', value: 'measuredFuelLevel' },
+  // { label: 'Temperatura do Ar de Admissão Medida', value: 'measuredIntakeAirTemperature' },
+  // { label: 'Pressão do Coletor de Admissão Medida', value: 'measuredIntakeManifoldPressure' },
+  // { label: 'Posição do Acelerador Medida', value: 'measuredThrottlePosition' },
+  // { label: 'Padrão OBDII', value: 'obdIIStandard' },
+  // { label: 'Temperatura do Óleo', value: 'oilTemperature' },
+  // { label: 'Sensor de Oxigênio', value: 'oxygenSensor' },
+  // { label: 'Interruptor de Freio de Estacionamento', value: 'parkingBrakeSwitch' },
+  // { label: 'Tensão do Módulo de Controle da Transmissão', value: 'powertrainControlModuleVoltage' },
+  // { label: 'Velocidade do Veículo', value: 'speedOfVehicle' },
+  // { label: 'Sensor de Posição do Acelerador', value: 'throttlePositionSensor' },
+  // { label: 'Pressão dos Pneus', value: 'tirePressure' },
+  // { label: 'Distância Total Percorrida', value: 'totalDistanceTraveled' },
+  // { label: 'Pressão do Turboalimentador', value: 'turboBoostPressure' },
+  // { label: 'Número de Identificação do Veículo (VIN)', value: 'vehicleIdentificationNumber' }
 ];

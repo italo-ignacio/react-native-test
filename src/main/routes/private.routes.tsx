@@ -1,7 +1,7 @@
 import { type FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { SplashScreen } from 'presentation/environment';
+import { Ble } from 'presentation/environment/ble';
 import { Stack } from 'main/stack';
 import { addEventListener } from '@react-native-community/netinfo';
 import { paths } from 'main/config';
@@ -22,7 +22,7 @@ export const PrivateRoutes: FC = () => {
 
   return (
     <Stack.Navigator initialRouteName={paths.home} screenOptions={{ headerShown: false }}>
-      <Stack.Screen component={SplashScreen} name={paths.home} />
+      <Stack.Screen component={Ble} name={paths.home} />
     </Stack.Navigator>
   );
 };

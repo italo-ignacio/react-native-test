@@ -234,5 +234,7 @@ export const DecoderMap = {
   [CharacteristicType.odometer]: OdometerDecoder,
   [CharacteristicType.absDisableSwitchState]: ABSDisableSwitchStateDecoder,
   [CharacteristicType.pidsSupported_C1_E0]: SupportedPIDsC1toE0Decoder,
-  [CharacteristicType.vin]: VinDecoder
+  [CharacteristicType.vin]: VinDecoder,
+  [CharacteristicType.vin2]: VinDecoder,
+  [CharacteristicType.vin3]: VinDecoder
 } as unknown as { [key in CharacteristicType]: BaseDecoder };

@@ -1,37 +1,43 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-array-index-key */
-import {
-  ActivityIndicator,
-  Button,
-  FlatList,
-  Modal,
-  Text,
-  TouchableOpacity,
-  View
-} from 'react-native';
-import { CharacteristicSelectValues } from 'domain/enums';
-import { Container } from 'presentation/atomic-component/atom';
+import { ActivityIndicator, Image, ImageBackground } from 'react-native';
+import { CharacteristicType } from 'domain/enums';
 import { type FC, type ReactNode, useState } from 'react';
+import { Icon, SplashBackground } from 'assets';
 import { useBle } from 'data/hooks';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import type { CharacteristicValues } from 'domain/enums';
 import type { Device } from 'react-native-ble-plx';
 
 export const SplashScreen: FC = () => {
-  const [selectedItems, setSelectedItems] = useState<{ label: string; value: string }[]>([]);
-  const [data, setData] = useState<{ [key in CharacteristicValues]?: number | string | null }>({});
+  const [selectedItems, setSelectedItems] = useState<
+    { label: string; value: CharacteristicType }[]
+  >([
+    { label: 'Velocidade do Motor', value: CharacteristicType.engineSpeed },
+    { label: 'Taxa de Combustível do Motor', value: CharacteristicType.engineFuelRate },
+    { label: 'Taxa de Fluxo de Ar MAF', value: CharacteristicType.mafAirFlowRate },
+    { label: 'Tipo de Combustível', value: CharacteristicType.fuelType },
+    { label: 'Odometro', value: CharacteristicType.odometer },
+    { label: 'Nível de Combustível do Tanque', value: CharacteristicType.fuelTankLevelInput }
+  ]);
+
+  const [data, setData] = useState<{
+    [key in CharacteristicType]?: number | string | null;
+  }>({});
 
   const {
     allDevices,
     startScan,
+    setIsMonitoring,
+    logVehicleData,
     connectedDevice,
+    isMonitoring,
     isScanning,
     disconnectFromDevice,
     stopScan,
     connectToDevice,
     state
-  } = useBle({ selectedItems, setData });
+  } = useBle({ data, selectedItems, setData });
 
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
@@ -54,99 +60,15 @@ export const SplashScreen: FC = () => {
   };
 
   return (
-    <Container style={{ gap: 6 }}>
-      <Button
-        onPress={isScanning ? stopScan : startScan}
-        title={isScanning ? 'Buscando Devices ...' : 'Buscar dispositivos'}
-      />
-
-      <View className={'flex flex-col mt-8'} style={{ gap: 6 }}>
-        {allDevices.length > 0 ? (
-          <Text className={'text-center text-2xl mb-3 font-semibold'}>Lista de Devices</Text>
-        ) : null}
-
-        {allDevices.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            activeOpacity={0.5}
-            className={'bg-gray-200 shadow-md p-3 rounded-md border border-gray-300'}
-            onPress={(): void => {
-              if (connectedDevice?.id === item.id) disconnectFromDevice();
-              else connectToDevice(item);
-            }}
-          >
-            <View className={'flex flex-row justify-between'}>
-              <Text>{item.name}</Text>
-              {getItemState(item)}
-            </View>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <Button
-        onPress={(): void => setIsDropdownVisible(!isDropdownVisible)}
-        title={isDropdownVisible ? 'Fechar Seleção' : 'Abrir Seleção'}
-      />
-
-      <Modal visible={isDropdownVisible}>
-        <View className={'h-[70vh] w-[70vw] m-auto mt-[20%]'}>
-          <TouchableOpacity
-            className={'flex items-end'}
-            onPress={(): void => setIsDropdownVisible(!isDropdownVisible)}
-          >
-            <Text className={'text-2xl p-3'}>X</Text>
-          </TouchableOpacity>
-
-          <View>
-            <FlatList
-              contentContainerStyle={{ gap: 10, paddingHorizontal: 6 }}
-              data={CharacteristicSelectValues}
-              keyExtractor={(item): string => item.value}
-              renderItem={({ item }): any => (
-                <TouchableOpacity
-                  className={`shadow-md p-3 rounded-md border border-gray-300 ${
-                    selectedItems.find((list) => list.value === item.value)
-                      ? 'bg-success'
-                      : 'bg-gray-300'
-                  }`}
-                  onPress={(): void => {
-                    const oldSelectedItems = [...selectedItems];
-
-                    if (oldSelectedItems.find((seItem) => item.value === seItem.value))
-                      setSelectedItems(
-                        oldSelectedItems.filter((seItem) => seItem.value !== item.value)
-                      );
-                    else setSelectedItems([...oldSelectedItems, item]);
-                  }}
-                >
-                  <Text>{item.label}</Text>
-                </TouchableOpacity>
-              )}
-            />
-          </View>
-        </View>
-      </Modal>
-
-      <View className={'flex flex-row flex-wrap mt-8 mx-auto'} style={{ gap: 6 }}>
-        {selectedItems.map((item) => (
-          <TouchableOpacity
-            key={item.value}
-            activeOpacity={0}
-            className={'p-4 rounded-md border justify-between flex flex-col bg-primary w-[45vw]'}
-            style={{ gap: 16 }}
-          >
-            <Text className={'text-white text-center'} ellipsizeMode={'tail'} numberOfLines={2}>
-              {item.label}
-            </Text>
-
-            {data[item.value as unknown as CharacteristicValues] ? (
-              <Text className={'text-white text-center font-black'}>
-                {data[item.value as unknown as CharacteristicValues]}
-              </Text>
-            ) : null}
-          </TouchableOpacity>
-        ))}
-      </View>
-    </Container>
+    <ImageBackground
+      source={SplashBackground}
+      style={{
+        alignItems: 'center',
+        flex: 1,
+        justifyContent: 'center'
+      }}
+    >
+      <Image alt={'Logo SGJD'} source={Icon} />
+    </ImageBackground>
   );
 };
