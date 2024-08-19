@@ -2,6 +2,9 @@
 
 export const paths = {
   login: 'login',
+  register: 'register',
+  recoverPassword: 'recoverPassword',
+  updatePassword: 'updatePassword',
   home: 'home'
 } as const;
 

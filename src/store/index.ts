@@ -1,5 +1,4 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import { netInfoReducer } from './net-info/slice';
 import { persistReducer, persistStore } from 'redux-persist';
 import { persistReducer as persistedReducer } from './persist/slice';
 import { sidebarReducer } from './sidebar/slice';
@@ -15,7 +14,6 @@ const persistConfig = {
 const persisted = persistReducer(persistConfig, persistedReducer);
 
 const rootReducer = combineReducers({
-  netInfo: netInfoReducer,
   persist: persisted,
   sidebar: sidebarReducer
 });

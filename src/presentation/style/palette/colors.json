@@ -1,6 +1,9 @@
 {
-  "primary": "#005CA9",
-  "secondary": "#2783EC",
+  "primary": "#001F45",
+  "secondary": "#6ca340",
+
+  "placeholder": "#D4D4D4",
+  "inputBorder": "#D4D4D4",
 
   "blue": {
     "semiLight": "#0561CA"

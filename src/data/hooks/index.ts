@@ -5,3 +5,4 @@ export * from './use-search';
 export * from './use-search-no-pagination';
 export * from './use-theme';
 export * from './use-ble';
+export * from './use-router';

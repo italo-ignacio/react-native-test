@@ -2,7 +2,7 @@ import { object, string } from 'yup';
 import type { InferType } from 'yup';
 
 export const loginSchema = object().shape({
-  login: string().required(),
+  email: string().required(),
   password: string().required()
 });
 

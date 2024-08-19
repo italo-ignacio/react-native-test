@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react/no-array-index-key */
 import {
   ActivityIndicator,
   Button,
@@ -37,7 +36,6 @@ export const Ble: FC = () => {
     allDevices,
     startScan,
     setIsMonitoring,
-    logVehicleData,
     connectedDevice,
     isMonitoring,
     isScanning,
@@ -117,37 +115,24 @@ export const Ble: FC = () => {
               data={CharacteristicSelectValues}
               keyExtractor={(item): string => item.value}
               renderItem={({ item }): any => (
-                <View className={'flex flex-row'} style={{ gap: 8 }}>
-                  <TouchableOpacity
-                    className={`shadow-md p-3 rounded-md border w-[60%] border-gray-300 ${
-                      selectedItems.find((list) => list.value === item.value)
-                        ? 'bg-success'
-                        : 'bg-gray-300'
-                    }`}
-                    onPress={(): void => {
-                      const oldSelectedItems = [...selectedItems];
+                <TouchableOpacity
+                  className={`shadow-md p-3 rounded-md border w-[60%] border-gray-300 ${
+                    selectedItems.find((list) => list.value === item.value)
+                      ? 'bg-success'
+                      : 'bg-gray-300'
+                  }`}
+                  onPress={(): void => {
+                    const oldSelectedItems = [...selectedItems];
 
-                      if (oldSelectedItems.find((seItem) => item.value === seItem.value))
-                        setSelectedItems(
-                          oldSelectedItems.filter((seItem) => seItem.value !== item.value)
-                        );
-                      else setSelectedItems([...oldSelectedItems, item]);
-                    }}
-                  >
-                    <Text>{item.label}</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    className={
-                      'shadow-md p-3 flex justify-center rounded-md border border-gray-300'
-                    }
-                    onPress={(): void => {
-                      logVehicleData(item.value);
-                    }}
-                  >
-                    <Text>VER LOG</Text>
-                  </TouchableOpacity>
-                </View>
+                    if (oldSelectedItems.find((seItem) => item.value === seItem.value))
+                      setSelectedItems(
+                        oldSelectedItems.filter((seItem) => seItem.value !== item.value)
+                      );
+                    else setSelectedItems([...oldSelectedItems, item]);
+                  }}
+                >
+                  <Text>{item.label}</Text>
+                </TouchableOpacity>
               )}
             />
           </View>
