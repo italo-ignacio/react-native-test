@@ -6,3 +6,4 @@ export * from './use-search-no-pagination';
 export * from './use-theme';
 export * from './use-ble';
 export * from './use-router';
+export * from './use-database';

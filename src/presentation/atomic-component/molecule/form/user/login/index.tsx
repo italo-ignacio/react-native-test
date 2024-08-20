@@ -3,11 +3,51 @@ import { type FC, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Text, View } from 'react-native';
 import { gap } from 'main/utils';
 import { paths } from 'main/config';
+import { useDatabase } from 'data/hooks';
 import { useLogin } from 'data/use-case';
 
 export const LoginForm: FC = () => {
   const { isSubmitting, onSubmit, handleSubmit } = useLogin();
   const [hidePassword, setHidePassword] = useState(true);
+
+  const database = useDatabase();
+
+  const saveBrands = async (): Promise<void> => {
+    try {
+      await database.create('vehicle_models', {
+        name: 'Toyota',
+        vehicleBrandId: 3
+      });
+
+      // await database.execAsync(`
+      //   INSERT INTO ${TableName.VEHICLEBRANDS} (name, imageName) VALUES ${carBrands.map(
+      //   (item, index) =>
+      //     `("${item.name}", "${item.imageName}")${index + 1 === carBrands.length ? ';' : ''}`
+      // )}
+      // `);
+      // result.forEach(async (item): Promise<void> => {
+      //   const cars = carBrands.find((carItem) => item.name === carItem.name);
+      //   if (cars)
+      //     await database.execAsync(`
+      //   INSERT INTO ${TableName.VEHICLEMODELS} (name, vehicleBrandId) VALUES ${cars.models.map(
+      //       (model, index) => `("${model}",${item.id})${index + 1 === carBrands.length ? ';' : ''}`
+      //     )}
+      // `);
+      // });
+      // await database.execAsync(`
+      //   DELETE FROM ${TableName.VEHICLEBRANDS}
+      // `);
+      // const aa = {};
+      // console.log(
+      //   carBrands.forEach((item) => {
+      //     if (aa[item.name]) aa[item.name].push('2');
+      //     else Object.assign(aa, { [item.name]: ['1'] });
+      //   })
+      // );
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -15,6 +55,8 @@ export const LoginForm: FC = () => {
       className={'flex flex-col w-full'}
       {...gap(10)}
     >
+      <Button onPress={saveBrands} text={'aaaaaaaaaa'} />
+
       <LabelInput
         autoCapitalize={'none'}
         inputMode={'email'}

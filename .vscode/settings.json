@@ -89,5 +89,15 @@
   "terminal.integrated.defaultProfile.windows": "Git Bash",
   "typescript.updateImportsOnFileMove.enabled": "always",
   "workbench.iconTheme": "material-icon-theme",
-  "cSpell.words": ["ATSP", "cnpj", "Overridable", "Roboto"]
+  "cSpell.words": [
+    "ATSP",
+    "AUTOINCREMENT",
+    "cnpj",
+    "DATETIME",
+    "Overridable",
+    "Roboto",
+    "VEHICLEBRANDS",
+    "VEHICLEDIAGNOSTICS",
+    "VEHICLEMODELS"
+  ]
 }
