@@ -5,3 +5,4 @@ export * from './vehicle-brand';
 export * from './vehicle-diagnostics';
 export * from './vehicle-model';
 export * from './offline-queue';
+export * from './database';

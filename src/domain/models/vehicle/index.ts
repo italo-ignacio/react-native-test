@@ -6,7 +6,7 @@ export interface Vehicle {
   licensePlate: string;
   typeOfFuel: number;
   serialNumber: string;
-  model: VehicleModel;
+  vehicleModel: VehicleModel;
 }
 
 export interface VehicleValues {

@@ -12,50 +12,70 @@ export const LoginForm: FC = () => {
 
   const database = useDatabase();
 
-  const saveBrands = async (): Promise<void> => {
-    try {
-      await database.create('vehicle_models', {
-        name: 'Toyota',
-        vehicleBrandId: 3
-      });
-
-      // await database.execAsync(`
-      //   INSERT INTO ${TableName.VEHICLEBRANDS} (name, imageName) VALUES ${carBrands.map(
-      //   (item, index) =>
-      //     `("${item.name}", "${item.imageName}")${index + 1 === carBrands.length ? ';' : ''}`
-      // )}
-      // `);
-      // result.forEach(async (item): Promise<void> => {
-      //   const cars = carBrands.find((carItem) => item.name === carItem.name);
-      //   if (cars)
-      //     await database.execAsync(`
-      //   INSERT INTO ${TableName.VEHICLEMODELS} (name, vehicleBrandId) VALUES ${cars.models.map(
-      //       (model, index) => `("${model}",${item.id})${index + 1 === carBrands.length ? ';' : ''}`
-      //     )}
-      // `);
-      // });
-      // await database.execAsync(`
-      //   DELETE FROM ${TableName.VEHICLEBRANDS}
-      // `);
-      // const aa = {};
-      // console.log(
-      //   carBrands.forEach((item) => {
-      //     if (aa[item.name]) aa[item.name].push('2');
-      //     else Object.assign(aa, { [item.name]: ['1'] });
-      //   })
-      // );
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       className={'flex flex-col w-full'}
       {...gap(10)}
     >
-      <Button onPress={saveBrands} text={'aaaaaaaaaa'} />
+      <Button
+        onPress={async (): Promise<void> => {
+          console.log(new Date());
+
+          console.log(
+            await database.find('vehicle_brands', {
+              select: {
+                name: true
+              }
+            })
+          );
+          console.log(new Date());
+        }}
+        text={'find'}
+      />
+
+      <Button
+        onPress={async (): Promise<void> => {
+          console.log(
+            await database.create('vehicle_brands', {
+              data: {
+                imageName: 'image2',
+                name: 'bbbbbbbbbbbb'
+              },
+              select: {
+                id: true,
+                imageName: true,
+                name: true
+              }
+            })
+          );
+        }}
+        text={'create'}
+      />
+
+      <Button
+        onPress={async (): Promise<void> => {
+          await database.update('vehicle_brands', {
+            data: {
+              name: 'teste 10000'
+            },
+            where: {
+              imageName: {
+                operator: '=',
+                value: 'teste 1'
+              }
+            }
+          });
+        }}
+        text={'update'}
+      />
+
+      <Button
+        onPress={async (): Promise<void> => {
+          await database.delete('vehicle_brands', {});
+        }}
+        text={'delete'}
+      />
 
       <LabelInput
         autoCapitalize={'none'}

@@ -4,7 +4,7 @@ export interface VehicleModel {
   id: number;
   apiId?: number;
   name: string;
-  brand: VehicleBrand;
+  vehicleBrand: VehicleBrand;
 }
 
 export interface VehicleModelValues {

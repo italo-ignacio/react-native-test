@@ -8,8 +8,8 @@ export interface VehicleDiagnostics {
 
 export interface VehicleDiagnosticsValues {
   id: number;
-  vehicleReadingData: unknown;
-  date: Date;
+  vehicleReadingData: object;
+  createdAt: Date;
   vehicleId: number;
   vehicleApiId?: number;
 }

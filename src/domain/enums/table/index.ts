@@ -1,16 +1,7 @@
 export const TableName = {
-  OFFLINE_QUEUE: 'offline_queue',
-  VEHICLEBRANDS: 'vehicle_brands',
-  VEHICLEDIAGNOSTICS: 'vehicle_diagnostics',
-  VEHICLEMODELS: 'vehicle_models',
-  VEHICLES: 'vehicles'
+  offlineQueue: 'offline_queue',
+  vehicleBrand: 'vehicle_brands',
+  vehicleDiagnostics: 'vehicle_diagnostics',
+  vehicleModels: 'vehicle_models',
+  vehicles: 'vehicles'
 };
-
-export type DatabaseEntity =
-  | 'offline_queue'
-  | 'vehicle_brands'
-  | 'vehicle_diagnostics'
-  | 'vehicle_models'
-  | 'vehicles';
-
-export type ModelReturn = 'entity' | 'id' | 'none';
