@@ -1,22 +1,22 @@
 import { TableName } from 'domain/enums';
 
 const vehicleTable = `
-  CREATE TABLE IF NOT EXISTS ${TableName.vehicles} (
+  CREATE TABLE IF NOT EXISTS ${TableName.vehicle} (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    apiId INTEGER,
+    apiId INTEGER UNIQUE,
     licensePlate VARCHAR(12) NOT NULL,
     typeOfFuel INTEGER NOT NULL,
     serialNumber VARCHAR(45) NOT NULL,
-    vehicleModelId INTEGER REFERENCES ${TableName.vehicleModels}(id),
+    vehicleModelId INTEGER REFERENCES ${TableName.vehicleModel}(id),
     createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
   )
 `;
 
 const vehicleModelsTable = `
-  CREATE TABLE IF NOT EXISTS ${TableName.vehicleModels} (
+  CREATE TABLE IF NOT EXISTS ${TableName.vehicleModel} (
     id INTEGER PRIMARY KEY NOT NULL,
-    apiId INTEGER,
+    apiId INTEGER UNIQUE,
     name VARCHAR(45) NOT NULL,
     vehicleBrandId INTEGER REFERENCES ${TableName.vehicleBrand}(id),
     createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -27,7 +27,7 @@ const vehicleModelsTable = `
 const vehicleBrandsTable = `
   CREATE TABLE IF NOT EXISTS ${TableName.vehicleBrand} (
     id INTEGER PRIMARY KEY NOT NULL,
-    apiId INTEGER,
+    apiId INTEGER UNIQUE,
     name VARCHAR(45) NOT NULL,
     imageName VARCHAR(30),
     createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -36,10 +36,10 @@ const vehicleBrandsTable = `
 `;
 
 const vehicleDiagnosticsTable = `
-  CREATE TABLE IF NOT EXISTS ${TableName.vehicleDiagnostics} (
+  CREATE TABLE IF NOT EXISTS ${TableName.vehicleDiagnostic} (
     id INTEGER PRIMARY KEY NOT NULL,
     vehicleReadingData TEXT NOT NULL,
-    vehicleId INTEGER REFERENCES ${TableName.vehicles}(id),
+    vehicleId INTEGER REFERENCES ${TableName.vehicle}(id),
     vehicleApiId INTEGER,
     createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP

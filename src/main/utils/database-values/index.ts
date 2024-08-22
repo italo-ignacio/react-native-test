@@ -1,4 +1,4 @@
-import { TableName } from 'domain/enums';
+import { TableName, TableNameReverse } from 'domain/enums';
 
 interface databaseValuesReturn {
   columns: string;
@@ -17,10 +17,41 @@ export const databaseValues = (values: object): databaseValuesReturn => {
   return { columns, placeholders, queryValues };
 };
 
+const databaseSelectJoinsColumns = (
+  primaryEntity: string,
+  entity: string,
+  select: object
+): { selectColumns: string[]; joinColumns: string[] } => {
+  const selectColumns: string[] = [];
+  const joinColumns: string[] = [];
+
+  Object.entries(select).forEach(([key, value], index) => {
+    if (index === 0)
+      joinColumns.push(
+        `JOIN ${entity} ON ${entity}.id = ${primaryEntity}.${
+          TableNameReverse[entity as keyof typeof TableNameReverse]
+        }Id`
+      );
+
+    if (typeof value === 'object' && value !== null) {
+      const nestedTableName = TableName[key as keyof typeof TableName];
+
+      const nestedSelect = databaseSelectJoinsColumns(entity, nestedTableName, value);
+
+      selectColumns.push(...nestedSelect.selectColumns);
+      joinColumns.push(...nestedSelect.joinColumns);
+    } else if (value)
+      selectColumns.push(
+        `"${entity}"."${key}" AS ${TableNameReverse[entity as keyof typeof TableNameReverse]}${key}`
+      );
+  });
+
+  return { joinColumns, selectColumns };
+};
+
 export const databaseSelectColumns = (
   entity: string,
-  select?: object,
-  isRelation?: boolean
+  select?: object
 ): { selectColumns: string; joinColumns: string } => {
   const selectColumns: string[] = [];
   const joinColumns: string[] = [];
@@ -28,28 +59,19 @@ export const databaseSelectColumns = (
   if (select && Object.keys(select).length > 0) {
     Object.entries(select).forEach(([key, value]) => {
       if (typeof value === 'object' && value !== null) {
-        if (Object.values(value).length > 0) {
-          const nestedTableName = TableName[key as keyof typeof TableName];
+        const nestedTableName = TableName[key as keyof typeof TableName];
 
-          const nestedSelect = databaseSelectColumns(nestedTableName, value, true);
+        const nestedSelect = databaseSelectJoinsColumns(entity, nestedTableName, value);
 
-          selectColumns.push(
-            ...nestedSelect.selectColumns.split(', ').map((col) => {
-              const formattedCol = col.replace(`"${nestedTableName}"."`, '');
-
-              return `${col} AS "${key}${formattedCol}`;
-            })
-          );
-
-          joinColumns.push(`JOIN ${nestedTableName} ON ${nestedTableName}.id = ${entity}.${key}Id`);
-        }
+        selectColumns.push(...nestedSelect.selectColumns);
+        joinColumns.push(...nestedSelect.joinColumns);
       } else if (value) selectColumns.push(`"${entity}"."${key}"`);
     });
 
     return { joinColumns: joinColumns.join(' '), selectColumns: selectColumns.join(', ') };
   }
 
-  return { joinColumns: '', selectColumns: isRelation ? '' : '*' };
+  return { joinColumns: '', selectColumns: '*' };
 };
 
 export const databaseWhereTransform = (entity: string, where?: object): { whereData: string } => {

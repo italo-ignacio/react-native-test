@@ -7,6 +7,7 @@ export interface Vehicle {
   typeOfFuel: number;
   serialNumber: string;
   vehicleModel: VehicleModel;
+  createdAt?: Date;
 }
 
 export interface VehicleValues {
@@ -16,4 +17,5 @@ export interface VehicleValues {
   typeOfFuel: number;
   serialNumber: string;
   vehicleModelId: number;
+  createdAt?: Date;
 }

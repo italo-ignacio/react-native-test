@@ -1,7 +1,15 @@
 export const TableName = {
   offlineQueue: 'offline_queue',
+  vehicle: 'vehicles',
   vehicleBrand: 'vehicle_brands',
-  vehicleDiagnostics: 'vehicle_diagnostics',
-  vehicleModels: 'vehicle_models',
-  vehicles: 'vehicles'
+  vehicleDiagnostic: 'vehicle_diagnostics',
+  vehicleModel: 'vehicle_models'
+};
+
+export const TableNameReverse = {
+  offline_queue: 'offlineQueue',
+  vehicle_brands: 'vehicleBrand',
+  vehicle_diagnostics: 'vehicleDiagnostic',
+  vehicle_models: 'vehicleModel',
+  vehicles: 'vehicle'
 };

@@ -299,7 +299,7 @@
     "react-hooks/exhaustive-deps": "off",
     "react-hooks/rules-of-hooks": "error",
 
-    "react/boolean-prop-naming": "error",
+    "react/boolean-prop-naming": "off",
     "react/button-has-type": "error",
     "react/default-props-match-prop-types": "error",
     "react/destructuring-assignment": ["error", "always"],

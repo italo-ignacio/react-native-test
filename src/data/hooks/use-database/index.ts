@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 import {
   databaseSelectColumns,
   databaseValues,
@@ -40,6 +41,10 @@ interface useDatabaseReturn {
     entity: T,
     props: { data: UpdateProps<T>; where?: WhereProps<T> }
   ) => Promise<void>;
+  upsertData: <T extends keyof SelectEntityMap>(
+    entity: T,
+    props: { data: UpdateProps<T>[] }
+  ) => Promise<void>;
 }
 
 export const useDatabase = (): useDatabaseReturn => {
@@ -73,6 +78,8 @@ export const useDatabase = (): useDatabaseReturn => {
     const selectQuery = `
       SELECT ${selectColumns} FROM ${entity} ${joinColumns} ${whereData}
     `;
+
+    console.log(selectQuery);
 
     const result = await database.getAllAsync(selectQuery);
 
@@ -119,7 +126,38 @@ export const useDatabase = (): useDatabaseReturn => {
       const itemValue = props.data[item as keyof UpdateProps<T>];
 
       return `${item} = ${typeof itemValue === 'number' ? itemValue : `"${itemValue}"`}`;
-    })} ${whereData}
+    })}, updatedAt = CURRENT_TIMESTAMP ${whereData}
+    `;
+
+    await database.withExclusiveTransactionAsync(async (transaction) => {
+      await transaction.execAsync(query);
+    });
+  };
+
+  const upsertData = async <T extends keyof SelectEntityMap>(
+    entity: T,
+    { data }: { data: UpdateProps<T>[] }
+  ): Promise<void> => {
+    const { columns } = databaseValues(data[0]);
+
+    const values = data
+      .map(
+        (dataItem) =>
+          `(${Object.values(dataItem)
+            .map((itemValue) => (typeof itemValue === 'number' ? itemValue : `"${itemValue}"`))
+            .join(', ')})`
+      )
+      .join(', ');
+
+    const updateColumns = Object.keys(data[0])
+      .filter((item) => item !== 'apiId')
+      .map((item) => `${item} = excluded.${item}`)
+      .join(', ');
+
+    const query = `
+      INSERT INTO ${entity} (${columns}) 
+      VALUES ${values} 
+      ON CONFLICT(apiId) DO UPDATE SET ${updateColumns}, updatedAt = CURRENT_TIMESTAMP;
     `;
 
     await database.withExclusiveTransactionAsync(async (transaction) => {
@@ -162,5 +200,5 @@ export const useDatabase = (): useDatabaseReturn => {
     });
   };
 
-  return { create, createMany, delete: deleteData, find, findFirst, update };
+  return { create, createMany, delete: deleteData, find, findFirst, update, upsertData };
 };

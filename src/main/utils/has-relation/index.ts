@@ -1,12 +1,21 @@
-export const hasRelation = (select?: object): string[] | false => {
-  const list: string[] = [];
+export const hasRelation = (
+  select?: object,
+  parent?: string
+): { parent: string | null; name: string }[] | false => {
+  const list: { parent: string | null; name: string }[] = [];
 
   if (select && Object.keys(select).length > 0)
     Object.keys(select).forEach((item) => {
       const newSelect = select as { name: string };
       const value = newSelect[item as 'name'];
 
-      if (typeof value === 'object') list.push(item);
+      if (typeof value === 'object') {
+        const newList = hasRelation(value, item);
+
+        if (newList) list.push(...newList);
+
+        list.push({ name: item, parent: parent ?? null });
+      }
     });
 
   return list.length > 0 ? list : false;

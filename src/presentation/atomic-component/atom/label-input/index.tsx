@@ -1,4 +1,3 @@
-/* eslint-disable no-extra-parens */
 import { MaterialIcons } from '@expo/vector-icons';
 import { Text, TextInput, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -8,9 +7,10 @@ import type { FC } from 'react';
 import type { GestureResponderEvent, StyleProp, TextInputProps, ViewStyle } from 'react-native';
 import type { IconNames } from 'domain/protocol';
 
-type InputProps = TextInputProps & {
+export type LabelInputProps = TextInputProps & {
   isRequired?: boolean;
   label?: string;
+  error?: string;
   leftIcon?: {
     name: IconNames;
     style?: StyleProp<ViewStyle>;
@@ -25,7 +25,14 @@ type InputProps = TextInputProps & {
   };
 };
 
-export const LabelInput: FC<InputProps> = ({ label, rightIcon, isRequired, leftIcon, ...rest }) => {
+export const LabelInput: FC<LabelInputProps> = ({
+  label,
+  rightIcon,
+  isRequired,
+  error,
+  leftIcon,
+  ...rest
+}) => {
   const maxWidth = (): number => {
     let value = 0;
 
@@ -50,14 +57,14 @@ export const LabelInput: FC<InputProps> = ({ label, rightIcon, isRequired, leftI
         className={'flex flex-row border p-1.5 px-3 items-center rounded-md'}
         style={{
           backgroundColor: colors.white,
-          borderColor: colors.inputBorder,
+          borderColor: error ? colors.red : colors.inputBorder,
           gap: 6
         }}
       >
         {leftIcon ? (
           <TouchableOpacity activeOpacity={0.8} onPress={leftIcon?.onPress} style={leftIcon?.style}>
             <MaterialIcons
-              color={leftIcon?.color ?? colors.gray[300]}
+              color={error ? colors.red : leftIcon?.color ?? colors.gray[300]}
               name={leftIcon.name}
               size={18}
             />
@@ -65,8 +72,8 @@ export const LabelInput: FC<InputProps> = ({ label, rightIcon, isRequired, leftI
         ) : null}
 
         <TextInput
-          {...rest}
           className={'w-full'}
+          {...rest}
           placeholderTextColor={colors.placeholder}
           style={{ maxWidth: `${maxWidth()}%` }}
         />
@@ -78,7 +85,7 @@ export const LabelInput: FC<InputProps> = ({ label, rightIcon, isRequired, leftI
             style={rightIcon?.style}
           >
             <MaterialIcons
-              color={rightIcon?.color ?? colors.gray[300]}
+              color={error ? colors.red : rightIcon?.color ?? colors.gray[300]}
               name={rightIcon.name}
               size={18}
             />

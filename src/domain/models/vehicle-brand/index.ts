@@ -3,6 +3,7 @@ export interface VehicleBrand {
   apiId?: number;
   name: string;
   imageName?: string;
+  createdAt?: Date;
 }
 
 export interface VehicleBrandValues {
@@ -10,4 +11,5 @@ export interface VehicleBrandValues {
   apiId?: number;
   name: string;
   imageName?: string;
+  createdAt?: Date;
 }

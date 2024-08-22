@@ -1,11 +1,15 @@
 import { Button, LabelInput } from 'presentation/atomic-component/atom';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import { gap } from 'main/utils';
-import { useLogin } from 'data/use-case';
+import { useRecoverPassword } from 'data/use-case';
 import type { FC } from 'react';
 
 export const RecoverPasswordForm: FC = () => {
-  const { isSubmitting } = useLogin();
+  const {
+    formState: { isSubmitting },
+    handleSubmit,
+    onSubmit
+  } = useRecoverPassword();
 
   return (
     <KeyboardAvoidingView
@@ -21,7 +25,11 @@ export const RecoverPasswordForm: FC = () => {
         placeholder={'Digite seu e-mail'}
       />
 
-      <Button isLoading={isSubmitting} text={'Solicitar redefinição'} />
+      <Button
+        isLoading={isSubmitting}
+        onPress={handleSubmit(onSubmit)}
+        text={'Solicitar redefinição'}
+      />
     </KeyboardAvoidingView>
   );
 };

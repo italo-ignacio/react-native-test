@@ -5,7 +5,7 @@ import { decryptData, removeUndefined } from 'main/utils';
 import { store } from 'store';
 import type { ApiProps } from 'domain/protocol';
 
-const baseUrl = 'http://localhost:8080/api/v1';
+const baseUrl = 'http://10.107.160.196:8080/api/v1';
 
 export const fetchApi = async <T>(params: ApiProps): Promise<T> => {
   const accessToken = decryptData(store.getState().persist.accessToken || '');
@@ -32,10 +32,15 @@ export const fetchApi = async <T>(params: ApiProps): Promise<T> => {
     method: params.method
   });
 
-  if (response.status === HttpStatusCode.noContent) return null as T;
-  const data = await response.json();
+  if (
+    response.ok &&
+    (response.status === HttpStatusCode.noContent || response.headers.get('Content-Length') === '0')
+  )
+    return null as T;
 
-  if (response.ok) return data.payload;
+  const data = await response?.json();
+
+  if (response.ok) return data;
 
   throw Object(data);
 };

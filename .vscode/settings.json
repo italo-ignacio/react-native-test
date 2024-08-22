@@ -96,6 +96,7 @@
     "DATETIME",
     "Overridable",
     "Roboto",
+    "upsert",
     "VEHICLEBRANDS",
     "VEHICLEDIAGNOSTICS",
     "VEHICLEMODELS"

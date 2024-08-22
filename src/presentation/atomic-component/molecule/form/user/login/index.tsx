@@ -1,4 +1,4 @@
-import { Button, LabelInput, LinkButton } from 'presentation/atomic-component/atom';
+import { Button, InputController, LinkButton } from 'presentation/atomic-component/atom';
 import { type FC, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Text, View } from 'react-native';
 import { gap } from 'main/utils';
@@ -7,7 +7,12 @@ import { useDatabase } from 'data/hooks';
 import { useLogin } from 'data/use-case';
 
 export const LoginForm: FC = () => {
-  const { isSubmitting, onSubmit, handleSubmit } = useLogin();
+  const {
+    formState: { isSubmitting, errors },
+    onSubmit,
+    control,
+    handleSubmit
+  } = useLogin();
   const [hidePassword, setHidePassword] = useState(true);
 
   const database = useDatabase();
@@ -20,16 +25,28 @@ export const LoginForm: FC = () => {
     >
       <Button
         onPress={async (): Promise<void> => {
-          console.log(new Date());
-
-          console.log(
-            await database.find('vehicle_brands', {
-              select: {
-                name: true
-              }
-            })
-          );
-          console.log(new Date());
+          try {
+            console.log(
+              JSON.stringify(
+                await database.find('vehicle_brands', {
+                  select: {
+                    apiId: true,
+                    createdAt: true,
+                    id: true
+                  },
+                  where: {
+                    createdAt: {
+                      operator: '>',
+                      value: '2024-08-22 19:47:37'
+                    }
+                  }
+                })
+              )
+            );
+            console.log('succsses');
+          } catch (error) {
+            console.log(error);
+          }
         }}
         text={'find'}
       />
@@ -37,15 +54,16 @@ export const LoginForm: FC = () => {
       <Button
         onPress={async (): Promise<void> => {
           console.log(
-            await database.create('vehicle_brands', {
+            await database.create('vehicles', {
               data: {
-                imageName: 'image2',
-                name: 'bbbbbbbbbbbb'
+                apiId: 1,
+                licensePlate: '000',
+                serialNumber: '10',
+                typeOfFuel: 1,
+                vehicleModelId: 1
               },
               select: {
-                id: true,
-                imageName: true,
-                name: true
+                id: true
               }
             })
           );
@@ -55,14 +73,54 @@ export const LoginForm: FC = () => {
 
       <Button
         onPress={async (): Promise<void> => {
+          try {
+            await database.upsertData('vehicle_brands', {
+              data: [
+                {
+                  apiId: 1,
+                  imageName: 'marca 1.png',
+                  name: 'marca 1'
+                },
+                {
+                  apiId: 2,
+                  imageName: 'marca 2.png',
+                  name: 'marca 2'
+                },
+                {
+                  apiId: 3,
+                  imageName: 'marca 3.png',
+                  name: 'marca 3'
+                },
+                {
+                  apiId: 4,
+                  imageName: 'marca 4.png',
+                  name: 'marca 4'
+                },
+                {
+                  apiId: 5,
+                  imageName: 'marca 5.png',
+                  name: 'marca 5'
+                }
+              ]
+            });
+            console.log('succsses');
+          } catch (error) {
+            console.log(error);
+          }
+        }}
+        text={'upsert'}
+      />
+
+      <Button
+        onPress={async (): Promise<void> => {
           await database.update('vehicle_brands', {
             data: {
-              name: 'teste 10000'
+              name: 'Renato'
             },
             where: {
-              imageName: {
+              id: {
                 operator: '=',
-                value: 'teste 1'
+                value: 1
               }
             }
           });
@@ -72,22 +130,31 @@ export const LoginForm: FC = () => {
 
       <Button
         onPress={async (): Promise<void> => {
+          await database.delete('vehicles', {});
+          await database.delete('vehicle_models', {});
           await database.delete('vehicle_brands', {});
         }}
         text={'delete'}
       />
 
-      <LabelInput
+      <InputController
         autoCapitalize={'none'}
+        control={control}
+        error={errors.email?.message}
         inputMode={'email'}
         isRequired
         label={'E-mail'}
+        name={'email'}
         placeholder={'Digite seu e-mail'}
       />
 
-      <LabelInput
+      <InputController
+        autoCapitalize={'none'}
+        control={control}
+        error={errors.password?.message}
         isRequired
         label={'Senha'}
+        name={'password'}
         placeholder={'Digite sua senha'}
         rightIcon={{
           name: hidePassword ? 'visibility' : 'visibility-off',

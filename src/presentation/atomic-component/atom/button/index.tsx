@@ -56,7 +56,7 @@ export const Button: FC<ButtonProps> = ({
       style={[{ backgroundColor: buttonColor, ...(buttonProps ?? {}) }]}
     >
       {isLoading ? (
-        <ActivityIndicator color={colors.white} />
+        <ActivityIndicator color={colors.white} size={24} />
       ) : (
         <>
           {leftIcon ? <MaterialIcons color={buttonTextColor} name={leftIcon} size={18} /> : null}

@@ -1,64 +1,34 @@
 import { api } from 'infra/http';
 import { apiPaths } from 'main/config';
-import { loginSchema } from 'validation/schema';
-import { resolverError } from 'main/utils';
-import { setAuth } from 'store/persist/slice';
-import { useDispatch } from 'react-redux';
+import { callToast, resolverError } from 'main/utils';
+import { registerSchema } from 'validation/schema';
 import { useForm } from 'react-hook-form';
+import { useMakeLogin } from 'data/hooks';
 import { yupResolver } from '@hookform/resolvers/yup';
-import type {
-  FieldErrors,
-  SubmitHandler,
-  UseFormGetValues,
-  UseFormHandleSubmit,
-  UseFormRegister,
-  UseFormSetValue
-} from 'react-hook-form';
-import type { LoginRequest } from 'validation/schema';
-import type { LoginResponse } from 'domain/models';
+import type { RegisterRequest } from 'validation/schema';
+import type { SubmitHandler } from 'react-hook-form';
+import type { formReturn } from 'domain/protocol';
 
-export const useRegister = (): {
-  errors: FieldErrors<LoginRequest>;
-  register: UseFormRegister<LoginRequest>;
-  onSubmit: SubmitHandler<LoginRequest>;
-  handleSubmit: UseFormHandleSubmit<LoginRequest>;
-  getValues: UseFormGetValues<LoginRequest>;
-  setValue: UseFormSetValue<LoginRequest>;
-  isSubmitting: boolean;
-} => {
-  const {
-    handleSubmit,
-    register,
-    setValue,
-    getValues,
-
-    formState: { errors, isSubmitting }
-  } = useForm<LoginRequest>({
-    resolver: yupResolver(loginSchema)
+export const useRegister = (): formReturn<RegisterRequest> => {
+  const formData = useForm<RegisterRequest>({
+    resolver: yupResolver(registerSchema)
   });
 
-  const dispatch = useDispatch();
+  const { login } = useMakeLogin();
 
-  const onSubmit: SubmitHandler<LoginRequest> = async (data) => {
+  const onSubmit: SubmitHandler<RegisterRequest> = async (data) => {
     try {
-      const payload = await api.post<LoginResponse>({
+      await api.post({
         body: data,
-        route: apiPaths.auth
+        route: apiPaths.user
       });
 
-      dispatch(setAuth({ accessToken: payload.accessToken, user: payload.user }));
+      login({ email: data.email, password: data.password });
+      callToast.success('Cadastrado e logado com sucesso');
     } catch (err) {
       resolverError(err);
     }
   };
 
-  return {
-    errors,
-    getValues,
-    handleSubmit,
-    isSubmitting,
-    onSubmit,
-    register,
-    setValue
-  };
+  return { ...formData, onSubmit };
 };

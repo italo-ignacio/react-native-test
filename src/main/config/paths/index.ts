@@ -9,7 +9,7 @@ export const paths = {
 } as const;
 
 export const apiPaths = {
-  auth: '/login',
-  register: '/register',
+  login: '/login',
+  user: '/user',
   default: 'default'
 };

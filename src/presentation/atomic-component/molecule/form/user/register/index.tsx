@@ -1,61 +1,94 @@
-import { Button, LabelInput } from 'presentation/atomic-component/atom';
+import { Button, InputController } from 'presentation/atomic-component/atom';
 import { type FC, useState } from 'react';
-import { KeyboardAvoidingView, Platform } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { gap } from 'main/utils';
-import { useLogin } from 'data/use-case';
+import { useRegister } from 'data/use-case';
 
 export const RegisterForm: FC = () => {
-  const { isSubmitting } = useLogin();
+  const {
+    formState: { isSubmitting, errors },
+    handleSubmit,
+    onSubmit,
+    control
+  } = useRegister();
   const [hidePassword, setHidePassword] = useState(true);
   const [hidePasswordConfirm, setHidePasswordConfirm] = useState(true);
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className={'flex flex-col w-full'}
-      {...gap(16)}
-    >
-      <LabelInput isRequired label={'Nome completo'} placeholder={'Digite seu nome completo'} />
+    <ScrollView>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className={'flex flex-col w-full'}
+        {...gap(16)}
+      >
+        <InputController
+          control={control}
+          error={errors.firstName?.message}
+          isRequired
+          label={'Primeiro nome'}
+          name={'firstName'}
+          placeholder={'Digite seu primeiro nome'}
+        />
 
-      <LabelInput
-        autoCapitalize={'none'}
-        inputMode={'email'}
-        isRequired
-        label={'E-mail'}
-        placeholder={'Digite seu e-mail'}
-      />
+        <InputController
+          control={control}
+          error={errors.lastName?.message}
+          isRequired
+          label={'Segundo Nome'}
+          name={'lastName'}
+          placeholder={'Digite seu segundo nome'}
+        />
 
-      <LabelInput
-        autoCapitalize={'none'}
-        isRequired
-        label={'Senha'}
-        placeholder={'Digite sua senha'}
-        rightIcon={{
-          name: hidePassword ? 'visibility' : 'visibility-off',
-          onPress: () => setHidePassword(!hidePassword)
-        }}
-        secureTextEntry={hidePassword}
-      />
+        <InputController
+          autoCapitalize={'none'}
+          control={control}
+          error={errors.email?.message}
+          inputMode={'email'}
+          isRequired
+          label={'E-mail'}
+          name={'email'}
+          placeholder={'Digite seu e-mail'}
+        />
 
-      <LabelInput
-        autoCapitalize={'none'}
-        isRequired
-        label={'Confirme sua Senha'}
-        placeholder={'Digite sua senha novamente'}
-        rightIcon={{
-          name: hidePasswordConfirm ? 'visibility' : 'visibility-off',
-          onPress: () => setHidePasswordConfirm(!hidePasswordConfirm)
-        }}
-        secureTextEntry={hidePasswordConfirm}
-      />
+        <InputController
+          autoCapitalize={'none'}
+          control={control}
+          error={errors.password?.message}
+          isRequired
+          label={'Senha'}
+          name={'password'}
+          placeholder={'Digite sua senha'}
+          rightIcon={{
+            name: hidePassword ? 'visibility' : 'visibility-off',
+            onPress: () => setHidePassword(!hidePassword)
+          }}
+          secureTextEntry={hidePassword}
+        />
 
-      <Button
-        buttonProps={{
-          className: 'mt-5'
-        }}
-        isLoading={isSubmitting}
-        text={'Cadastrar'}
-      />
-    </KeyboardAvoidingView>
+        <InputController
+          autoCapitalize={'none'}
+          control={control}
+          error={errors.confirmPassword?.message}
+          isRequired
+          label={'Confirme sua Senha'}
+          name={'confirmPassword'}
+          placeholder={'Digite sua senha novamente'}
+          rightIcon={{
+            name: hidePasswordConfirm ? 'visibility' : 'visibility-off',
+            onPress: () => setHidePasswordConfirm(!hidePasswordConfirm)
+          }}
+          secureTextEntry={hidePasswordConfirm}
+        />
+
+        <Button
+          buttonProps={{
+            className: 'mb-5 mt-3'
+          }}
+          isLoading={isSubmitting}
+          onPress={handleSubmit(onSubmit)}
+          text={'Cadastrar'}
+        />
+      </KeyboardAvoidingView>
+    </ScrollView>
   );
 };
