@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable max-depth */
 import { hasRelation } from '../has-relation';
 
 export const formatResult = (result: unknown, select?: object): unknown => {
@@ -5,13 +7,14 @@ export const formatResult = (result: unknown, select?: object): unknown => {
 
   if (relations) {
     const value = result as Record<string, number | string>;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newValue: Record<string, any> = {};
 
-    Object.keys(value).forEach((item) => {
+    for (const item of Object.keys(value)) {
       let isChildren = false;
 
-      relations.forEach(({ name, parent }) => {
+      for (const itemValue of Object.keys(relations)) {
+        const { name, parent } = itemValue as unknown as { parent: string | null; name: string };
+
         if (item.startsWith(name)) {
           isChildren = true;
           const keyWithoutRelation = item.replace(name, '');
@@ -28,10 +31,10 @@ export const formatResult = (result: unknown, select?: object): unknown => {
             newValue[name][keyWithoutRelation] = value[item];
           }
         }
-      });
+      }
 
       if (!isChildren) Object.assign(newValue, { ...newValue, [item]: value[item] });
-    });
+    }
 
     return newValue;
   }

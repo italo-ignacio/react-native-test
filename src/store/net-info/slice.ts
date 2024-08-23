@@ -6,7 +6,7 @@ export interface NetInfoState {
 }
 
 const initialState: NetInfoState = {
-  hasInternetConnection: false
+  hasInternetConnection: true
 };
 
 const netInfoSlice = createSlice({

@@ -73,9 +73,9 @@ export const LabelInput: FC<LabelInputProps> = ({
 
         <TextInput
           className={'w-full'}
-          {...rest}
           placeholderTextColor={colors.placeholder}
           style={{ maxWidth: `${maxWidth()}%` }}
+          {...rest}
         />
 
         {rightIcon ? (

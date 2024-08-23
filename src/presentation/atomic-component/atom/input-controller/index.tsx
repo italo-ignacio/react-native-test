@@ -22,9 +22,9 @@ export const InputController = <T extends FieldValues>({
     <Controller
       control={control}
       name={name}
-      render={({ field: { onChange, ...all } }): ReactElement => (
+      render={({ field: { onChange, onBlur, value } }): ReactElement => (
         <>
-          <LabelInput {...all} onChangeText={onChange} {...props} />
+          <LabelInput onBlur={onBlur} onChangeText={onChange} value={value} {...props} />
           {props?.error && !hideMessage ? <Text className={'text-red'}>{props.error}</Text> : null}
         </>
       )}

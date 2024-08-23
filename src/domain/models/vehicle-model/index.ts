@@ -1,11 +1,13 @@
-import type { VehicleBrand } from '../vehicle-brand';
+import { type VehicleBrand, selectAllVehicleBrand } from '../vehicle-brand';
+import type { SelectProps } from '../database';
 
 export interface VehicleModel {
   id: number;
   apiId?: number;
   name: string;
   createdAt?: Date;
-  vehicleBrand: VehicleBrand;
+  vehicleBrand?: VehicleBrand;
+  vehicleBrandId?: number;
 }
 
 export interface VehicleModelValues {
@@ -13,5 +15,13 @@ export interface VehicleModelValues {
   apiId?: number;
   name: string;
   createdAt?: Date;
-  vehicleBrandId: number;
+  vehicleBrandId: number | string;
 }
+
+export const selectAllVehicleModel: SelectProps<'vehicle_models'> = {
+  apiId: true,
+  createdAt: true,
+  id: true,
+  name: true,
+  vehicleBrand: selectAllVehicleBrand
+};

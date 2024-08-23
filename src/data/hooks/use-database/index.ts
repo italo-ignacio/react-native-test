@@ -9,6 +9,7 @@ import {
 import { useSQLiteContext } from 'expo-sqlite';
 import type {
   CreateProps,
+  PaginationProps,
   SelectEntityMap,
   SelectEntityReturnMap,
   SelectProps,
@@ -27,7 +28,7 @@ interface useDatabaseReturn {
   ) => Promise<SelectEntityReturnMap[T]>;
   find: <T extends keyof SelectEntityMap>(
     entity: T,
-    props?: { where?: WhereProps<T>; select?: SelectProps<T> }
+    props?: Partial<PaginationProps> & { where?: WhereProps<T>; select?: SelectProps<T> }
   ) => Promise<SelectEntityReturnMap[T][]>;
   createMany: <T extends keyof SelectEntityMap>(
     entity: T,
@@ -70,16 +71,18 @@ export const useDatabase = (): useDatabaseReturn => {
 
   const find = async <T extends keyof SelectEntityMap>(
     entity: T,
-    options?: { where?: WhereProps<T>; select?: SelectProps<T> }
+    options?: Partial<PaginationProps> & { where?: WhereProps<T>; select?: SelectProps<T> }
   ): Promise<SelectEntityReturnMap[T][]> => {
     const { selectColumns, joinColumns } = databaseSelectColumns(entity, options?.select);
     const { whereData } = databaseWhereTransform(entity, options?.where);
 
-    const selectQuery = `
-      SELECT ${selectColumns} FROM ${entity} ${joinColumns} ${whereData}
-    `;
+    const limit = options?.limit;
+    const page = options?.page ?? 1;
+    const pagination = limit ? `LIMIT ${limit} OFFSET ${(page - 1) * limit}` : '';
 
-    console.log(selectQuery);
+    const selectQuery = `
+      SELECT ${selectColumns} FROM ${entity} ${joinColumns} ${whereData} ${pagination}
+    `;
 
     const result = await database.getAllAsync(selectQuery);
 
@@ -144,7 +147,11 @@ export const useDatabase = (): useDatabaseReturn => {
       .map(
         (dataItem) =>
           `(${Object.values(dataItem)
-            .map((itemValue) => (typeof itemValue === 'number' ? itemValue : `"${itemValue}"`))
+            .map((itemValue) =>
+              typeof itemValue === 'number'
+                ? itemValue
+                : `${String(itemValue).startsWith('SELECT') ? `(${itemValue})` : `"${itemValue}"`}`
+            )
             .join(', ')})`
       )
       .join(', ');

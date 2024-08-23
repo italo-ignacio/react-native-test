@@ -1,9 +1,10 @@
 import { api } from 'infra/http';
 import { apiPaths } from 'main/config';
+import { jwtDecode } from 'jwt-decode';
 import { resolverError } from 'main/utils';
 import { setAuth } from 'store/persist/slice';
 import { useDispatch } from 'react-redux';
-import type { LoginResponse } from 'domain/models';
+import type { LoginResponse, UserProps } from 'domain/models';
 
 export const useMakeLogin = (): {
   login: (data: { email: string; password: string }) => Promise<void>;
@@ -17,7 +18,9 @@ export const useMakeLogin = (): {
         route: apiPaths.login
       });
 
-      dispatch(setAuth({ accessToken: payload.accessToken, user: payload.user }));
+      const { user } = jwtDecode(payload.token) as { user: UserProps };
+
+      dispatch(setAuth({ accessToken: payload.token, user }));
     } catch (err) {
       resolverError(err);
     }

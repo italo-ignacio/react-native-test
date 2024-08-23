@@ -33,12 +33,6 @@ export const LoginForm: FC = () => {
                     apiId: true,
                     createdAt: true,
                     id: true
-                  },
-                  where: {
-                    createdAt: {
-                      operator: '>',
-                      value: '2024-08-22 19:47:37'
-                    }
                   }
                 })
               )
@@ -51,6 +45,7 @@ export const LoginForm: FC = () => {
         text={'find'}
       />
 
+      {/*
       <Button
         onPress={async (): Promise<void> => {
           console.log(
@@ -74,32 +69,12 @@ export const LoginForm: FC = () => {
       <Button
         onPress={async (): Promise<void> => {
           try {
-            await database.upsertData('vehicle_brands', {
+            await database.upsertData('vehicle_models', {
               data: [
                 {
                   apiId: 1,
-                  imageName: 'marca 1.png',
-                  name: 'marca 1'
-                },
-                {
-                  apiId: 2,
-                  imageName: 'marca 2.png',
-                  name: 'marca 2'
-                },
-                {
-                  apiId: 3,
-                  imageName: 'marca 3.png',
-                  name: 'marca 3'
-                },
-                {
-                  apiId: 4,
-                  imageName: 'marca 4.png',
-                  name: 'marca 4'
-                },
-                {
-                  apiId: 5,
-                  imageName: 'marca 5.png',
-                  name: 'marca 5'
+                  name: 'marca 1',
+                  vehicleBrandId: `SELECT id FROM ${TableName.vehicleBrand} WHERE apiId = 1`
                 }
               ]
             });
@@ -126,7 +101,7 @@ export const LoginForm: FC = () => {
           });
         }}
         text={'update'}
-      />
+      /> */}
 
       <Button
         onPress={async (): Promise<void> => {

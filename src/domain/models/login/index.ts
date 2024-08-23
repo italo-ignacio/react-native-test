@@ -1,13 +1,11 @@
 export interface UserProps {
-  id: string;
-  name: string;
+  id: number;
+  lastName: string;
+  firstName: string;
   email: string;
-  role: 'account' | 'driver';
+  role: 'admin' | 'common';
 }
 
 export interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  companyId: string;
-  user: UserProps;
+  token: string;
 }

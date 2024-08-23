@@ -29,6 +29,14 @@ export interface SelectEntityReturnMap {
   offline_queue: OfflineQueue;
 }
 
+export interface FastSelectEntityReturnMap {
+  vehicles: Vehicle;
+  vehicle_models: VehicleModel;
+  vehicle_brands: VehicleBrand;
+  vehicle_diagnostics: VehicleDiagnostics;
+  offline_queue: OfflineQueue;
+}
+
 type FilterOperator = '!=' | '<' | '<=' | '=' | '>' | '>=' | 'LIKE';
 
 type WhereCondition<T> = {

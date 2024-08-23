@@ -4,3 +4,8 @@ export * from './ble';
 export * from './recover-password';
 export * from './register';
 export * from './update-password';
+export * from './profile';
+export * from './vehicle';
+export * from './vehicle-brand';
+export * from './vehicle-model';
+export * from './home';

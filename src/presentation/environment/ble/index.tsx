@@ -11,7 +11,9 @@ import {
 import { CharacteristicSelectValues, CharacteristicType } from 'domain/enums';
 import { Container } from 'presentation/atomic-component/atom';
 import { type FC, type ReactNode, useState } from 'react';
+import { logout } from 'store/persist/slice';
 import { useBle } from 'data/hooks';
+import { useDispatch } from 'react-redux';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import type { Device } from 'react-native-ble-plx';
@@ -65,8 +67,19 @@ export const Ble: FC = () => {
     return <AntDesign color={'#3396F3'} name={'play'} size={18} />;
   };
 
+  const dispatch = useDispatch();
+
   return (
     <Container style={{ gap: 6 }}>
+      <Text
+        className={'absolute right-3 -top-[26px] rounded-sm  bg-primary p-2 text-white'}
+        onPress={(): void => {
+          dispatch(logout());
+        }}
+      >
+        Sair
+      </Text>
+
       <Button
         onPress={isScanning ? stopScan : startScan}
         title={isScanning ? 'Buscando Devices ...' : 'Buscar dispositivos'}

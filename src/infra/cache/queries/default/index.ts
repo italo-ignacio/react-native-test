@@ -9,5 +9,7 @@ interface Default {
 export const useFindDefaultQuery = ({ ...props }: useFindQueryProps): UseQueryResult<Default> =>
   useFindQuery<Default>({ ...props, route: 'default' });
 
-export const useFindOneDefaultQuery = ({ ...props }: useFindQueryProps): UseQueryResult<Default> =>
+export const useFindOneDefaultQuery = ({
+  ...props
+}: useFindQueryProps & { id: number | string }): UseQueryResult<Default> =>
   useFindQuery<Default>({ ...props, route: 'default' });
