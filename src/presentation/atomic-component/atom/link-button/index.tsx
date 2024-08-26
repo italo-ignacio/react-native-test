@@ -17,7 +17,7 @@ export const LinkButton: FC<LinkButtonProps> = ({ text, path, ...rest }) => {
 
   return (
     <TouchableOpacity {...rest} onPress={navigate}>
-      <Text className={'text-primary font-semibold'}>{text}</Text>
+      <Text className={'text-white font-semibold'}>{text}</Text>
     </TouchableOpacity>
   );
 };

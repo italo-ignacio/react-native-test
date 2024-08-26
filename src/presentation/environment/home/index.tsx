@@ -5,17 +5,17 @@ import { useFindVehicleBrandQuery } from 'infra/cache';
 import type { FC } from 'react';
 
 export const Home: FC = () => {
-  const vehicleBrandQuery = useFindVehicleBrandQuery({ limit: 10, page: 1 });
+  const vehicleBrandQuery = useFindVehicleBrandQuery({});
 
   const { user } = useAppSelector((state) => state.persist);
 
   return (
-    <PrivateContainer headerSubtitle={`${user?.firstName} ${user?.firstName}`} title={'Ola'}>
+    <PrivateContainer headerSubtitle={`${user?.firstName} ${user?.firstName}`} headerTitle={'Olá,'}>
       <Button
         onPress={(): void => {
           vehicleBrandQuery.refetch();
         }}
-        title={'Home'}
+        title={'Refecth'}
       />
 
       {vehicleBrandQuery.data?.map((item) => (

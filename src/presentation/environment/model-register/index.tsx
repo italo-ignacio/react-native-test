@@ -2,10 +2,10 @@ import { Button } from 'react-native';
 import { PrivateContainer } from 'presentation/atomic-component/template';
 import type { FC } from 'react';
 
-export const Profile: FC = () => {
+export const ModelRegister: FC = () => {
   return (
-    <PrivateContainer headerTitle={'Perfil'}>
-      <Button title={'Perfil'} />
+    <PrivateContainer headerTitle={'Modelos registrar'}>
+      <Button title={'Modelos'} />
     </PrivateContainer>
   );
 };

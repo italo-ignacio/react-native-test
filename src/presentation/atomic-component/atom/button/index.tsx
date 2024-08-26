@@ -50,7 +50,7 @@ export const Button: FC<ButtonProps> = ({
     <TouchableOpacity
       {...buttonProps}
       activeOpacity={0.7}
-      className={`flex flex-row items-center justify-center rounded-md px-2 py-2.5 ${buttonProps?.className}`}
+      className={`flex flex-row items-center justify-center rounded-md p-2 ${buttonProps?.className}`}
       disabled={isLoading}
       onPress={onPress}
       style={[{ backgroundColor: buttonColor, ...(buttonProps ?? {}) }]}

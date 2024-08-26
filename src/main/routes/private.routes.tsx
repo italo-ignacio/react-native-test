@@ -1,28 +1,13 @@
-import { type FC, useEffect } from 'react';
-import { Home, Profile, Vehicle, VehicleBrand, VehicleModel } from 'presentation/environment';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { BluetoothProvider } from 'data/hooks';
 import { Tab } from 'main/tabs';
-import { addEventListener } from '@react-native-community/netinfo';
 import { colors } from 'presentation/style';
 import { paths } from 'main/config';
-import { setInternetConnection } from 'store/net-info/slice';
+import { tabsMock } from 'main/mock/tabs';
 import { useAppSelector } from 'store';
-import { useDispatch } from 'react-redux';
+import type { FC } from 'react';
 
 export const PrivateRoutes: FC = () => {
-  const dispatch = useDispatch();
-
   const { user } = useAppSelector((state) => state.persist);
-
-  useEffect(() => {
-    const unsubscribe = addEventListener((state) => {
-      dispatch(setInternetConnection(state.isConnected ?? false));
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
 
   const options = {
     tabBarActiveBackgroundColor: colors.blue.mid,
@@ -41,91 +26,25 @@ export const PrivateRoutes: FC = () => {
   };
 
   return (
-    <Tab.Navigator initialRouteName={paths.home} screenOptions={{ headerShown: false }}>
-      <Tab.Screen
-        component={Home}
-        name={paths.home}
-        options={{
-          ...options,
-          tabBarIcon: ({ focused }) => (
-            <Ionicons
-              color={focused ? colors.primary : 'gray'}
-              name={focused ? 'home' : 'home-outline'}
-              size={20}
+    <BluetoothProvider>
+      <Tab.Navigator initialRouteName={paths.home} screenOptions={{ headerShown: false }}>
+        {tabsMock.map((item) => {
+          if (user?.role !== 'ADMIN' && item.onlyAdmin) return null;
+
+          return (
+            <Tab.Screen
+              key={item.name}
+              component={item.component}
+              name={item.name}
+              options={{
+                ...options,
+                tabBarIcon: item.tabBarIcon,
+                title: item.title
+              }}
             />
-          ),
-
-          title: 'Home'
-        }}
-      />
-
-      <Tab.Screen
-        component={Vehicle}
-        name={paths.vehicle}
-        options={{
-          ...options,
-          tabBarIcon: ({ focused }) => (
-            <Ionicons
-              color={focused ? colors.primary : 'gray'}
-              name={focused ? 'car' : 'car-outline'}
-              size={24}
-            />
-          ),
-          title: 'Veiculos'
-        }}
-      />
-
-      {user?.role === 'admin' ? (
-        <>
-          <Tab.Screen
-            component={VehicleBrand}
-            name={paths.vehicleBrand}
-            options={{
-              ...options,
-              tabBarIcon: ({ focused }) => (
-                <MaterialCommunityIcons
-                  color={focused ? colors.primary : 'gray'}
-                  name={focused ? 'car-cog' : 'car-cog'}
-                  size={24}
-                />
-              ),
-              title: 'Marcas'
-            }}
-          />
-
-          <Tab.Screen
-            component={VehicleModel}
-            name={paths.vehicleModel}
-            options={{
-              ...options,
-              tabBarIcon: ({ focused }) => (
-                <MaterialCommunityIcons
-                  color={focused ? colors.primary : 'gray'}
-                  name={focused ? 'car-side' : 'car-side'}
-                  size={24}
-                />
-              ),
-              title: 'Modelos'
-            }}
-          />
-        </>
-      ) : null}
-
-      <Tab.Screen
-        component={Profile}
-        name={paths.profile}
-        options={{
-          ...options,
-          tabBarIcon: ({ focused }) => (
-            <Ionicons
-              color={focused ? colors.primary : 'gray'}
-              name={focused ? 'person' : 'person-outline'}
-              size={20}
-            />
-          ),
-          title: 'Perfil'
-        }}
-      />
-    </Tab.Navigator>
+          );
+        })}
+      </Tab.Navigator>
+    </BluetoothProvider>
   );
 };

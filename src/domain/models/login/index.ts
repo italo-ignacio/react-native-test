@@ -3,7 +3,7 @@ export interface UserProps {
   lastName: string;
   firstName: string;
   email: string;
-  role: 'admin' | 'common';
+  role: 'ADMIN' | 'USER';
 }
 
 export interface LoginResponse {

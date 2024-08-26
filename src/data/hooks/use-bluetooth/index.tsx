@@ -2,39 +2,29 @@
 /* eslint-disable consistent-return */
 /* eslint-disable max-lines-per-function */
 import * as ExpoDevice from 'expo-device';
-import { BleManager } from 'react-native-ble-plx';
+import { BleManager, State } from 'react-native-ble-plx';
 import { PermissionsAndroid, Platform } from 'react-native';
-import { useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import base64 from 'react-native-base64';
 import decodeCharacteristicResponse from 'data/bluetooth/decode-characteristic-response';
 import type { BleError, Characteristic, Device } from 'react-native-ble-plx';
 import type { CharacteristicType } from 'domain/enums';
-import type { Dispatch, SetStateAction } from 'react';
+import type { Dispatch, ReactNode, SetStateAction } from 'react';
 
 const SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
 const READ_CHARACTERISTIC = '0000fff1-0000-1000-8000-00805f9b34fb';
 const WRITE_CHARACTERISTIC = '0000fff2-0000-1000-8000-00805f9b34fb';
 
-interface BLEResponse {
-  raw: unknown;
-  decoded: unknown;
+interface BluetoothProviderProps {
+  children: ReactNode;
 }
 
-type state = {
+export type stateDevice = {
   connection: 'isConnected' | 'isConnecting' | 'notConnected';
   device: Device;
 } | null;
 
-export interface Array2 {
-  codes: {
-    service: string;
-    characteristic: string;
-  };
-  value: unknown;
-  formattedValue: unknown;
-}
-
-interface BluetoothLowEnergyApi {
+interface BluetoothContextProps {
   startScan: () => void;
   stopScan: () => void;
   connectToDevice: (deviceId: Device) => Promise<void>;
@@ -46,30 +36,43 @@ interface BluetoothLowEnergyApi {
   isScanning: boolean;
   isMonitoring: boolean;
   setIsMonitoring: Dispatch<SetStateAction<boolean>>;
-  state: state;
+  state: stateDevice;
+  bluetoothState: 'off' | 'on';
+  manager: BleManager;
 }
 
-export const useBle = ({
-  selectedItems,
-  setData,
-  data
-}: {
-  selectedItems: { label: string; value: CharacteristicType }[];
-  data: {
-    [key in CharacteristicType]?: number | string | null;
-  };
-  setData: Dispatch<
-    SetStateAction<{
-      [key in CharacteristicType]?: number | string | null;
-    }>
-  >;
-}): BluetoothLowEnergyApi => {
+const BluetoothContext = createContext<BluetoothContextProps>({} as BluetoothContextProps);
+
+export const useBluetooth = (): BluetoothContextProps => {
+  return useContext(BluetoothContext);
+};
+
+export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNode => {
   const bleManager = useMemo(() => new BleManager(), []);
+  const [bluetoothState, setBluetoothState] = useState<'off' | 'on'>('off');
   const [allDevices, setAllDevices] = useState<Device[]>([]);
   const [isScanning, setIsScanning] = useState(false);
   const [isMonitoring, setIsMonitoring] = useState(false);
-  const [state, setState] = useState<state>(null);
+  const [state, setState] = useState<stateDevice>(null);
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
+
+  useEffect(() => {
+    const subscription = bleManager.onStateChange((value) => {
+      if (value === State.PoweredOn) setBluetoothState('on');
+      else {
+        setBluetoothState('off');
+        setAllDevices([]);
+        setIsScanning(false);
+        setIsMonitoring(false);
+        setState(null);
+        setConnectedDevice(null);
+      }
+    }, true);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [bleManager.state()]);
 
   const requestAndroid31Permissions = async (): Promise<boolean> => {
     const bluetoothScanPermission = await PermissionsAndroid.request(
@@ -123,22 +126,26 @@ export const useBle = ({
     }
     return true;
   };
+
   const isDuplicatedDevice = (devices: Device[], nextDevice: Device): boolean =>
     devices.findIndex((device) => nextDevice.id === device.id) > -1;
 
   const startScan = async (): Promise<void> => {
     const isPermissionsEnabled = await requestPermissions();
 
-    if (isPermissionsEnabled) {
+    // eslint-disable-next-line no-extra-parens
+    if ((await bleManager.state()) === State.PoweredOn && isPermissionsEnabled) {
       setIsScanning(true);
-      bleManager.startDeviceScan(null, null, (error, device) => {
+      await bleManager.startDeviceScan(null, null, (error, device) => {
         if (error) console.error('scan error: ', error);
 
         if (device?.name)
           setAllDevices((prevState: Device[]) => {
-            if (!isDuplicatedDevice(prevState, device)) return [...prevState, device];
+            if (isDuplicatedDevice(prevState, device)) return prevState;
 
-            return prevState;
+            if (device.name?.toLowerCase().includes('obd')) return [device, ...prevState];
+
+            return [...prevState, device];
           });
       });
     }
@@ -173,15 +180,19 @@ export const useBle = ({
 
           const value = decodeCharacteristicResponse(code, decodedValue);
 
-          if (data[code] !== value && value !== undefined && value !== null)
-            setData((prevState) => ({
-              ...prevState,
-              [code]: value
-            }));
+          console.log(value);
+
+          // if (data[code] !== value && value !== undefined && value !== null)
+          //   setData((prevState) => ({
+          //     ...prevState,
+          //     [code]: value
+          //   }));
         }
       );
     }
   };
+
+  // console.log(startMonitor(CharacteristicType.engineSpeed));
 
   const logVehicleData = async (code: CharacteristicType): Promise<void> => {
     if (connectedDevice) {
@@ -254,7 +265,7 @@ export const useBle = ({
 
         setConnectedDevice(newDeviceConnection);
 
-        bleManager.stopDeviceScan();
+        await bleManager.stopDeviceScan();
         setIsScanning(false);
         setState({ connection: 'isConnected', device: newDeviceConnection });
       } catch (error) {
@@ -263,18 +274,8 @@ export const useBle = ({
       }
   };
 
-  useEffect(() => {
-    if (isMonitoring) {
-      const interval = setInterval(async (): Promise<void> => {
-        for await (const element of selectedItems) await startMonitor(element.value);
-      }, 500);
-
-      return () => clearInterval(interval);
-    }
-  }, [isMonitoring]);
-
-  const stopScan = (): void => {
-    bleManager.stopDeviceScan();
+  const stopScan = async (): Promise<void> => {
+    await bleManager.stopDeviceScan();
     setIsScanning(false);
   };
 
@@ -286,18 +287,40 @@ export const useBle = ({
     }
   };
 
-  return {
-    allDevices,
-    connectToDevice,
-    connectedDevice,
-    disconnectFromDevice,
-    isMonitoring,
-    isScanning,
-    logVehicleData,
-    requestPermissions,
-    setIsMonitoring,
-    startScan,
-    state,
-    stopScan
-  };
+  const value = useMemo(
+    () => ({
+      allDevices,
+      bluetoothState,
+      connectToDevice,
+      connectedDevice,
+      disconnectFromDevice,
+      isMonitoring,
+      isScanning,
+      logVehicleData,
+      manager: bleManager,
+      requestPermissions,
+      setIsMonitoring,
+      startScan,
+      state,
+      stopScan
+    }),
+    [
+      allDevices,
+      connectToDevice,
+      connectedDevice,
+      disconnectFromDevice,
+      bluetoothState,
+      isMonitoring,
+      isScanning,
+      logVehicleData,
+      requestPermissions,
+      setIsMonitoring,
+      startScan,
+      state,
+      stopScan,
+      bleManager
+    ]
+  );
+
+  return <BluetoothContext.Provider value={value}>{children}</BluetoothContext.Provider>;
 };

@@ -2,10 +2,10 @@ import { Button } from 'react-native';
 import { PrivateContainer } from 'presentation/atomic-component/template';
 import type { FC } from 'react';
 
-export const Profile: FC = () => {
+export const Brand: FC = () => {
   return (
-    <PrivateContainer headerTitle={'Perfil'}>
-      <Button title={'Perfil'} />
+    <PrivateContainer headerTitle={'Marcas'}>
+      <Button title={'Marcas'} />
     </PrivateContainer>
   );
 };

@@ -1,3 +1,4 @@
+/* eslint-disable unused-imports/no-unused-imports */
 /* eslint-disable import/no-named-as-default-member */
 import { AppRoutes } from './app.routes';
 import { type FC, useEffect } from 'react';
@@ -10,17 +11,18 @@ import NetInfo from '@react-native-community/netinfo';
 
 export const Routes: FC = () => {
   const { isValid } = useToken();
-  const dispatch = useDispatch();
 
-  useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener((state) => {
-      dispatch(setInternetConnection(state.isConnected ?? false));
-    });
+  // const dispatch = useDispatch();
 
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  // useEffect(() => {
+  //   const unsubscribe = NetInfo.addEventListener((state) => {
+  //     dispatch(setInternetConnection(state.isConnected ?? false));
+  //   });
+
+  //   return () => {
+  //     unsubscribe();
+  //   };
+  // }, []);
 
   return <NavigationContainer>{isValid() ? <PrivateRoutes /> : <AppRoutes />}</NavigationContainer>;
 };

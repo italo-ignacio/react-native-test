@@ -6,9 +6,21 @@ export const paths = {
   recoverPassword: 'recoverPassword',
   updatePassword: 'updatePassword',
   home: 'home',
+  homeRoutes: 'homeRoutes',
   vehicle: 'vehicle',
-  vehicleBrand: 'vehicleBrand',
-  vehicleModel: 'vehicleModel',
+  vehicleRoutes: 'vehicleRoutes',
+  bluetooth: 'bluetooth',
+  vehicleRegister: 'vehicleRegister',
+  vehicleEdit: 'vehicleEdit',
+  vehicleDiagnostic: 'vehicleDiagnostic',
+  brandRoutes: 'brandRoutes',
+  brand: 'brand',
+  brandRegister: 'brandRegister',
+  brandEdit: 'brandEdit',
+  model: 'model',
+  modelRoutes: 'modelRoutes',
+  modelRegister: 'modelRegister',
+  modelEdit: 'modelEdit',
   profile: 'profile'
 } as const;
 

@@ -5,11 +5,7 @@
     "strictNullChecks": true,
     "baseUrl": "src",
     "target": "ESNext",
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "ESNext"
-    ],
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "jsx": "react-native",
     "useDefineForClassFields": true,
     "module": "ESNext",
@@ -25,6 +21,8 @@
   },
   "include": [
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "src/presentation/atomic-component/atom/button copy",
+    "src/presentation/atomic-component/atom/button copy"
   ]
 }

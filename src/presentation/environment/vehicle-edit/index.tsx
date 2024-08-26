@@ -5,9 +5,9 @@ import { gap } from 'main/utils';
 import { paths } from 'main/config';
 import type { FC } from 'react';
 
-export const Vehicle: FC = () => {
+export const VehicleEdit: FC = () => {
   return (
-    <PrivateContainer headerTitle={'Meus Veículos'}>
+    <PrivateContainer headerTitle={'Editar Veículos'}>
       <View {...gap(16)}>
         <Button title={'Veiculos'} />
 

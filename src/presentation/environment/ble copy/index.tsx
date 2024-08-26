@@ -18,7 +18,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import type { Device } from 'react-native-ble-plx';
 
-export const Ble: FC = () => {
+export const Bluetooth: FC = () => {
   const [selectedItems, setSelectedItems] = useState<
     { label: string; value: CharacteristicType }[]
   >([
