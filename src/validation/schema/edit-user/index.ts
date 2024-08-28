@@ -1,10 +1,7 @@
-import { object, ref, string } from 'yup';
+import { object, string } from 'yup';
 import type { InferType } from 'yup';
 
-export const registerSchema = object().shape({
-  confirmPassword: string()
-    .required('O campo confirmação de senha obrigatório')
-    .oneOf([ref('password')], 'Senhas não se coincidem'),
+export const editUserSchema = object().shape({
   email: string().email('E-mail inválido').required('O campo e-mail é obrigatório'),
   fullName: string()
     .required('O campo nome completo é obrigatório')
@@ -12,7 +9,7 @@ export const registerSchema = object().shape({
       if (!value) return false;
       return value.trim().split(' ').length >= 2;
     }),
-  password: string().required('O campo senha é obrigatório')
+  password: string()
 });
 
-export type RegisterRequest = InferType<typeof registerSchema>;
+export type EditUserRequest = InferType<typeof editUserSchema>;

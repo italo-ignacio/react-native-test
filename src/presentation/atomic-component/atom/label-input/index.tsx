@@ -1,16 +1,22 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { Text, TextInput, View } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { colors } from 'presentation/style';
 import { gap } from 'main/utils';
+import type {
+  DimensionValue,
+  GestureResponderEvent,
+  StyleProp,
+  TextInputProps,
+  ViewStyle
+} from 'react-native';
 import type { FC } from 'react';
-import type { GestureResponderEvent, StyleProp, TextInputProps, ViewStyle } from 'react-native';
 import type { IconNames } from 'domain/protocol';
 
 export type LabelInputProps = TextInputProps & {
   isRequired?: boolean;
   label?: string;
   error?: string;
+  maxWidth?: DimensionValue;
   leftIcon?: {
     name: IconNames;
     style?: StyleProp<ViewStyle>;
@@ -30,10 +36,11 @@ export const LabelInput: FC<LabelInputProps> = ({
   rightIcon,
   isRequired,
   error,
+  maxWidth,
   leftIcon,
   ...rest
 }) => {
-  const maxWidth = (): number => {
+  const getMaxWidth = (): number => {
     let value = 0;
 
     if (rightIcon) value += 7;
@@ -47,7 +54,7 @@ export const LabelInput: FC<LabelInputProps> = ({
   return (
     <View {...gap(5)}>
       {label ? (
-        <Text className={'text-gray-700 text-sm'}>
+        <Text className={'text-primary text-sm'}>
           {label}
           {isRequired ? ' *' : ''}
         </Text>
@@ -58,7 +65,8 @@ export const LabelInput: FC<LabelInputProps> = ({
         style={{
           backgroundColor: colors.white,
           borderColor: error ? colors.red : colors.inputBorder,
-          gap: 6
+          gap: 6,
+          maxWidth
         }}
       >
         {leftIcon ? (
@@ -74,7 +82,7 @@ export const LabelInput: FC<LabelInputProps> = ({
         <TextInput
           className={'w-full'}
           placeholderTextColor={colors.placeholder}
-          style={{ maxWidth: `${maxWidth()}%` }}
+          style={{ maxWidth: `${getMaxWidth()}%` }}
           {...rest}
         />
 

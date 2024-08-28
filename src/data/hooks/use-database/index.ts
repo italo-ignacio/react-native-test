@@ -46,6 +46,10 @@ interface useDatabaseReturn {
     entity: T,
     props: { data: UpdateProps<T>[] }
   ) => Promise<void>;
+  totalElements: <T extends keyof SelectEntityMap>(
+    entity: T,
+    options?: { where?: WhereProps<T> }
+  ) => Promise<number>;
 }
 
 export const useDatabase = (): useDatabaseReturn => {
@@ -87,6 +91,19 @@ export const useDatabase = (): useDatabaseReturn => {
     const result = await database.getAllAsync(selectQuery);
 
     return formatListResult(result, options?.select) as SelectEntityReturnMap[T][];
+  };
+
+  const totalElements = async <T extends keyof SelectEntityMap>(
+    entity: T,
+    options?: { where?: WhereProps<T> }
+  ): Promise<number> => {
+    const { whereData } = databaseWhereTransform(entity, options?.where);
+
+    const selectQuery = `SELECT COUNT(${entity}.id) as count FROM ${entity} ${whereData};`;
+
+    const result = (await database.getFirstAsync(selectQuery)) as unknown as { count: number };
+
+    return result.count;
   };
 
   const create = async <T extends keyof SelectEntityMap>(
@@ -139,9 +156,51 @@ export const useDatabase = (): useDatabaseReturn => {
 
   const upsertData = async <T extends keyof SelectEntityMap>(
     entity: T,
-    { data }: { data: UpdateProps<T>[] }
+    {
+      data,
+      where,
+      ...params
+    }: Partial<PaginationProps> & { data: UpdateProps<T>[]; where?: WhereProps<T> }
   ): Promise<void> => {
     const { columns } = databaseValues(data[0]);
+    const { whereData } = databaseWhereTransform(entity, where);
+
+    const limit = params?.limit;
+    const page = params?.page ?? 1;
+    const pagination = limit ? `LIMIT ${limit} OFFSET ${(page - 1) * limit}` : '';
+
+    const formattedWhere = `AND apiId IN (SELECT apiId FROM ${entity} ${whereData} ${pagination})`;
+
+    const apiIds = data
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((item: any) => item.apiId)
+      .join(', ');
+
+    const deleteQuery = `DELETE FROM ${entity} WHERE apiId NOT IN (${apiIds}) ${formattedWhere}`;
+
+    const datass = `SELECT apiId FROM ${entity} ${whereData} ${pagination}`;
+
+    const valuess = await database.getAllAsync(datass);
+
+    console.log('bbbbbbbbbbbbbbbbbbbbbbb');
+    console.log(deleteQuery);
+
+    console.log(
+      apiIds
+        .split(',')
+        .map((item) => Number(String(item).replace(/ /gu, '')))
+        .sort((first, second) => first > second),
+      apiIds.split(',').length
+    );
+    console.log(
+      valuess.map((item) => item.apiId).sort((first, second) => first > second),
+      valuess.map((item) => item.apiId).length
+    );
+    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+
+    await database.withExclusiveTransactionAsync(async (transaction) => {
+      await transaction.execAsync(deleteQuery);
+    });
 
     const values = data
       .map(
@@ -207,5 +266,14 @@ export const useDatabase = (): useDatabaseReturn => {
     });
   };
 
-  return { create, createMany, delete: deleteData, find, findFirst, update, upsertData };
+  return {
+    create,
+    createMany,
+    delete: deleteData,
+    find,
+    findFirst,
+    totalElements,
+    update,
+    upsertData
+  };
 };

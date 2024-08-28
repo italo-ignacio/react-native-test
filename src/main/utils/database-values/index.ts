@@ -80,7 +80,10 @@ export const databaseWhereTransform = (entity: string, where?: object): { whereD
       if (condition) {
         const { operator, value } = condition;
 
-        const formattedValue = typeof value === 'string' ? `'${value}'` : value;
+        const formattedValue =
+          typeof value === 'number'
+            ? value
+            : `${String(value).startsWith('SELECT') ? `(${value})` : `"${value}"`}`;
 
         return `${entity}.${key} ${operator} ${formattedValue}`;
       }
@@ -89,7 +92,7 @@ export const databaseWhereTransform = (entity: string, where?: object): { whereD
 
     const whereData = conditions.filter(Boolean).join(' AND ');
 
-    return { whereData: `WHERE ${whereData}` };
+    if (whereData) return { whereData: `WHERE ${whereData}` };
   }
 
   return { whereData: '' };

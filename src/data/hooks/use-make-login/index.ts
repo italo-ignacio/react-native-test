@@ -25,16 +25,17 @@ export const useMakeLogin = (): {
       dispatch(
         setAuth({
           accessToken:
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIeWJyaWQgQVBJIiwic3ViIjoiOCIsImlhdCI6MTcyNDY3MjY0NCwiZXhwIjoxNzI0ODUyNjQ0LCJ1c2VyIjp7ImVtYWlsIjoiU2VuYWlAMTI3IiwibGFzdE5hbWUiOiIxMjciLCJyb2xlIjoiVVNFUiIsImlkIjoiOCIsImZpcnN0TmFtZSI6IlNlbmFpIn19.GqLs5_uKIrm7nclsVxHbQTvjSDvHzjGDKSm9oTh24yc',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIeWJyaWQgQVBJIiwic3ViIjoiMiIsImlhdCI6MTcyNDg1NzcxNywiZXhwIjoxNzI1MDM3NzE3LCJ1c2VyIjp7Imxhc3ROYW1lIjoiSWduYWNpbyIsInJvbGUiOiJBRE1JTiIsImlkIjoiMiIsImZpcnN0TmFtZSI6Ikl0YWxvIiwiZW1haWwiOiJhZG1pbkBhZG1pbiJ9fQ.LlLRvQMWOmOgCwoUgSLdSKCPCH6xMhVRSOMCU-DgKFI',
           user: {
-            email: 'admin ',
-            firstName: 'admin ',
+            email: 'admin@admin',
+            firstName: 'admin',
             id: 1,
-            lastName: 'admin ',
+            lastName: 'Roberto da Silva',
             role: 'ADMIN'
           }
         })
       );
+
       resolverError(err);
     }
   };

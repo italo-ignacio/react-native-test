@@ -11,6 +11,7 @@ export const Bluetooth: FC = () => {
     requestPermissions,
     allDevices,
     connectToDevice,
+    connectedDevice,
     isScanning,
     state,
     disconnectFromDevice,
@@ -34,16 +35,16 @@ export const Bluetooth: FC = () => {
     <PrivateContainer headerTitle={'Dispositivos'}>
       {bluetoothState === 'off' ? (
         <>
-          <Text className={'text-2xl font-bold text-center mt-4'}>Bluetooth desativado</Text>
+          <Text className={'text-xl font-bold text-center mt-4'}>Bluetooth desativado</Text>
 
-          <Text className={'text-lg text-center mt-4'}>
+          <Text className={'text-base text-center mt-4'}>
             Ative o Bluetooth nas configurações do seu celular
           </Text>
         </>
       ) : (
         <View {...gap(16)}>
           <View className={'flex flex-row justify-between items-center'}>
-            <Text className={'text-primary font-bold text-lg'}>Dispositivos Disponíveis</Text>
+            <Text className={'text-primary font-bold text-base'}>Dispositivos Disponíveis</Text>
 
             <Button
               leftIcon={isScanning ? 'bluetooth-searching' : 'bluetooth'}
@@ -51,6 +52,7 @@ export const Bluetooth: FC = () => {
                 if (isScanning) stopScan();
                 else startScan();
               }}
+              size={'small'}
               text={isScanning ? ' Buscando' : ' Buscar'}
             />
           </View>
@@ -60,8 +62,9 @@ export const Bluetooth: FC = () => {
               key={item.id}
               device={item}
               onPress={(): void => {
-                if (state?.device.id === item.id) disconnectFromDevice();
-                else connectToDevice(item);
+                if (state?.connection !== 'isConnecting')
+                  if (connectedDevice?.id === item.id) disconnectFromDevice();
+                  else connectToDevice(item);
               }}
               state={state}
             />

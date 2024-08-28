@@ -6,9 +6,10 @@ import type { TouchableOpacityProps } from 'react-native';
 type LinkButtonProps = TouchableOpacityProps & {
   text: string;
   path: string;
+  color?: 'primary' | 'white';
 };
 
-export const LinkButton: FC<LinkButtonProps> = ({ text, path, ...rest }) => {
+export const LinkButton: FC<LinkButtonProps> = ({ text, color, path, ...rest }) => {
   const router = useRouter();
 
   const navigate = (): void => {
@@ -17,7 +18,9 @@ export const LinkButton: FC<LinkButtonProps> = ({ text, path, ...rest }) => {
 
   return (
     <TouchableOpacity {...rest} onPress={navigate}>
-      <Text className={'text-white font-semibold'}>{text}</Text>
+      <Text className={`font-semibold ${color === 'white' ? 'text-white' : 'text-primary'}`}>
+        {text}
+      </Text>
     </TouchableOpacity>
   );
 };

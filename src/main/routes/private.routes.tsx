@@ -13,23 +13,26 @@ export const PrivateRoutes: FC = () => {
     tabBarActiveBackgroundColor: colors.blue.mid,
     tabBarActiveTintColor: colors.primary,
     tabBarItemStyle: {
-      paddingBottom: 4,
-      paddingTop: 4
+      paddingBottom: 2,
+      paddingTop: 2
     },
     tabBarStyle: {
-      height: 60,
-      paddingBottom: 6,
-      paddingLeft: 6,
-      paddingRight: 6,
-      paddingTop: 6
+      height: 55,
+      paddingBottom: 4,
+      paddingLeft: 4,
+      paddingRight: 4,
+      paddingTop: 4
     }
   };
 
   return (
     <BluetoothProvider>
-      <Tab.Navigator initialRouteName={paths.home} screenOptions={{ headerShown: false }}>
+      <Tab.Navigator
+        initialRouteName={paths.home}
+        screenOptions={{ headerShown: false, tabBarHideOnKeyboard: true }}
+      >
         {tabsMock.map((item) => {
-          if (user?.role !== 'ADMIN' && item.onlyAdmin) return null;
+          // if (user?.role !== 'ADMIN' && item.onlyAdmin) return null;
 
           return (
             <Tab.Screen

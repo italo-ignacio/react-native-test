@@ -1,3 +1,4 @@
+import type { Pagination } from 'domain/protocol';
 import type { SelectProps } from '../database';
 
 export interface VehicleBrand {
@@ -14,6 +15,10 @@ export interface VehicleBrandValues {
   name: string;
   imageName?: string;
   createdAt?: Date;
+}
+
+export interface FindVehicleBrandResponse extends Pagination {
+  content: VehicleBrand[];
 }
 
 export const selectAllVehicleBrand: SelectProps<'vehicle_brands'> = {

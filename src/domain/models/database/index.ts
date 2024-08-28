@@ -37,12 +37,12 @@ export interface FastSelectEntityReturnMap {
   offline_queue: OfflineQueue;
 }
 
-type FilterOperator = '!=' | '<' | '<=' | '=' | '>' | '>=' | 'LIKE';
+type FilterOperator = '!=' | '<' | '<=' | '=' | '>' | '>=' | 'LIKE' | 'NOT IN';
 
-type WhereCondition<T> = {
+export type WhereCondition<T> = {
   [K in keyof T]?: {
     operator: FilterOperator;
-    value: T[K];
+    value: T[K] | unknown;
   };
 };
 

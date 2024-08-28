@@ -11,6 +11,7 @@ interface ButtonProps {
   variant?: 'default' | 'delete' | 'secondary';
   isLoading?: boolean;
   buttonProps?: TouchableOpacityProps;
+  size?: 'normal' | 'small';
   leftIcon?: IconNames;
   onPress: (e?: BaseSyntheticEvent) => Promise<void> | void;
   leftComponent?: ReactNode;
@@ -23,6 +24,7 @@ export const Button: FC<ButtonProps> = ({
   variant = 'default',
   leftIcon,
   isLoading,
+  size,
   onPress,
   rightIcon,
   leftComponent,
@@ -50,23 +52,42 @@ export const Button: FC<ButtonProps> = ({
     <TouchableOpacity
       {...buttonProps}
       activeOpacity={0.7}
-      className={`flex flex-row items-center justify-center rounded-md p-2 ${buttonProps?.className}`}
+      className={`flex flex-row items-center justify-center rounded-full ${
+        buttonProps?.className
+      } ${size === 'small' ? 'p-1' : 'p-2'} px-5`}
       disabled={isLoading}
       onPress={onPress}
       style={[{ backgroundColor: buttonColor, ...(buttonProps ?? {}) }]}
     >
       {isLoading ? (
-        <ActivityIndicator color={colors.white} size={24} />
+        <ActivityIndicator color={colors.white} size={size === 'small' ? 20 : 24} />
       ) : (
         <>
-          {leftIcon ? <MaterialIcons color={buttonTextColor} name={leftIcon} size={18} /> : null}
+          {leftIcon ? (
+            <MaterialIcons
+              color={buttonTextColor}
+              name={leftIcon}
+              size={size === 'small' ? 16 : 18}
+            />
+          ) : null}
+
           {leftComponent ?? null}
 
-          <Text className={'capitalize text-base'} style={[{ color: buttonTextColor }]}>
+          <Text
+            className={`capitalize ${size === 'small' ? '' : 'text-base'}`}
+            style={[{ color: buttonTextColor }]}
+          >
             {text}
           </Text>
 
-          {rightIcon ? <MaterialIcons color={buttonTextColor} name={rightIcon} size={18} /> : null}
+          {rightIcon ? (
+            <MaterialIcons
+              color={buttonTextColor}
+              name={rightIcon}
+              size={size === 'small' ? 16 : 18}
+            />
+          ) : null}
+
           {rightComponent ?? null}
         </>
       )}

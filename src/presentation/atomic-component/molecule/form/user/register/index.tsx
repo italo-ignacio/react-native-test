@@ -23,20 +23,11 @@ export const RegisterForm: FC = () => {
       >
         <InputController
           control={control}
-          error={errors.firstName?.message}
+          error={errors.fullName?.message}
           isRequired
-          label={'Primeiro nome'}
-          name={'firstName'}
-          placeholder={'Digite seu primeiro nome'}
-        />
-
-        <InputController
-          control={control}
-          error={errors.lastName?.message}
-          isRequired
-          label={'Segundo Nome'}
-          name={'lastName'}
-          placeholder={'Digite seu segundo nome'}
+          label={'Nome completo'}
+          name={'fullName'}
+          placeholder={'Digite seu nome completo'}
         />
 
         <InputController

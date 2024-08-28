@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 /* eslint-disable @typescript-eslint/init-declarations */
 import {
   type SelectEntityMap,
@@ -12,11 +13,16 @@ import {
 } from '../convert-data';
 import { setSynchronizeApiData } from 'store/persist/slice';
 import { useAppSelector } from 'store';
-import { useDatabase } from 'data/hooks';
+import { useDatabase } from 'data/hooks/use-database';
 import { useDispatch } from 'react-redux';
 
 export const useDatabaseData = (): {
-  transformApiResponseToDatabase: (entity: keyof SelectEntityMap, data: never) => void;
+  transformApiResponseToDatabase: (
+    entity: keyof SelectEntityMap,
+    data: never,
+    params: object,
+    pagination: { limit?: number; page?: number }
+  ) => Promise<void>;
   findOnDatabase: (
     entity: keyof SelectEntityMap,
     params: object & { limit?: number; page?: number }
@@ -34,20 +40,40 @@ export const useDatabaseData = (): {
     return lastSync === null || new Date(lastSync) < pastDate;
   };
 
-  const transformApiResponseToDatabase = (entity: keyof SelectEntityMap, data: never): void => {
+  const transformApiResponseToDatabase = async (
+    entity: keyof SelectEntityMap,
+    data: never,
+    params: object,
+    pagination: { limit?: number; page?: number }
+  ): Promise<void> => {
+    const formattedData = data as unknown as { totalElements?: number; totalPages?: number };
+    const hasPagination =
+      formattedData &&
+      typeof formattedData.totalElements === 'number' &&
+      typeof formattedData.totalPages === 'number';
+
     switch (entity) {
       case 'vehicles':
-        database.upsertData(entity, { data: convertVehicleData(data) });
+        await database.upsertData(entity, {
+          ...convertVehicleData(data, params, hasPagination),
+          ...pagination
+        });
         break;
       case 'vehicle_models':
         if (shouldSynchronize(synchronizeApiData.vehicleModel, 1)) {
-          database.upsertData(entity, { data: convertVehicleModelData(data) });
+          await database.upsertData(entity, {
+            ...convertVehicleModelData(data, params, hasPagination),
+            ...pagination
+          });
           dispatch(setSynchronizeApiData({ vehicle: new Date() }));
         }
         break;
       case 'vehicle_brands':
         if (shouldSynchronize(synchronizeApiData.vehicleBrand, 1)) {
-          database.upsertData(entity, { data: convertVehicleBrandData(data) });
+          await database.upsertData(entity, {
+            ...convertVehicleBrandData(data, params, hasPagination),
+            ...pagination
+          });
           dispatch(setSynchronizeApiData({ vehicle: new Date() }));
         }
         break;
@@ -60,11 +86,11 @@ export const useDatabaseData = (): {
     entity: keyof SelectEntityMap,
     { limit, page, ...params }: object & { limit?: number; page?: number }
   ): Promise<unknown> => {
-    let dataValue;
+    let content;
 
     switch (entity) {
       case 'vehicles':
-        dataValue = await database.find(entity, {
+        content = await database.find(entity, {
           limit,
           page,
           select: selectAllVehicle,
@@ -72,7 +98,7 @@ export const useDatabaseData = (): {
         });
         break;
       case 'vehicle_models':
-        dataValue = await database.find(entity, {
+        content = await database.find(entity, {
           limit,
           page,
           select: selectAllVehicleModel,
@@ -80,7 +106,7 @@ export const useDatabaseData = (): {
         });
         break;
       case 'vehicle_brands':
-        dataValue = await database.find(entity, {
+        content = await database.find(entity, {
           limit,
           page,
           select: selectAllVehicleBrand,
@@ -91,7 +117,14 @@ export const useDatabaseData = (): {
         break;
     }
 
-    return dataValue;
+    if (limit && page) {
+      const totalElements = await database.totalElements(entity, { where: { ...params } });
+      const totalPages = Math.ceil(totalElements / limit);
+
+      return { content, totalElements, totalPages };
+    }
+
+    return content;
   };
 
   return { findOnDatabase, transformApiResponseToDatabase };

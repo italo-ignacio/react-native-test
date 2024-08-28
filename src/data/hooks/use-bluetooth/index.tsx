@@ -38,7 +38,7 @@ interface BluetoothContextProps {
   setIsMonitoring: Dispatch<SetStateAction<boolean>>;
   state: stateDevice;
   bluetoothState: 'off' | 'on';
-  manager: BleManager;
+  startMonitor: (code: CharacteristicType) => Promise<void>;
 }
 
 const BluetoothContext = createContext<BluetoothContextProps>({} as BluetoothContextProps);
@@ -72,7 +72,7 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
     return () => {
       subscription.remove();
     };
-  }, [bleManager.state()]);
+  }, [bleManager]);
 
   const requestAndroid31Permissions = async (): Promise<boolean> => {
     const bluetoothScanPermission = await PermissionsAndroid.request(
@@ -134,7 +134,7 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
     const isPermissionsEnabled = await requestPermissions();
 
     // eslint-disable-next-line no-extra-parens
-    if ((await bleManager.state()) === State.PoweredOn && isPermissionsEnabled) {
+    if ((await bleManager.state()) === State.PoweredOn && isPermissionsEnabled && !isScanning) {
       setIsScanning(true);
       await bleManager.startDeviceScan(null, null, (error, device) => {
         if (error) console.error('scan error: ', error);
@@ -270,6 +270,7 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
         setState({ connection: 'isConnected', device: newDeviceConnection });
       } catch (error) {
         setState({ connection: 'notConnected', device });
+        setConnectedDevice(null);
         console.error('failed to connect', error);
       }
   };
@@ -297,9 +298,9 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
       isMonitoring,
       isScanning,
       logVehicleData,
-      manager: bleManager,
       requestPermissions,
       setIsMonitoring,
+      startMonitor,
       startScan,
       state,
       stopScan
@@ -311,14 +312,14 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
       disconnectFromDevice,
       bluetoothState,
       isMonitoring,
+      startMonitor,
       isScanning,
       logVehicleData,
       requestPermissions,
       setIsMonitoring,
       startScan,
       state,
-      stopScan,
-      bleManager
+      stopScan
     ]
   );
 

@@ -3,7 +3,6 @@ import { type FC, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Text, View } from 'react-native';
 import { gap } from 'main/utils';
 import { paths } from 'main/config';
-import { useDatabase } from 'data/hooks';
 import { useLogin } from 'data/use-case';
 
 export const LoginForm: FC = () => {
@@ -15,103 +14,12 @@ export const LoginForm: FC = () => {
   } = useLogin();
   const [hidePassword, setHidePassword] = useState(true);
 
-  const database = useDatabase();
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       className={'flex flex-col w-full'}
       {...gap(10)}
     >
-      <Button
-        onPress={async (): Promise<void> => {
-          try {
-            console.log(
-              JSON.stringify(
-                await database.find('vehicle_brands', {
-                  select: {
-                    apiId: true,
-                    createdAt: true,
-                    id: true
-                  }
-                })
-              )
-            );
-            console.log('succsses');
-          } catch (error) {
-            console.log(error);
-          }
-        }}
-        text={'find'}
-      />
-
-      {/*
-      <Button
-        onPress={async (): Promise<void> => {
-          console.log(
-            await database.create('vehicles', {
-              data: {
-                apiId: 1,
-                licensePlate: '000',
-                serialNumber: '10',
-                typeOfFuel: 1,
-                vehicleModelId: 1
-              },
-              select: {
-                id: true
-              }
-            })
-          );
-        }}
-        text={'create'}
-      />
-
-      <Button
-        onPress={async (): Promise<void> => {
-          try {
-            await database.upsertData('vehicle_models', {
-              data: [
-                {
-                  apiId: 1,
-                  name: 'marca 1',
-                  vehicleBrandId: `SELECT id FROM ${TableName.vehicleBrand} WHERE apiId = 1`
-                }
-              ]
-            });
-            console.log('succsses');
-          } catch (error) {
-            console.log(error);
-          }
-        }}
-        text={'upsert'}
-      />
-
-      <Button
-        onPress={async (): Promise<void> => {
-          await database.update('vehicle_brands', {
-            data: {
-              name: 'Renato'
-            },
-            where: {
-              id: {
-                operator: '=',
-                value: 1
-              }
-            }
-          });
-        }}
-        text={'update'}
-      /> */}
-
-      <Button
-        onPress={async (): Promise<void> => {
-          await database.delete('vehicles', {});
-          await database.delete('vehicle_models', {});
-          await database.delete('vehicle_brands', {});
-        }}
-        text={'delete'}
-      />
-
       <InputController
         autoCapitalize={'none'}
         control={control}

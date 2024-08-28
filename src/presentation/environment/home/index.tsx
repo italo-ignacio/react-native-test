@@ -1,32 +1,75 @@
-import { Button, Text, View } from 'react-native';
+import { Button, ScrollView, View } from 'react-native';
 import { PrivateContainer } from 'presentation/atomic-component/template';
 import { useAppSelector } from 'store';
-import { useFindVehicleBrandQuery } from 'infra/cache';
+import { useDatabase } from 'data/hooks';
 import type { FC } from 'react';
 
 export const Home: FC = () => {
-  const vehicleBrandQuery = useFindVehicleBrandQuery({});
-
   const { user } = useAppSelector((state) => state.persist);
+  const database = useDatabase();
 
   return (
     <PrivateContainer headerSubtitle={`${user?.firstName} ${user?.firstName}`} headerTitle={'Olá,'}>
-      <Button
-        onPress={(): void => {
-          vehicleBrandQuery.refetch();
-        }}
-        title={'Refecth'}
-      />
+      <ScrollView>
+        <Button
+          onPress={async (): Promise<void> => {
+            console.log(await database.delete('vehicle_brands', {}));
+          }}
+          title={'Delete'}
+        />
 
-      {vehicleBrandQuery.data?.map((item) => (
-        <View key={item.id}>
-          <Text>
-            {item.id}-{item.apiId ?? 'null'}
-          </Text>
+        <View className={'mt-4'} />
 
-          <Text>{item.name}</Text>
-        </View>
-      ))}
+        <Button
+          onPress={async (): Promise<void> => {
+            const list = await database.find('vehicle_brands', {
+              select: {
+                name: true
+              }
+            });
+
+            console.log(list);
+            console.log(list.length);
+          }}
+          title={'Find'}
+        />
+
+        <View className={'mt-4'} />
+
+        <Button
+          onPress={async (): Promise<void> => {
+            const list = await database.find('vehicle_brands', {
+              limit: 10,
+              page: 1,
+              select: {
+                name: true
+              }
+            });
+
+            console.log(list);
+            console.log(list.length);
+          }}
+          title={'page 1'}
+        />
+
+        <View className={'mt-4'} />
+
+        <Button
+          onPress={async (): Promise<void> => {
+            const list = await database.find('vehicle_brands', {
+              limit: 10,
+              page: 2,
+              select: {
+                name: true
+              }
+            });
+
+            console.log(list);
+            console.log(list.length);
+          }}
+          title={'page 2'}
+        />
+      </ScrollView>
     </PrivateContainer>
   );
 };

@@ -1,5 +1,5 @@
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Text, TouchableOpacity, View } from 'react-native';
 import { colors } from 'presentation/style';
 import type { Device } from 'react-native-ble-plx';
 import type { FC, ReactNode } from 'react';
@@ -18,36 +18,49 @@ export const DeviceCard: FC<DeviceCardProps> = ({ device, state, isLoading, onPr
       switch (state.connection) {
         case 'isConnected':
           return (
-            <View className={'flex flex-row p-2 rounded-full items-center bg-success'}>
-              <MaterialIcons color={colors.white} name={'bluetooth-connected'} size={20} />
+            <View className={'flex flex-row p-1 px-1.5 rounded-full items-center bg-success'}>
+              <MaterialIcons color={colors.white} name={'bluetooth-connected'} size={16} />
               <Text className={'text-white'}>Conectado</Text>
             </View>
           );
         case 'notConnected':
           return (
-            <View className={'flex flex-row p-2 rounded-full items-center bg-red'}>
-              <MaterialIcons color={colors.white} name={'bluetooth-disabled'} size={20} />
+            <View className={'flex flex-row p-1 px-1.5 rounded-full items-center bg-red'}>
+              <MaterialIcons color={colors.white} name={'bluetooth-disabled'} size={16} />
               <Text className={'text-white'}>Falha ao conectar</Text>
             </View>
           );
         case 'isConnecting':
           return (
             <View
-              className={'flex flex-row p-2 rounded-full items-center bg-gray-250 text-gray-550'}
+              className={
+                'flex flex-row p-1 px-1.5 rounded-full items-center bg-gray-250 text-gray-550'
+              }
             >
-              <MaterialIcons color={colors.gray[550]} name={'bluetooth'} size={20} />
-              <Text className={'text-gray-700'}>Desconectado</Text>
+              <ActivityIndicator color={colors.gray[550]} size={18} />
+              <Text className={'text-gray-700'}> Conectando</Text>
             </View>
           );
+
         default:
           return null;
       }
 
-    if (state?.connection === 'isConnecting') return null;
+    if (state?.connection === 'isConnecting')
+      return (
+        <View
+          className={'flex flex-row p-1 px-1.5 rounded-full items-center bg-gray-250 text-gray-550'}
+        >
+          <MaterialIcons color={colors.gray[550]} name={'bluetooth'} size={16} />
+          <Text className={'text-gray-700'}>Desconectado</Text>
+        </View>
+      );
 
     return (
-      <View className={'flex flex-row p-2 rounded-full items-center bg-gray-250 text-gray-550'}>
-        <MaterialIcons color={colors.gray[550]} name={'bluetooth'} size={20} />
+      <View
+        className={'flex flex-row p-1 px-1.5 rounded-full items-center bg-gray-250 text-gray-550'}
+      >
+        <MaterialIcons color={colors.gray[550]} name={'bluetooth'} size={16} />
         <Text className={'text-gray-700'}>Desconectado</Text>
       </View>
     );
@@ -57,7 +70,7 @@ export const DeviceCard: FC<DeviceCardProps> = ({ device, state, isLoading, onPr
     <TouchableOpacity
       activeOpacity={0.7}
       className={
-        'flex flex-row justify-between items-center rounded-md p-2 py-4 w-full bg-white border border-gray-300'
+        'flex flex-row justify-between items-center rounded-md p-1 px-1.5 py-4 w-full bg-white border border-gray-300'
       }
       disabled={isLoading}
       onPress={onPress}

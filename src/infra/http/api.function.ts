@@ -38,6 +38,16 @@ export const fetchApi = async <T>(params: ApiProps): Promise<T> => {
   )
     return null as T;
 
+  if (response.headers.get('total-pages')) {
+    const res = {
+      content: await response.json(),
+      totalElements: Number(response.headers.get('total-elements')),
+      totalPages: Number(response.headers.get('total-pages'))
+    };
+
+    return res as T;
+  }
+
   const data = await response?.json();
 
   if (response.ok) return data;

@@ -8,7 +8,7 @@ interface useSearchProps {
 
 export interface useSearchReturn {
   page: number;
-  search: string;
+  searchDebounce: string;
   handleChangePage: (event: unknown, newPage: number) => void;
 }
 
@@ -21,14 +21,14 @@ export const useSearch = (props: useSearchProps): useSearchReturn => {
   const [call, setCall] = useState(true);
   const [data, setData] = useState({
     page,
-    search: props.search
+    searchDebounce: props.search
   });
 
   useEffect(
     () =>
       setData({
         page,
-        search: props.search
+        searchDebounce: props.search
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [call, page]
