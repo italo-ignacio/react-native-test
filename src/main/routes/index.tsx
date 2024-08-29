@@ -5,6 +5,7 @@ import { type FC, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { PrivateRoutes } from './private.routes';
 import { setInternetConnection } from 'store/net-info/slice';
+import { useAppSelector } from 'store';
 import { useDispatch } from 'react-redux';
 import { useToken } from 'data/hooks';
 import NetInfo from '@react-native-community/netinfo';

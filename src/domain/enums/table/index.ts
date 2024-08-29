@@ -13,3 +13,8 @@ export const TableNameReverse = {
   vehicle_models: 'vehicleModel',
   vehicles: 'vehicle'
 };
+
+export interface Ids {
+  id?: number;
+  apiId?: number;
+}

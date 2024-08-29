@@ -1,16 +1,17 @@
 import { BrandImage, Button, FetchOnScroll, LabelInput } from 'presentation/atomic-component/atom';
 import { type FC, useCallback, useState } from 'react';
 import { PrivateContainer } from 'presentation/atomic-component/template';
-import { QueryName } from 'main/config';
+import { QueryName, paths } from 'main/config';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { queryClient } from 'infra/lib';
-import { useDebounce, useInfiniteScroll } from 'data/hooks';
+import { useDebounce, useInfiniteScroll, useRouter } from 'data/hooks';
 import { useFocusEffect } from '@react-navigation/native';
 import type { VehicleBrand } from 'domain/models';
 
 export const Brand: FC = () => {
   const [search, setSearch] = useState('');
   const [searchDebounce, setSearchDebounce] = useState('');
+  const { navigate } = useRouter();
 
   useDebounce(
     () => {
@@ -22,7 +23,7 @@ export const Brand: FC = () => {
 
   const { data, ...query } = useInfiniteScroll<VehicleBrand>({
     filters: { search },
-    limit: 10,
+    limit: 50,
     queryName: QueryName.vehicleBrand,
     route: 'vehicleBrand'
   });
@@ -63,9 +64,12 @@ export const Brand: FC = () => {
             key={item.id}
             activeOpacity={0.7}
             className={'flex flex-row items-center justify-between p-2 pt-4'}
+            onPress={(): void => {
+              navigate(paths.brandEdit, item);
+            }}
           >
             <Text className={'text-primary font-semibold'}>{item.name}</Text>
-            <BrandImage imageName={item.imageName} />
+            <BrandImage imageName={item.imageName} size={'small'} />
           </TouchableOpacity>
         ))}
       </FetchOnScroll>

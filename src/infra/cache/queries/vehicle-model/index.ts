@@ -1,3 +1,4 @@
+import { apiPaths } from 'main/config';
 import { useFindQuery } from 'infra/cache/queries/default-query';
 import type { UseQueryResult } from 'react-query';
 import type { VehicleModel } from 'domain/models';
@@ -9,12 +10,21 @@ export const useFindVehicleModelQuery = ({
   useFindQuery<VehicleModel[]>({ ...props, route: 'vehicleModel' });
 
 export const useFindVehicleModelByBrandQuery = ({
-  brandId,
+  params: { apiBrandId },
   ...props
-}: useFindQueryProps & { brandId: number | string }): UseQueryResult<VehicleModel[]> =>
-  useFindQuery<VehicleModel[]>({ ...props, id: `${brandId}/vehicleModel`, route: 'vehicleModel' });
+}: useFindQueryProps & {
+  params: {
+    brandId?: number;
+    apiBrandId?: number;
+  };
+}): UseQueryResult<VehicleModel[]> =>
+  useFindQuery<VehicleModel[]>({
+    ...props,
+    apiRoute: apiPaths.vehicleModelByBrand(apiBrandId),
+    route: 'vehicleModel'
+  });
 
 export const useFindOneVehicleModelQuery = ({
   ...props
-}: useFindQueryProps & { id: number | string }): UseQueryResult<VehicleModel> =>
+}: useFindQueryProps & { ids: { id?: number; apiId?: number } }): UseQueryResult<VehicleModel> =>
   useFindQuery<VehicleModel>({ ...props, route: 'vehicleModel' });

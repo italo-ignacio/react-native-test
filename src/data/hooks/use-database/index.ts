@@ -169,7 +169,7 @@ export const useDatabase = (): useDatabaseReturn => {
     const page = params?.page ?? 1;
     const pagination = limit ? `LIMIT ${limit} OFFSET ${(page - 1) * limit}` : '';
 
-    const formattedWhere = `AND apiId IN (SELECT apiId FROM ${entity} ${whereData} ${pagination})`;
+    const formattedWhere = `AND apiId IN (SELECT apiId FROM ${entity} ${whereData} ORDER BY createdAt ASC ${pagination})`;
 
     const apiIds = data
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -177,30 +177,6 @@ export const useDatabase = (): useDatabaseReturn => {
       .join(', ');
 
     const deleteQuery = `DELETE FROM ${entity} WHERE apiId NOT IN (${apiIds}) ${formattedWhere}`;
-
-    const datass = `SELECT apiId FROM ${entity} ${whereData} ${pagination}`;
-
-    const valuess = await database.getAllAsync(datass);
-
-    console.log('bbbbbbbbbbbbbbbbbbbbbbb');
-    console.log(deleteQuery);
-
-    console.log(
-      apiIds
-        .split(',')
-        .map((item) => Number(String(item).replace(/ /gu, '')))
-        .sort((first, second) => first > second),
-      apiIds.split(',').length
-    );
-    console.log(
-      valuess.map((item) => item.apiId).sort((first, second) => first > second),
-      valuess.map((item) => item.apiId).length
-    );
-    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-
-    await database.withExclusiveTransactionAsync(async (transaction) => {
-      await transaction.execAsync(deleteQuery);
-    });
 
     const values = data
       .map(
@@ -227,6 +203,7 @@ export const useDatabase = (): useDatabaseReturn => {
     `;
 
     await database.withExclusiveTransactionAsync(async (transaction) => {
+      await transaction.execAsync(deleteQuery);
       await transaction.execAsync(query);
     });
   };

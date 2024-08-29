@@ -8,42 +8,32 @@ import {
 } from 'domain/models';
 import {
   convertVehicleBrandData,
+  convertVehicleBrandWhere,
   convertVehicleData,
-  convertVehicleModelData
+  convertVehicleModelData,
+  convertVehicleModelWhere,
+  convertVehicleWhere
 } from '../convert-data';
-import { setSynchronizeApiData } from 'store/persist/slice';
-import { useAppSelector } from 'store';
 import { useDatabase } from 'data/hooks/use-database';
-import { useDispatch } from 'react-redux';
 
 export const useDatabaseData = (): {
   transformApiResponseToDatabase: (
     entity: keyof SelectEntityMap,
     data: never,
-    params: object,
+    params: object & { ids?: { id?: number; apiId?: number } },
     pagination: { limit?: number; page?: number }
   ) => Promise<void>;
   findOnDatabase: (
     entity: keyof SelectEntityMap,
-    params: object & { limit?: number; page?: number }
+    params: object & { ids?: { id?: number; apiId?: number }; limit?: number; page?: number }
   ) => unknown;
 } => {
   const database = useDatabase();
-  const dispatch = useDispatch();
-  const { synchronizeApiData } = useAppSelector((state) => state.persist);
-
-  const shouldSynchronize = (lastSync: Date | string | null, days: number): boolean => {
-    const pastDate = new Date();
-
-    pastDate.setDate(pastDate.getDate() - days);
-
-    return lastSync === null || new Date(lastSync) < pastDate;
-  };
 
   const transformApiResponseToDatabase = async (
     entity: keyof SelectEntityMap,
     data: never,
-    params: object,
+    params: object & { ids?: { id?: number; apiId?: number } },
     pagination: { limit?: number; page?: number }
   ): Promise<void> => {
     const formattedData = data as unknown as { totalElements?: number; totalPages?: number };
@@ -60,22 +50,16 @@ export const useDatabaseData = (): {
         });
         break;
       case 'vehicle_models':
-        if (shouldSynchronize(synchronizeApiData.vehicleModel, 1)) {
-          await database.upsertData(entity, {
-            ...convertVehicleModelData(data, params, hasPagination),
-            ...pagination
-          });
-          dispatch(setSynchronizeApiData({ vehicle: new Date() }));
-        }
+        await database.upsertData(entity, {
+          ...convertVehicleModelData(data, params, hasPagination),
+          ...pagination
+        });
         break;
       case 'vehicle_brands':
-        if (shouldSynchronize(synchronizeApiData.vehicleBrand, 1)) {
-          await database.upsertData(entity, {
-            ...convertVehicleBrandData(data, params, hasPagination),
-            ...pagination
-          });
-          dispatch(setSynchronizeApiData({ vehicle: new Date() }));
-        }
+        await database.upsertData(entity, {
+          ...convertVehicleBrandData(data, params, hasPagination),
+          ...pagination
+        });
         break;
       default:
         break;
@@ -84,33 +68,44 @@ export const useDatabaseData = (): {
 
   const findOnDatabase = async (
     entity: keyof SelectEntityMap,
-    { limit, page, ...params }: object & { limit?: number; page?: number }
+    {
+      limit,
+      page,
+      ...params
+    }: object & { ids?: { id?: number; apiId?: number }; limit?: number; page?: number }
   ): Promise<unknown> => {
     let content;
+    let where = {};
 
     switch (entity) {
       case 'vehicles':
+        where = convertVehicleWhere(params);
+
         content = await database.find(entity, {
           limit,
           page,
           select: selectAllVehicle,
-          where: { ...params }
+          where
         });
         break;
       case 'vehicle_models':
+        where = convertVehicleModelWhere(params);
+
         content = await database.find(entity, {
           limit,
           page,
           select: selectAllVehicleModel,
-          where: { ...params }
+          where
         });
         break;
       case 'vehicle_brands':
+        where = convertVehicleBrandWhere(params);
+
         content = await database.find(entity, {
           limit,
           page,
           select: selectAllVehicleBrand,
-          where: { ...params }
+          where
         });
         break;
       default:
@@ -118,7 +113,7 @@ export const useDatabaseData = (): {
     }
 
     if (limit && page) {
-      const totalElements = await database.totalElements(entity, { where: { ...params } });
+      const totalElements = await database.totalElements(entity, { where });
       const totalPages = Math.ceil(totalElements / limit);
 
       return { content, totalElements, totalPages };

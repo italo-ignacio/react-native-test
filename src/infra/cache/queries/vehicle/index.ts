@@ -8,5 +8,5 @@ export const useFindVehicleQuery = ({ ...props }: useFindQueryProps): UseQueryRe
 
 export const useFindOneVehicleQuery = ({
   ...props
-}: useFindQueryProps & { id: number | string }): UseQueryResult<Vehicle> =>
+}: useFindQueryProps & { ids: { id?: number; apiId?: number } }): UseQueryResult<Vehicle> =>
   useFindQuery<Vehicle>({ ...props, route: 'vehicle' });

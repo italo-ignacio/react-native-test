@@ -14,6 +14,7 @@ export const Home: FC = () => {
         <Button
           onPress={async (): Promise<void> => {
             console.log(await database.delete('vehicle_brands', {}));
+            console.log(await database.delete('vehicle_models', {}));
           }}
           title={'Delete'}
         />
@@ -22,52 +23,15 @@ export const Home: FC = () => {
 
         <Button
           onPress={async (): Promise<void> => {
-            const list = await database.find('vehicle_brands', {
+            const list = await database.find('vehicle_models', {
               select: {
-                name: true
+                id: true
               }
             });
 
-            console.log(list);
             console.log(list.length);
           }}
           title={'Find'}
-        />
-
-        <View className={'mt-4'} />
-
-        <Button
-          onPress={async (): Promise<void> => {
-            const list = await database.find('vehicle_brands', {
-              limit: 10,
-              page: 1,
-              select: {
-                name: true
-              }
-            });
-
-            console.log(list);
-            console.log(list.length);
-          }}
-          title={'page 1'}
-        />
-
-        <View className={'mt-4'} />
-
-        <Button
-          onPress={async (): Promise<void> => {
-            const list = await database.find('vehicle_brands', {
-              limit: 10,
-              page: 2,
-              select: {
-                name: true
-              }
-            });
-
-            console.log(list);
-            console.log(list.length);
-          }}
-          title={'page 2'}
         />
       </ScrollView>
     </PrivateContainer>

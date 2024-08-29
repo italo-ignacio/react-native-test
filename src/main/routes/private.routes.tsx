@@ -32,7 +32,7 @@ export const PrivateRoutes: FC = () => {
         screenOptions={{ headerShown: false, tabBarHideOnKeyboard: true }}
       >
         {tabsMock.map((item) => {
-          // if (user?.role !== 'ADMIN' && item.onlyAdmin) return null;
+          if (user?.role !== 'ADMIN' && item.onlyAdmin) return null;
 
           return (
             <Tab.Screen

@@ -4,13 +4,14 @@ import type { FC } from 'react';
 
 interface BrandImageProps {
   imageName?: string;
+  size?: 'large' | 'small';
 }
 
-export const BrandImage: FC<BrandImageProps> = ({ imageName }) => {
+export const BrandImage: FC<BrandImageProps> = ({ imageName, size }) => {
   if (imageName && brandImages[imageName])
     return (
       <Image
-        className={'w-[60px] h-[40px]'}
+        className={size === 'small' ? 'w-[60px] h-[40px]' : 'w-[120px] h-[100px]'}
         source={brandImages[imageName]}
         style={{
           objectFit: 'contain'

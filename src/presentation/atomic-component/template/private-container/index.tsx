@@ -4,6 +4,7 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { colors } from 'presentation/style';
 import { gap } from 'main/utils';
 import { paths } from 'main/config';
+import { queryClient } from 'infra/lib';
 import { setInternetConnection } from 'store/net-info/slice';
 import { useAppSelector } from 'store';
 import { useBluetooth, useRouter } from 'data/hooks';
@@ -35,6 +36,10 @@ export const PrivateContainer: FC<PrivateContainerProps> = ({
   useEffect(() => {
     if (bluetoothState === 'on' && connectedDevice === null) startScan();
   }, [bluetoothState, connectedDevice]);
+
+  useEffect(() => {
+    queryClient.invalidateQueries();
+  }, [hasInternetConnection]);
 
   return (
     <View className={'flex-1 justify-end items-start'} {...gap(8)}>
