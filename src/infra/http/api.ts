@@ -11,5 +11,6 @@ export const api = {
     fetchApi({ ...params, method: 'PATCH' }),
   post: <T>(params: Omit<ApiProps, 'method'>): Promise<T> =>
     fetchApi({ ...params, method: 'POST' }),
-  put: <T>(params: Omit<ApiProps, 'method'>): Promise<T> => fetchApi({ ...params, method: 'PUT' })
+  put: <T>(params: Omit<ApiProps, 'method'>): Promise<T> => fetchApi({ ...params, method: 'PUT' }),
+  request: <T>(params: ApiProps): Promise<T> => fetchApi({ ...params })
 };

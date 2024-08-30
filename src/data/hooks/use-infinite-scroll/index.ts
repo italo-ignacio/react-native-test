@@ -1,7 +1,7 @@
 /* eslint-disable no-return-await */
 import { useEffect, useState } from 'react';
 import { useInfiniteQuery } from 'react-query';
-import { useMakeRequest } from '../use-make-request';
+import { useRequest } from '../use-request';
 import type { FetchNextPageOptions, InfiniteQueryObserverResult } from 'react-query';
 import type { QueryList, QueryName } from 'main/config';
 
@@ -26,7 +26,7 @@ export const useInfiniteScroll = <T>({
   isFetchingNextPage: boolean;
   isFetching: boolean;
 } => {
-  const { makeRequest } = useMakeRequest();
+  const { findRequest: makeRequest } = useRequest();
   const [newData, setNewData] = useState<T[]>([]);
   const filter = filters ?? {};
 

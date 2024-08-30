@@ -1,31 +1,29 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-extra-parens */
 /* eslint-disable prettier/prettier */
 /* eslint-disable react/no-array-index-key */
-import { Text, View } from 'react-native';
+import { ItemDefaultCard } from './item';
+import { View } from 'react-native';
 import { gap } from 'main/utils';
-import type { FC, ReactNode } from 'react';
+import type { Dispatch, FC, ReactNode, SetStateAction } from 'react';
 
 interface DefaultCardProps {
   items: {
     rightElement?: ReactNode;
     title: string;
     subtitle: ReactNode | string;
+    isEdit?: {
+      value: string;
+      setValue: Dispatch<SetStateAction<string>>;
+      setEdit: Dispatch<SetStateAction<boolean>>;
+      edit: boolean;
+      isRequired?: boolean;
+    };
     leftElement?: ReactNode;
   }[];
 }
 
 export const DefaultCard: FC<DefaultCardProps> = ({ items }) => {
-  const getWidth = (rightElement?: ReactNode, leftElement?: ReactNode): number => {
-    let value = 0;
-
-    if (rightElement) value += 13;
-    if (leftElement) value += 13;
-
-    const final = 100 - value;
-
-    return final;
-  };
-
   return (
     <View
       className={
@@ -33,37 +31,12 @@ export const DefaultCard: FC<DefaultCardProps> = ({ items }) => {
       }
       {...gap(12)}
     >
-      {items.map(({ rightElement, subtitle, title, leftElement }, index) => (
-        <View
-          key={`${title}-${index}`}
-          className={`flex flex-row items-center px-3 w-full ${
-            index + 1 === items.length ? 'py-2' : 'pt-2'
-          }`}
-        >
-          {leftElement ? (
-            <View className={''} style={{ width: 40 }}>
-              {leftElement}
-            </View>
-          ) : null}
-
-          <View style={{ width: `${getWidth(rightElement, leftElement)}%` }}>
-            <Text className={`text-primary text-sm ${typeof subtitle === 'string' ? '' : 'mb-2'}`}>
-              {title}
-            </Text>
-
-            {typeof subtitle === 'string' ? (
-              <Text className={'text-primary text-base font-medium'}>{subtitle}</Text>
-            ) : (
-              subtitle
-            )}
-          </View>
-
-          {rightElement ? (
-            <View className={'items-end'} style={{ width: 40 }}>
-              {rightElement}
-            </View>
-          ) : null}
-        </View>
+      {items.map((props, index) => (
+        <ItemDefaultCard
+          key={`${props.title}-${index}`}
+          {...props}
+          isLast={index + 1 === items.length}
+        />
       ))}
     </View>
   );

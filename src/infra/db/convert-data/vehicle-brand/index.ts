@@ -13,8 +13,8 @@ export const convertVehicleBrandWhere = (params: {
       name: { operator: 'LIKE', value: `%${params.search}%` }
     };
 
-  if (params.ids?.apiId) where = { ...where, apiId: { operator: '=', value: params.ids?.apiId } };
-  else if (params.ids?.id) where = { ...where, id: { operator: '=', value: params.ids?.id } };
+  if (params?.ids?.apiId) where = { ...where, apiId: { operator: '=', value: params.ids?.apiId } };
+  else if (params?.ids?.id) where = { ...where, id: { operator: '=', value: params.ids?.id } };
 
   return where;
 };

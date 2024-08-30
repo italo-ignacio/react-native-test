@@ -1,5 +1,8 @@
 export interface OfflineQueue {
+  id: number;
   route: unknown;
   body: unknown;
-  method: 'delete' | 'get' | 'patch' | 'post' | 'put';
+  requestId?: number;
+  entityId?: number;
+  method: 'DELETE' | 'GET' | 'PATCH' | 'POST' | 'PUT';
 }

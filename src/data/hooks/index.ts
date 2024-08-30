@@ -12,4 +12,4 @@ export * from './use-token';
 export * from './use-router-tab';
 export * from './use-bluetooth';
 export * from './use-infinite-scroll';
-export * from './use-make-request';
+export * from './use-request';

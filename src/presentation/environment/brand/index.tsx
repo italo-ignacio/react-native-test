@@ -42,7 +42,7 @@ export const Brand: FC = () => {
         <Button
           leftIcon={'add'}
           onPress={(): void => {
-            console.log('sa');
+            navigate(paths.brandRegister);
           }}
           size={'small'}
           text={' Novo'}
