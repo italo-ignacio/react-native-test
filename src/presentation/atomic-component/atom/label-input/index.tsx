@@ -22,12 +22,14 @@ export type LabelInputProps = TextInputProps & {
     style?: StyleProp<ViewStyle>;
     color?: string;
     onPress?: ((() => void) & ((event: GestureResponderEvent) => void)) | undefined;
+    size?: number;
   };
   rightIcon?: {
     name: IconNames;
     style?: StyleProp<ViewStyle>;
     color?: string;
     onPress?: ((() => void) & ((event: GestureResponderEvent) => void)) | undefined;
+    size?: number;
   };
 };
 
@@ -74,7 +76,7 @@ export const LabelInput: FC<LabelInputProps> = ({
             <MaterialIcons
               color={error ? colors.red : leftIcon?.color ?? colors.gray[300]}
               name={leftIcon.name}
-              size={18}
+              size={leftIcon.size ?? 18}
             />
           </TouchableOpacity>
         ) : null}
@@ -95,7 +97,7 @@ export const LabelInput: FC<LabelInputProps> = ({
             <MaterialIcons
               color={error ? colors.red : rightIcon?.color ?? colors.gray[300]}
               name={rightIcon.name}
-              size={18}
+              size={rightIcon.size ?? 18}
             />
           </TouchableOpacity>
         ) : null}

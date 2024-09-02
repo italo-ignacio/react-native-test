@@ -12,7 +12,11 @@ export const BrandRegister: FC = () => {
   const { makeRequest } = useRequest();
 
   const sendRequest = async (): Promise<void> => {
-    if (name.length < 1) callToast.error('Preencha o nome');
+    if (name.length < 1) {
+      callToast.error('Preencha o nome');
+      return;
+    }
+
     try {
       await makeRequest({
         body: { name },

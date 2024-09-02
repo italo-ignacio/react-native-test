@@ -4,5 +4,6 @@ export interface OfflineQueue {
   body: unknown;
   requestId?: number;
   entityId?: number;
+  entity?: string;
   method: 'DELETE' | 'GET' | 'PATCH' | 'POST' | 'PUT';
 }

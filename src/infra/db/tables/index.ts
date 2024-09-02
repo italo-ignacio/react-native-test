@@ -53,6 +53,7 @@ const offlineQueueTable = `
     method VARCHAR(8) NOT NULL,
     requestId INTEGER,
     entityId INTEGER,
+    entity VARCHAR(45),
     body TEXT,
     createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP

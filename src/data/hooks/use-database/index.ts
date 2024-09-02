@@ -59,14 +59,13 @@ export const useDatabase = (): useDatabaseReturn => {
     entity: T,
     options?: { where?: WhereProps<T>; select?: SelectProps<T> }
   ): Promise<SelectEntityReturnMap[T]> => {
+    console.log('find first');
     let result: SelectEntityReturnMap[T] | null = null;
 
     const { selectColumns, joinColumns } = databaseSelectColumns(entity, options?.select);
     const { whereData } = databaseWhereTransform(entity, options?.where);
 
-    const selectQuery = `
-        SELECT ${selectColumns} FROM ${entity} ${joinColumns} ${whereData}
-      `;
+    const selectQuery = `SELECT ${selectColumns} FROM ${entity} ${joinColumns} ${whereData}`;
 
     result = await database.getFirstAsync(selectQuery);
 
@@ -77,6 +76,7 @@ export const useDatabase = (): useDatabaseReturn => {
     entity: T,
     options?: Partial<PaginationProps> & { where?: WhereProps<T>; select?: SelectProps<T> }
   ): Promise<SelectEntityReturnMap[T][]> => {
+    console.log('find');
     const { selectColumns, joinColumns } = databaseSelectColumns(entity, options?.select);
     const { whereData } = databaseWhereTransform(entity, options?.where);
 
@@ -84,9 +84,7 @@ export const useDatabase = (): useDatabaseReturn => {
     const page = options?.page ?? 1;
     const pagination = limit ? `LIMIT ${limit} OFFSET ${(page - 1) * limit}` : '';
 
-    const selectQuery = `
-      SELECT ${selectColumns} FROM ${entity} ${joinColumns} ${whereData} ${pagination}
-    `;
+    const selectQuery = `SELECT ${selectColumns} FROM ${entity} ${joinColumns} ${whereData} ORDER BY id ASC ${pagination}`;
 
     const result = await database.getAllAsync(selectQuery);
 
@@ -97,6 +95,7 @@ export const useDatabase = (): useDatabaseReturn => {
     entity: T,
     options?: { where?: WhereProps<T> }
   ): Promise<number> => {
+    console.log('total elements');
     const { whereData } = databaseWhereTransform(entity, options?.where);
 
     const selectQuery = `SELECT COUNT(${entity}.id) as count FROM ${entity} ${whereData};`;
@@ -110,6 +109,7 @@ export const useDatabase = (): useDatabaseReturn => {
     entity: T,
     { data, select }: { data: CreateProps<T>; select?: SelectProps<T> }
   ): Promise<SelectEntityReturnMap[T]> => {
+    console.log('create');
     const { columns, queryValues } = databaseValues(data);
 
     const query = `
@@ -139,6 +139,7 @@ export const useDatabase = (): useDatabaseReturn => {
     entity: T,
     props: { data: UpdateProps<T>; where?: WhereProps<T> }
   ): Promise<void> => {
+    console.log('update');
     const { whereData } = databaseWhereTransform(entity, props?.where);
 
     const query = `
@@ -162,6 +163,8 @@ export const useDatabase = (): useDatabaseReturn => {
       ...params
     }: Partial<PaginationProps> & { data: UpdateProps<T>[]; where?: WhereProps<T> }
   ): Promise<void> => {
+    console.log('upsert');
+
     const { columns } = databaseValues(data[0]);
     const { whereData } = databaseWhereTransform(entity, where);
 
@@ -169,14 +172,14 @@ export const useDatabase = (): useDatabaseReturn => {
     const page = params?.page ?? 1;
     const pagination = limit ? `LIMIT ${limit} OFFSET ${(page - 1) * limit}` : '';
 
-    const formattedWhere = `AND apiId IN (SELECT apiId FROM ${entity} ${whereData} ORDER BY createdAt ASC ${pagination})`;
+    const formattedWhere = `AND apiId IN (SELECT apiId FROM ${entity} ${whereData} ORDER BY id ASC ${pagination})`;
 
     const apiIds = data
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((item: any) => item.apiId)
       .join(', ');
 
-    const deleteQuery = `DELETE FROM ${entity} WHERE apiId NOT IN (${apiIds}) ${formattedWhere}`;
+    const deleteQuery = `DELETE FROM ${entity} WHERE apiId IS NULL OR (apiId NOT IN (${apiIds}) ${formattedWhere})`;
 
     const values = data
       .map(
@@ -196,11 +199,7 @@ export const useDatabase = (): useDatabaseReturn => {
       .map((item) => `${item} = excluded.${item}`)
       .join(', ');
 
-    const query = `
-      INSERT INTO ${entity} (${columns}) 
-      VALUES ${values} 
-      ON CONFLICT(apiId) DO UPDATE SET ${updateColumns}, updatedAt = CURRENT_TIMESTAMP;
-    `;
+    const query = `INSERT INTO ${entity} (${columns}) VALUES ${values} ON CONFLICT(apiId) DO UPDATE SET ${updateColumns}, updatedAt = CURRENT_TIMESTAMP;`;
 
     await database.withExclusiveTransactionAsync(async (transaction) => {
       await transaction.execAsync(deleteQuery);
@@ -212,6 +211,7 @@ export const useDatabase = (): useDatabaseReturn => {
     entity: T,
     { data }: { data: CreateProps<T>[] }
   ): Promise<void> => {
+    console.log('create many');
     const { columns } = databaseValues(data[0]);
 
     const query = `
@@ -232,11 +232,10 @@ export const useDatabase = (): useDatabaseReturn => {
     entity: T,
     options?: { where?: WhereProps<T> }
   ): Promise<void> => {
+    console.log('delete');
     const { whereData } = databaseWhereTransform(entity, options?.where);
 
-    const query = `
-      DELETE FROM ${entity} ${whereData}
-    `;
+    const query = `DELETE FROM ${entity} ${whereData}`;
 
     await database.withExclusiveTransactionAsync(async (transaction) => {
       await transaction.execAsync(query);

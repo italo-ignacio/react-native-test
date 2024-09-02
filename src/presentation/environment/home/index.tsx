@@ -23,15 +23,31 @@ export const Home: FC = () => {
 
         <Button
           onPress={async (): Promise<void> => {
-            const list = await database.find('vehicle_models', {
+            const list = await database.find('vehicle_brands', {
               select: {
-                id: true
+                apiId: true
               }
             });
 
             console.log(list.length);
           }}
           title={'Find'}
+        />
+
+        <Button
+          onPress={async (): Promise<void> => {
+            const list = await database.create('vehicle_brands', {
+              data: {
+                name: '123'
+              },
+              select: {
+                apiId: true
+              }
+            });
+
+            console.log(list);
+          }}
+          title={'create'}
         />
       </ScrollView>
     </PrivateContainer>

@@ -1,16 +1,21 @@
-import { Button, FetchOnScroll, LabelInput } from 'presentation/atomic-component/atom';
-import { type FC, useCallback, useState } from 'react';
+import {
+  Button,
+  FetchOnScroll,
+  FetchOnScrollItem,
+  LabelInput
+} from 'presentation/atomic-component/atom';
 import { PrivateContainer } from 'presentation/atomic-component/template';
-import { QueryName } from 'main/config';
-import { Text, TouchableOpacity, View } from 'react-native';
-import { queryClient } from 'infra/lib';
-import { useDebounce, useInfiniteScroll } from 'data/hooks';
-import { useFocusEffect } from '@react-navigation/native';
+import { QueryName, paths } from 'main/config';
+import { Text, View } from 'react-native';
+import { useDebounce, useInfiniteScroll, useRouter } from 'data/hooks';
+import { useState } from 'react';
+import type { FC, ReactElement } from 'react';
 import type { VehicleModel } from 'domain/models';
 
 export const Model: FC = () => {
   const [search, setSearch] = useState('');
   const [searchDebounce, setSearchDebounce] = useState('');
+  const { navigate } = useRouter();
 
   useDebounce(
     () => {
@@ -27,12 +32,6 @@ export const Model: FC = () => {
     route: 'vehicleModel'
   });
 
-  useFocusEffect(
-    useCallback(() => {
-      queryClient.invalidateQueries(QueryName.vehicleModel);
-    }, [queryClient])
-  );
-
   return (
     <PrivateContainer headerTitle={'Modelos'}>
       <View className={'flex flex-row items-center justify-between'}>
@@ -41,7 +40,7 @@ export const Model: FC = () => {
         <Button
           leftIcon={'add'}
           onPress={(): void => {
-            console.log('sa');
+            navigate(paths.modelRegister);
           }}
           size={'small'}
           text={' Novo'}
@@ -57,17 +56,24 @@ export const Model: FC = () => {
         value={searchDebounce}
       />
 
-      <FetchOnScroll query={query}>
-        {data?.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            activeOpacity={0.7}
-            className={'flex flex-row items-center justify-between p-2 pt-4'}
-          >
-            <Text className={'text-primary font-semibold'}>{item.name}</Text>
-          </TouchableOpacity>
-        ))}
-      </FetchOnScroll>
+      <FetchOnScroll
+        data={data ?? []}
+        keyExtractor={(item): string => item.id}
+        query={query}
+        renderItem={({ item }): ReactElement => {
+          const itemValue = item as VehicleModel;
+
+          return (
+            <FetchOnScrollItem
+              key={itemValue.id}
+              name={itemValue.name}
+              onPress={(): void => {
+                navigate(paths.modelEdit, itemValue);
+              }}
+            />
+          );
+        }}
+      />
     </PrivateContainer>
   );
 };

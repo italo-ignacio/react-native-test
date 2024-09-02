@@ -1,11 +1,17 @@
-import { BrandImage, Button, FetchOnScroll, LabelInput } from 'presentation/atomic-component/atom';
-import { type FC, useCallback, useState } from 'react';
+import {
+  Button,
+  FetchOnScroll,
+  FetchOnScrollItem,
+  LabelInput
+} from 'presentation/atomic-component/atom';
 import { PrivateContainer } from 'presentation/atomic-component/template';
 import { QueryName, paths } from 'main/config';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { queryClient } from 'infra/lib';
+import { useCallback, useState } from 'react';
 import { useDebounce, useInfiniteScroll, useRouter } from 'data/hooks';
 import { useFocusEffect } from '@react-navigation/native';
+import type { FC, ReactElement } from 'react';
 import type { VehicleBrand } from 'domain/models';
 
 export const Brand: FC = () => {
@@ -58,21 +64,25 @@ export const Brand: FC = () => {
         value={searchDebounce}
       />
 
-      <FetchOnScroll query={query}>
-        {data?.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            activeOpacity={0.7}
-            className={'flex flex-row items-center justify-between p-2 pt-4'}
-            onPress={(): void => {
-              navigate(paths.brandEdit, item);
-            }}
-          >
-            <Text className={'text-primary font-semibold'}>{item.name}</Text>
-            <BrandImage imageName={item.imageName} size={'small'} />
-          </TouchableOpacity>
-        ))}
-      </FetchOnScroll>
+      <FetchOnScroll
+        data={data ?? []}
+        keyExtractor={(item): string => item.id}
+        query={query}
+        renderItem={({ item }): ReactElement => {
+          const itemValue = item as VehicleBrand;
+
+          return (
+            <FetchOnScrollItem
+              key={itemValue.id}
+              image={itemValue.imageName}
+              name={itemValue.name}
+              onPress={(): void => {
+                navigate(paths.brandEdit, itemValue);
+              }}
+            />
+          );
+        }}
+      />
     </PrivateContainer>
   );
 };

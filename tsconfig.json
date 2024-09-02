@@ -22,7 +22,7 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "src/presentation/atomic-component/atom/button copy",
-    "src/presentation/atomic-component/atom/button copy"
+    "src/presentation/atomic-component/atom/select",
+    "src/presentation/atomic-component/atom/select"
   ]
 }

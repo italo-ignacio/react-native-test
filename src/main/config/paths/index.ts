@@ -29,6 +29,7 @@ export const apiPaths = {
   user: '/user',
   vehicleBrand: '/vehicle-brand',
   vehicle: '/vehicle',
+  register: '/user',
   vehicleModelByBrand: (brandId?: number): string => `/vehicle-brand/${brandId ?? 1}/vehicle-model`,
   vehicleModel: '/vehicle-model',
   default: 'default'

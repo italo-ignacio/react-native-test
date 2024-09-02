@@ -36,7 +36,6 @@ export const renderToast = (
     duration: Toast.durations.LONG,
     hideOnPress: true,
     position: Toast.positions.TOP,
-
     shadow: true,
     ...toastDefaultOptions,
     ...options

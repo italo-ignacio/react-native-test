@@ -1,8 +1,8 @@
+/* eslint-disable no-extra-parens */
 /* eslint-disable @typescript-eslint/init-declarations */
 import { TableName } from 'domain/enums';
 import { api } from 'infra/http';
 import { apiPaths } from 'main/config';
-import { getOfflineUpdateWhere } from 'main/utils';
 import { store } from 'store';
 import { useDatabase } from '../use-database';
 import { useDatabaseData } from 'infra/db/use-database-data';
@@ -82,6 +82,7 @@ export const useRequest = (): {
 
       const dataValue = {
         body,
+        entity,
         method,
         requestId: ids?.apiId ? ids?.apiId : ids?.id,
         route
@@ -96,16 +97,21 @@ export const useRequest = (): {
         entityId = localItem.id;
 
         await database.create('offline_queue', {
-          data: {
-            ...dataValue,
-            entityId
-          }
+          data: { ...dataValue, entityId }
         });
-      } else if (method === 'PUT' && ids?.id) {
+      } else if (method === 'PUT' && ids?.id)
         if (ids?.apiId === null) {
           entityId = ids.id;
-          await database.delete('offline_queue', {
+          await database.update('offline_queue', {
+            data: {
+              ...dataValue,
+              method: 'POST'
+            },
             where: {
+              entity: {
+                operator: '=',
+                value: entity
+              },
               entityId: {
                 operator: '=',
                 value: ids.id
@@ -113,32 +119,37 @@ export const useRequest = (): {
             }
           });
 
-          await database.create('offline_queue', {
-            data: {
-              ...dataValue,
-              entityId,
-              method: 'POST'
+          await database.update(entity, {
+            data: body as CreateProps<keyof SelectEntityMap>,
+            where: {
+              id: {
+                operator: '=',
+                value: ids.id
+              }
             }
           });
+        } else {
+          entityId = ids?.apiId ? ids?.apiId : ids?.id;
+          await database.delete('offline_queue', {
+            where: {
+              entity: {
+                operator: '=',
+                value: entity
+              },
+              entityId: {
+                operator: '=',
+                value: entityId
+              }
+            }
+          });
+          await database.create('offline_queue', {
+            data: { ...dataValue, entityId }
+          });
+
+          await database.upsertData(entity, {
+            data: [{ apiId: entityId, ...(body as object) }] as UpdateProps<keyof SelectEntityMap>[]
+          });
         }
-
-        const where = getOfflineUpdateWhere(ids);
-
-        await database.update(entity, {
-          data: body as UpdateProps<keyof SelectEntityMap>,
-          where
-        });
-      }
-
-      await database.create('offline_queue', {
-        data: {
-          body,
-          entityId,
-          method,
-          requestId: ids?.apiId ? ids?.apiId : ids?.id,
-          route
-        }
-      });
     }
 
     return data;

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
 import { HttpStatusCode } from 'domain/enums';
+import { apiPaths } from 'main/config';
 import { removeUndefined } from 'main/utils';
 import { store } from 'store';
 import type { ApiProps } from 'domain/protocol';
@@ -8,12 +9,13 @@ import type { ApiProps } from 'domain/protocol';
 const baseUrl = 'http://10.107.160.196:8080/api/v1';
 
 export const fetchApi = async <T>(params: ApiProps): Promise<T> => {
-  const accessToken = store.getState().persist.accessToken || '';
+  const { accessToken } = store.getState().persist;
 
   const body: any = params.isFormData ? params.body : JSON.stringify(params.body);
   const headers = {};
 
-  if (accessToken) Object.assign(headers, { Authorization: `Bearer ${accessToken}` });
+  if (accessToken && (params.route !== apiPaths.login || params.route !== apiPaths.register))
+    Object.assign(headers, { Authorization: `Bearer ${accessToken}` });
 
   if (!params.isFormData)
     Object.assign(headers, {

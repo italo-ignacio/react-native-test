@@ -12,19 +12,21 @@ interface useInfiniteScrollProps {
   filters?: object;
 }
 
-export const useInfiniteScroll = <T>({
-  route,
-  queryName,
-  limit,
-  filters
-}: useInfiniteScrollProps): {
-  data: T[] | undefined;
+export interface infiniteScrollProps {
   fetchNextPage: (
     options?: FetchNextPageOptions | undefined
   ) => Promise<InfiniteQueryObserverResult<unknown>>;
   hasNextPage: boolean | undefined;
   isFetchingNextPage: boolean;
   isFetching: boolean;
+}
+export const useInfiniteScroll = <T>({
+  route,
+  queryName,
+  limit,
+  filters
+}: useInfiniteScrollProps): infiniteScrollProps & {
+  data: T[] | undefined;
 } => {
   const { findRequest: makeRequest } = useRequest();
   const [newData, setNewData] = useState<T[]>([]);

@@ -22,20 +22,6 @@ export const useMakeLogin = (): {
 
       dispatch(setAuth({ accessToken: payload.token, user }));
     } catch (err) {
-      dispatch(
-        setAuth({
-          accessToken:
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIeWJyaWQgQVBJIiwic3ViIjoiMiIsImlhdCI6MTcyNDg1NzcxNywiZXhwIjoxNzI1MDM3NzE3LCJ1c2VyIjp7Imxhc3ROYW1lIjoiSWduYWNpbyIsInJvbGUiOiJBRE1JTiIsImlkIjoiMiIsImZpcnN0TmFtZSI6Ikl0YWxvIiwiZW1haWwiOiJhZG1pbkBhZG1pbiJ9fQ.LlLRvQMWOmOgCwoUgSLdSKCPCH6xMhVRSOMCU-DgKFI',
-          user: {
-            email: 'admin@admin',
-            firstName: 'admin',
-            id: 1,
-            lastName: 'Roberto da Silva',
-            role: 'ADMIN'
-          }
-        })
-      );
-
       resolverError(err);
     }
   };

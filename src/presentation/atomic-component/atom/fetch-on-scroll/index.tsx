@@ -1,42 +1,28 @@
-import { type FC, type ReactNode, useRef, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity } from 'react-native';
-import type { FetchNextPageOptions, InfiniteQueryObserverResult } from 'react-query';
-import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { FlatList, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { colors } from 'presentation/style';
+import { useRef, useState } from 'react';
+import type { FC, ReactElement } from 'react';
+import type { infiniteScrollProps } from 'data/hooks';
 
 interface FetchOnScrollProps {
-  query: {
-    fetchNextPage?: (
-      options?: FetchNextPageOptions | undefined
-    ) => Promise<InfiniteQueryObserverResult>;
-    hasNextPage: boolean | undefined;
-    isFetchingNextPage: boolean;
-    isFetching: boolean;
-  };
-  children: ReactNode;
+  query: infiniteScrollProps;
+  data: any;
+  renderItem: ({ item }: { item: any }) => ReactElement;
+  keyExtractor: (item: any, index: number) => string;
 }
 
 export const FetchOnScroll: FC<FetchOnScrollProps> = ({
   query: { isFetchingNextPage, hasNextPage, isFetching, fetchNextPage },
-  children
+  data,
+  renderItem,
+  keyExtractor
 }) => {
   const buttonRef = useRef(null);
   const [isScrollFetching, setIsScrollFetching] = useState(false);
 
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>): void => {
-    if (!buttonRef.current) return;
-
-    const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
-
-    const distanceFromBottom = contentSize.height - (contentOffset.y + layoutMeasurement.height);
-
-    if (
-      distanceFromBottom <= 100 &&
-      fetchNextPage &&
-      hasNextPage &&
-      !isScrollFetching &&
-      !isFetching &&
-      !isFetchingNextPage
-    ) {
+  const handleEndReached = (): void => {
+    if (fetchNextPage && hasNextPage && !isScrollFetching && !isFetching && !isFetchingNextPage) {
       setIsScrollFetching(true);
       fetchNextPage();
       setTimeout(() => {
@@ -46,26 +32,40 @@ export const FetchOnScroll: FC<FetchOnScrollProps> = ({
   };
 
   return (
-    <ScrollView
-      className={'divide-y divide-gray-300 h-full'}
-      onScroll={handleScroll}
-      scrollEventThrottle={16}
-    >
-      {children}
-
-      {hasNextPage ? (
-        <TouchableOpacity
-          className={'flex m-1 p-2 bg-primary rounded-full'}
-          onPress={(): void => {
-            if (fetchNextPage && hasNextPage && !isFetchingNextPage) fetchNextPage();
-          }}
-          ref={buttonRef}
-        >
-          <Text className={'text-white text-center'}>
-            {isFetchingNextPage || isFetching ? 'Buscando' : 'Buscar mais'}
-          </Text>
-        </TouchableOpacity>
-      ) : null}
-    </ScrollView>
+    <FlatList
+      ItemSeparatorComponent={(): ReactElement => <View className={'bg-gray-250 h-0.5'} />}
+      ListFooterComponent={
+        hasNextPage ? (
+          <TouchableOpacity
+            onPress={(): void => {
+              if (fetchNextPage && hasNextPage && !isFetchingNextPage) fetchNextPage();
+            }}
+            ref={buttonRef}
+            style={{
+              backgroundColor: colors.primary,
+              borderRadius: 50,
+              flex: 1,
+              margin: 10,
+              padding: 10
+            }}
+          >
+            <Text style={{ color: 'white', textAlign: 'center' }}>
+              {isFetchingNextPage || isFetching ? 'Buscando' : 'Buscar mais'}
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <View className={'bg-gray-250'} />
+        )
+      }
+      data={data}
+      keyExtractor={keyExtractor}
+      keyboardShouldPersistTaps={'always'}
+      onEndReached={handleEndReached}
+      onEndReachedThreshold={0.1}
+      renderItem={renderItem}
+      renderScrollComponent={(props): ReactElement => {
+        return <ScrollView {...props} />;
+      }}
+    />
   );
 };
