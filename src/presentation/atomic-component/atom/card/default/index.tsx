@@ -1,7 +1,3 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable no-extra-parens */
-/* eslint-disable prettier/prettier */
-/* eslint-disable react/no-array-index-key */
 import { ItemDefaultCard } from './item';
 import { View } from 'react-native';
 import { gap } from 'main/utils';
@@ -27,16 +23,15 @@ export const DefaultCard: FC<DefaultCardProps> = ({ items }) => {
   return (
     <View
       className={
-        'flex flex-col w-full divide-y px-3 rounded-md divide-gray-350 bg-white border border-gray-350'
+        'flex flex-col w-full px-3 rounded-md divide-y divide-gray-350 bg-white border border-gray-350'
       }
       {...gap(12)}
     >
       {items.map((props, index) => (
-        <ItemDefaultCard
-          key={`${props.title}-${index}`}
-          {...props}
-          isLast={index + 1 === items.length}
-        />
+        // eslint-disable-next-line react/prop-types
+        <View key={props.title}>
+          <ItemDefaultCard {...props} isLast={index + 1 === items.length} />
+        </View>
       ))}
     </View>
   );

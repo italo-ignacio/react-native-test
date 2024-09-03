@@ -18,7 +18,7 @@ export const Profile: FC = () => {
     <PrivateContainer headerTitle={'Meu Perfil'}>
       <View {...gap(16)}>
         <View className={'flex flex-row items-center justify-between'}>
-          <Text className={'text-primary text-lg font-semibold'}>Informações</Text>
+          <Text className={'text-primary text-base font-semibold'}>Informações</Text>
 
           <Button
             leftIcon={isForm ? 'cancel' : 'edit'}
@@ -34,7 +34,7 @@ export const Profile: FC = () => {
 
         {!isForm && (
           <View {...gap(12)}>
-            <Text className={'text-primary text-lg font-semibold'}>Ações</Text>
+            <Text className={'text-primary text-base font-semibold'}>Ações</Text>
 
             <TouchableOpacity
               activeOpacity={0.7}

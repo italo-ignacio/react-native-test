@@ -1,11 +1,12 @@
 import { BrandImage, Button, LabelInput, Select } from 'presentation/atomic-component/atom';
+import { Keyboard, Text, TouchableOpacity, View } from 'react-native';
 import { PrivateContainer } from 'presentation/atomic-component/template';
-import { QueryName } from 'main/config';
-import { Text, TouchableOpacity, View } from 'react-native';
-import { callToast, listToSelect, resolverError } from 'main/utils';
+import { QueryName, apiPaths } from 'main/config';
+import { api } from 'infra/http';
+import { callToast, hasConnection, listToSelect, resolverError } from 'main/utils';
 import { queryClient } from 'infra/lib';
 import { useCallback, useState } from 'react';
-import { useDebounce, useInfiniteScroll, useRequest } from 'data/hooks';
+import { useDebounce, useInfiniteScroll } from 'data/hooks';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import type { FC, ReactElement } from 'react';
 import type { SelectValues } from 'presentation/atomic-component/atom';
@@ -14,13 +15,13 @@ import type { VehicleBrand, VehicleModel } from 'domain/models';
 export const ModelEdit: FC = () => {
   const { params } = useRoute();
   const vehicleModel = params as VehicleModel;
+
   const [name, setName] = useState(vehicleModel.name);
   const [selectValue, setSelectValue] = useState<SelectValues | null>({
     item: vehicleModel.vehicleBrand,
     label: vehicleModel.vehicleBrand?.name ?? '',
     value: String(vehicleModel.vehicleBrand?.id)
   });
-  const { makeRequest } = useRequest();
 
   const [search, setSearch] = useState('');
   const [searchDebounce, setSearchDebounce] = useState('');
@@ -33,6 +34,11 @@ export const ModelEdit: FC = () => {
   });
 
   const sendRequest = async (): Promise<void> => {
+    if (!hasConnection()) {
+      callToast.error('Sem conexão com a internet');
+      return;
+    }
+
     if (name.length < 1) {
       callToast.error('Preencha o nome');
       return;
@@ -44,14 +50,14 @@ export const ModelEdit: FC = () => {
     }
 
     try {
-      await makeRequest({
+      await api.put({
         body: { name, vehicleBrandId: Number(selectValue.value) },
-        ids: { apiId: vehicleModel.apiId, id: vehicleModel.id },
-        method: 'PUT',
-        route: 'vehicleModel'
+        id: vehicleModel.apiId ?? vehicleModel.id,
+        route: apiPaths.vehicleModel
       });
+
       callToast.success('Atualizado com sucesso');
-      queryClient.invalidateQueries(QueryName.vehicleModel);
+      Keyboard.dismiss();
     } catch (error) {
       resolverError(error);
     }

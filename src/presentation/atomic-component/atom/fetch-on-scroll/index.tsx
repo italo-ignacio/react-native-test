@@ -8,7 +8,8 @@ import type { infiniteScrollProps } from 'data/hooks';
 interface FetchOnScrollProps {
   query: infiniteScrollProps;
   data: any;
-  renderItem: ({ item }: { item: any }) => ReactElement;
+  hideSeparator?: boolean;
+  renderItem: ({ item, index }: { item: any; index: number }) => ReactElement;
   keyExtractor: (item: any, index: number) => string;
 }
 
@@ -16,6 +17,7 @@ export const FetchOnScroll: FC<FetchOnScrollProps> = ({
   query: { isFetchingNextPage, hasNextPage, isFetching, fetchNextPage },
   data,
   renderItem,
+  hideSeparator,
   keyExtractor
 }) => {
   const buttonRef = useRef(null);
@@ -33,7 +35,9 @@ export const FetchOnScroll: FC<FetchOnScrollProps> = ({
 
   return (
     <FlatList
-      ItemSeparatorComponent={(): ReactElement => <View className={'bg-gray-250 h-0.5'} />}
+      ItemSeparatorComponent={
+        hideSeparator ? null : (): ReactElement => <View className={'bg-gray-250 h-0.5'} />
+      }
       ListFooterComponent={
         hasNextPage ? (
           <TouchableOpacity
@@ -54,12 +58,13 @@ export const FetchOnScroll: FC<FetchOnScrollProps> = ({
             </Text>
           </TouchableOpacity>
         ) : (
-          <View className={'bg-gray-250'} />
+          <View className={hideSeparator ? '' : 'bg-gray-250'} />
         )
       }
       data={data}
       keyExtractor={keyExtractor}
       keyboardShouldPersistTaps={'always'}
+      maxToRenderPerBatch={15}
       onEndReached={handleEndReached}
       onEndReachedThreshold={0.1}
       renderItem={renderItem}

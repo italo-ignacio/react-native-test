@@ -44,19 +44,19 @@ export const useDatabaseData = (): {
 
     switch (entity) {
       case 'vehicles':
-        await database.upsertData(entity, {
+        await database.upsert(entity, {
           ...convertVehicleData(data, params, hasPagination),
           ...pagination
         });
         break;
       case 'vehicle_models':
-        await database.upsertData(entity, {
+        await database.upsert(entity, {
           ...convertVehicleModelData(data, params, hasPagination),
           ...pagination
         });
         break;
       case 'vehicle_brands':
-        await database.upsertData(entity, {
+        await database.upsert(entity, {
           ...convertVehicleBrandData(data, params, hasPagination),
           ...pagination
         });

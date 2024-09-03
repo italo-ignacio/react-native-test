@@ -1,3 +1,4 @@
+/* eslint-disable max-statements */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable max-depth */
 import { hasRelation } from '../has-relation';
@@ -12,7 +13,7 @@ export const formatResult = (result: unknown, select?: object): unknown => {
     for (const item of Object.keys(value)) {
       let isChildren = false;
 
-      for (const itemValue of Object.keys(relations)) {
+      for (const itemValue of relations) {
         const { name, parent } = itemValue as unknown as { parent: string | null; name: string };
 
         if (item.startsWith(name)) {

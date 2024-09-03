@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 /* eslint-disable max-lines-per-function */
 import {
   databaseSelectColumns,
@@ -42,7 +43,7 @@ interface useDatabaseReturn {
     entity: T,
     props: { data: UpdateProps<T>; where?: WhereProps<T> }
   ) => Promise<void>;
-  upsertData: <T extends keyof SelectEntityMap>(
+  upsert: <T extends keyof SelectEntityMap>(
     entity: T,
     props: { data: UpdateProps<T>[] }
   ) => Promise<void>;
@@ -50,6 +51,11 @@ interface useDatabaseReturn {
     entity: T,
     options?: { where?: WhereProps<T> }
   ) => Promise<number>;
+  deleteTable: <T extends keyof SelectEntityMap>(entity: T) => Promise<void>;
+  upsertOne: <T extends keyof SelectEntityMap>(
+    entity: T,
+    props: { data: UpdateProps<T>; conflict: string }
+  ) => Promise<void>;
 }
 
 export const useDatabase = (): useDatabaseReturn => {
@@ -84,7 +90,7 @@ export const useDatabase = (): useDatabaseReturn => {
     const page = options?.page ?? 1;
     const pagination = limit ? `LIMIT ${limit} OFFSET ${(page - 1) * limit}` : '';
 
-    const selectQuery = `SELECT ${selectColumns} FROM ${entity} ${joinColumns} ${whereData} ORDER BY id ASC ${pagination}`;
+    const selectQuery = `SELECT ${selectColumns} FROM ${entity} ${joinColumns} ${whereData} ORDER BY ${entity}.id ASC ${pagination}`;
 
     const result = await database.getAllAsync(selectQuery);
 
@@ -114,7 +120,7 @@ export const useDatabase = (): useDatabaseReturn => {
 
     const query = `
       INSERT INTO ${entity} (${columns}) VALUES (${queryValues.map(
-      (item) => `${typeof item === 'number' ? item : `"${item}"`}`
+      (item) => `${typeof item === 'number' ? item : `'${item}'`}`
     )})
     `;
 
@@ -146,16 +152,18 @@ export const useDatabase = (): useDatabaseReturn => {
       UPDATE ${entity} SET ${Object.keys(props.data).map((item) => {
       const itemValue = props.data[item as keyof UpdateProps<T>];
 
-      return `${item} = ${typeof itemValue === 'number' ? itemValue : `"${itemValue}"`}`;
+      return `${item} = ${typeof itemValue === 'number' ? itemValue : `'${itemValue}'`}`;
     })}, updatedAt = CURRENT_TIMESTAMP ${whereData}
     `;
+
+    console.log(query);
 
     await database.withExclusiveTransactionAsync(async (transaction) => {
       await transaction.execAsync(query);
     });
   };
 
-  const upsertData = async <T extends keyof SelectEntityMap>(
+  const upsert = async <T extends keyof SelectEntityMap>(
     entity: T,
     {
       data,
@@ -188,7 +196,7 @@ export const useDatabase = (): useDatabaseReturn => {
             .map((itemValue) =>
               typeof itemValue === 'number'
                 ? itemValue
-                : `${String(itemValue).startsWith('SELECT') ? `(${itemValue})` : `"${itemValue}"`}`
+                : `${String(itemValue).startsWith('SELECT') ? `(${itemValue})` : `'${itemValue}'`}`
             )
             .join(', ')})`
       )
@@ -201,10 +209,40 @@ export const useDatabase = (): useDatabaseReturn => {
 
     const query = `INSERT INTO ${entity} (${columns}) VALUES ${values} ON CONFLICT(apiId) DO UPDATE SET ${updateColumns}, updatedAt = CURRENT_TIMESTAMP;`;
 
-    await database.withExclusiveTransactionAsync(async (transaction) => {
-      await transaction.execAsync(deleteQuery);
-      await transaction.execAsync(query);
-    });
+    if (await database.isInTransactionAsync())
+      setTimeout(() => upsert(entity, { data, where, ...params }), 1000);
+    else
+      await database.withExclusiveTransactionAsync(async (transaction) => {
+        await transaction.execAsync(deleteQuery);
+        await transaction.execAsync(query);
+      });
+  };
+
+  const upsertOne = async <T extends keyof SelectEntityMap>(
+    entity: T,
+    { data, conflict }: { data: UpdateProps<T>; conflict: string }
+  ): Promise<void> => {
+    console.log('upsert one ');
+
+    const { columns, queryValues } = databaseValues(data);
+
+    const updateColumns = Object.keys(data)
+      .filter((item) => item !== 'apiId')
+      .map((item) => `${item} = excluded.${item}`)
+      .join(', ');
+
+    const query = `
+      INSERT INTO ${entity} (${columns}) VALUES (${queryValues.map(
+      (item) => `${typeof item === 'number' ? item : `'${item}'`}`
+    )}) ON CONFLICT(${conflict}) DO UPDATE SET ${updateColumns}, updatedAt = CURRENT_TIMESTAMP;
+    `;
+
+    if (await database.isInTransactionAsync())
+      setTimeout(() => upsertOne(entity, { conflict, data }), 1000);
+    else
+      await database.withExclusiveTransactionAsync(async (transaction) => {
+        await transaction.execAsync(query);
+      });
   };
 
   const createMany = async <T extends keyof SelectEntityMap>(
@@ -218,7 +256,7 @@ export const useDatabase = (): useDatabaseReturn => {
       INSERT INTO ${entity} (${columns}) VALUES ${data.map(
       (item, index) =>
         `(${Object.values(item).map(
-          (itemValue) => `${typeof itemValue === 'number' ? itemValue : `"${itemValue}"`}`
+          (itemValue) => `${typeof itemValue === 'number' ? itemValue : `'${itemValue}'`}`
         )}) ${index + 1 === data.length ? ';' : ''}`
     )}
     `;
@@ -242,14 +280,26 @@ export const useDatabase = (): useDatabaseReturn => {
     });
   };
 
+  const deleteTable = async <T extends keyof SelectEntityMap>(entity: T): Promise<void> => {
+    console.log('delete table');
+
+    const query = `DROP TABLE IF EXISTS ${entity}`;
+
+    await database.withExclusiveTransactionAsync(async (transaction) => {
+      await transaction.execAsync(query);
+    });
+  };
+
   return {
     create,
     createMany,
     delete: deleteData,
+    deleteTable,
     find,
     findFirst,
     totalElements,
     update,
-    upsertData
+    upsert,
+    upsertOne
   };
 };

@@ -10,6 +10,7 @@ interface useInfiniteScrollProps {
   queryName: QueryName;
   limit: number;
   filters?: object;
+  apiRoute?: string;
 }
 
 export interface infiniteScrollProps {
@@ -23,17 +24,20 @@ export interface infiniteScrollProps {
 export const useInfiniteScroll = <T>({
   route,
   queryName,
+  apiRoute,
   limit,
   filters
 }: useInfiniteScrollProps): infiniteScrollProps & {
   data: T[] | undefined;
 } => {
-  const { findRequest: makeRequest } = useRequest();
+  const { findRequest } = useRequest();
   const [newData, setNewData] = useState<T[]>([]);
+  const [isFetchingNextPage2, setIsFetchingNextPage2] = useState(false);
   const filter = filters ?? {};
 
   const fetchItems = async ({ pageParam = 1 }): Promise<unknown> => {
-    return await makeRequest({
+    return await findRequest({
+      apiRoute,
       limit,
       page: pageParam,
       params: { ...filter },
@@ -56,6 +60,11 @@ export const useInfiniteScroll = <T>({
   );
 
   useEffect(() => {
+    if (isFetchingNextPage) setIsFetchingNextPage2(true);
+    else setTimeout(() => setIsFetchingNextPage2(false), 1000);
+  }, [isFetchingNextPage]);
+
+  useEffect(() => {
     const items: T[] = [];
 
     data?.pages?.forEach((pages) => {
@@ -76,6 +85,6 @@ export const useInfiniteScroll = <T>({
     fetchNextPage,
     hasNextPage: hasNextPage === undefined ? true : hasNextPage,
     isFetching,
-    isFetchingNextPage
+    isFetchingNextPage: isFetchingNextPage2
   };
 };

@@ -1,5 +1,10 @@
 import { Stack } from 'main/stack';
-import { Vehicle, VehicleDiagnostic, VehicleEdit, VehicleRegister } from 'presentation/environment';
+import {
+  VehicleContainer,
+  VehicleDiagnostic,
+  VehicleEdit,
+  VehicleRegister
+} from 'presentation/environment';
 import { paths } from 'main/config';
 import type { FC } from 'react';
 
@@ -20,7 +25,7 @@ export const VehiclePages = [
 
 export const VehicleRoutes: FC = () => (
   <Stack.Navigator initialRouteName={paths.vehicle} screenOptions={{ headerShown: false }}>
-    <Stack.Screen component={Vehicle} name={paths.vehicle} />
+    <Stack.Screen component={VehicleContainer} name={paths.vehicle} />
     <Stack.Screen component={VehicleRegister} name={paths.vehicleRegister} />
     <Stack.Screen component={VehicleEdit} name={paths.vehicleEdit} />
     <Stack.Screen component={VehicleDiagnostic} name={paths.vehicleDiagnostic} />

@@ -44,8 +44,8 @@ export const Button: FC<ButtonProps> = ({
       buttonTextColor = colors.white;
       break;
     default:
-      buttonColor = colors.white;
-      buttonTextColor = colors.secondary;
+      buttonColor = colors.transparent;
+      buttonTextColor = colors.primary;
   }
 
   return (
@@ -54,10 +54,12 @@ export const Button: FC<ButtonProps> = ({
       activeOpacity={0.7}
       className={`flex flex-row items-center justify-center rounded-full ${
         buttonProps?.className
-      } ${size === 'small' ? 'p-1' : 'p-2'} px-5`}
+      } ${size === 'small' ? 'p-1' : 'p-2'} ${
+        variant === 'secondary' ? 'border border-primary' : ''
+      } px-5`}
       disabled={isLoading}
       onPress={onPress}
-      style={[{ backgroundColor: buttonColor, ...(buttonProps ?? {}) }]}
+      style={[{ backgroundColor: buttonColor, ...((buttonProps?.style as object) ?? {}) }]}
     >
       {isLoading ? (
         <ActivityIndicator color={colors.white} size={size === 'small' ? 20 : 24} />

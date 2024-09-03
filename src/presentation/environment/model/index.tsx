@@ -27,7 +27,7 @@ export const Model: FC = () => {
 
   const { data, ...query } = useInfiniteScroll<VehicleModel>({
     filters: { search },
-    limit: 50,
+    limit: 30,
     queryName: QueryName.vehicleModel,
     route: 'vehicleModel'
   });
@@ -70,6 +70,7 @@ export const Model: FC = () => {
               onPress={(): void => {
                 navigate(paths.modelEdit, itemValue);
               }}
+              size={'big'}
             />
           );
         }}

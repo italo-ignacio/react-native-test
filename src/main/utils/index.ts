@@ -12,3 +12,4 @@ export * from './format-list-result';
 export * from './convert-ids';
 export * from './get-offline-update-where';
 export * from './convert-list';
+export * from './has-connection';

@@ -7,7 +7,7 @@ import { store } from 'store';
 import { useDatabase } from '../use-database';
 import { useDatabaseData } from 'infra/db/use-database-data';
 import type { ApiProps } from 'domain/protocol';
-import type { CreateProps, SelectEntityMap, UpdateProps } from 'domain/models';
+import type { CreateProps, SelectEntityMap } from 'domain/models';
 import type { Ids } from 'domain/enums';
 import type { QueryList } from 'main/config';
 import type { queryProps } from 'infra/cache/queries/default-query';
@@ -81,7 +81,7 @@ export const useRequest = (): {
       let entityId;
 
       const dataValue = {
-        body,
+        body: `${JSON.stringify(body)}`,
         entity,
         method,
         requestId: ids?.apiId ? ids?.apiId : ids?.id,
@@ -97,7 +97,7 @@ export const useRequest = (): {
         entityId = localItem.id;
 
         await database.create('offline_queue', {
-          data: { ...dataValue, entityId }
+          data: { ...dataValue, entityId, requestId: undefined }
         });
       } else if (method === 'PUT' && ids?.id)
         if (ids?.apiId === null) {
@@ -105,7 +105,8 @@ export const useRequest = (): {
           await database.update('offline_queue', {
             data: {
               ...dataValue,
-              method: 'POST'
+              method: 'POST',
+              requestId: undefined
             },
             where: {
               entity: {
@@ -146,8 +147,9 @@ export const useRequest = (): {
             data: { ...dataValue, entityId }
           });
 
-          await database.upsertData(entity, {
-            data: [{ apiId: entityId, ...(body as object) }] as UpdateProps<keyof SelectEntityMap>[]
+          await database.upsertOne(entity, {
+            conflict: 'apiId',
+            data: { apiId: entityId, ...(body as object) }
           });
         }
     }
