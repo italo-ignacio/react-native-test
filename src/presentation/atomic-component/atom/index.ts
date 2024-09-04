@@ -9,3 +9,4 @@ export * from './fetch-on-scroll';
 export * from './select';
 export * from './fetch-on-scroll-item';
 export * from './select-item';
+export * from './modal';

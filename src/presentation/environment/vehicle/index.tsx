@@ -1,8 +1,10 @@
 import { Button, FetchOnScroll, VehicleCard } from 'presentation/atomic-component/atom';
 import { PrivateContainer } from 'presentation/atomic-component/template';
-import { QueryName } from 'main/config';
+import { QueryName, paths } from 'main/config';
+import { RegisterVehicleModal } from 'presentation/atomic-component/molecule/modal';
 import { Text, View } from 'react-native';
-import { useInfiniteScroll } from 'data/hooks';
+import { gap } from 'main/utils';
+import { useBluetooth, useInfiniteScroll, useRouter } from 'data/hooks';
 import type { FC, ReactElement } from 'react';
 import type { Vehicle } from 'domain/models';
 
@@ -14,40 +16,40 @@ export const VehicleContainer: FC = () => {
     route: 'vehicle'
   });
 
+  const { connected } = useBluetooth();
+  const { navigate } = useRouter();
+
   return (
     <PrivateContainer headerTitle={'Meus Veículos'}>
-      <View>
-        <Text className={'text-primary text-base font-semibold'}>Veículo Selecionado</Text>
+      <View className={'max-h-[29vh]'}>
+        <Text className={'text-primary text-base font-semibold'}>Veículo Conectado</Text>
 
-        <VehicleCard
-          vehicle={{
-            id: 12,
-            licensePlate: 'dsas',
-            serialNumber: 'dsas',
-            typeOfFuel: 1,
-            vehicleModel: {
-              id: 12,
-              name: 'Uno',
-              vehicleBrand: {
-                id: 12,
-                imageName: 'fiat.png',
-                name: 'Fiat'
-              }
+        {connected.vehicle ? (
+          <VehicleCard vehicle={connected.vehicle} />
+        ) : (
+          <View
+            className={
+              'mt-2 items-center rounded-md py-4 px-3 w-full bg-white border border-gray-300'
             }
-          }}
-        />
+            {...gap(16)}
+          >
+            <Text className={'text-primary font-semibold text-base'}>
+              Nenhum veículo conectado.
+            </Text>
+
+            <Button
+              onPress={(): void => navigate(paths.bluetooth)}
+              size={'small'}
+              text={'Conectar veículo'}
+            />
+          </View>
+        )}
       </View>
 
       <View className={'max-h-[50vh]'}>
         <View className={'flex flex-row justify-between mb-2 items-center'}>
           <Text className={'text-primary text-base font-semibold'}>Meus Veículos</Text>
-
-          <Button
-            leftIcon={'add'}
-            onPress={(): void => console.log('aaa')}
-            size={'small'}
-            text={'Novo'}
-          />
+          <RegisterVehicleModal />
         </View>
 
         <FetchOnScroll

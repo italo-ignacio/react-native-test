@@ -1,9 +1,10 @@
 import { Button, DeviceCard } from 'presentation/atomic-component/atom';
-import { type FC, useEffect } from 'react';
+import { FlatList, Text, View } from 'react-native';
 import { PrivateContainer } from 'presentation/atomic-component/template';
-import { Text, View } from 'react-native';
 import { gap } from 'main/utils';
 import { useBluetooth } from 'data/hooks';
+import { useEffect } from 'react';
+import type { FC, ReactElement } from 'react';
 
 export const Bluetooth: FC = () => {
   const {
@@ -11,7 +12,7 @@ export const Bluetooth: FC = () => {
     requestPermissions,
     allDevices,
     connectToDevice,
-    connectedDevice,
+    connected,
     isScanning,
     state,
     disconnectFromDevice,
@@ -57,18 +58,24 @@ export const Bluetooth: FC = () => {
             />
           </View>
 
-          {allDevices.map((item) => (
-            <DeviceCard
-              key={item.id}
-              device={item}
-              onPress={(): void => {
-                if (state?.connection !== 'isConnecting')
-                  if (connectedDevice?.id === item.id) disconnectFromDevice();
-                  else connectToDevice(item);
-              }}
-              state={state}
+          <View className={'max-h-[71vh]'}>
+            <FlatList
+              contentContainerStyle={{ gap: 12 }}
+              data={allDevices}
+              renderItem={({ item }): ReactElement => (
+                <DeviceCard
+                  key={item.id}
+                  device={item}
+                  onPress={(): void => {
+                    if (state?.connection !== 'isConnecting')
+                      if (connected?.device?.id === item.id) disconnectFromDevice();
+                      else connectToDevice(item);
+                  }}
+                  state={state}
+                />
+              )}
             />
-          ))}
+          </View>
         </View>
       )}
     </PrivateContainer>

@@ -8,6 +8,7 @@ import { PrivateContainer } from 'presentation/atomic-component/template';
 import { QueryName, paths } from 'main/config';
 import { Text, View } from 'react-native';
 import { queryClient } from 'infra/lib';
+import { useAppSelector } from 'store';
 import { useCallback, useState } from 'react';
 import { useDebounce, useInfiniteScroll, useRouter } from 'data/hooks';
 import { useFocusEffect } from '@react-navigation/native';
@@ -18,6 +19,8 @@ export const Brand: FC = () => {
   const [search, setSearch] = useState('');
   const [searchDebounce, setSearchDebounce] = useState('');
   const { navigate } = useRouter();
+
+  const { hasInternetConnection } = useAppSelector((state) => state.netInfo);
 
   useDebounce(
     () => {
@@ -37,7 +40,7 @@ export const Brand: FC = () => {
   useFocusEffect(
     useCallback(() => {
       queryClient.invalidateQueries(QueryName.vehicleBrand);
-    }, [queryClient])
+    }, [queryClient, hasInternetConnection])
   );
 
   return (

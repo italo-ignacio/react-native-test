@@ -61,11 +61,24 @@ interface useDatabaseReturn {
 export const useDatabase = (): useDatabaseReturn => {
   const database = useSQLiteContext();
 
+  const retryTransaction = async (
+    fn: () => Promise<void>,
+    retries = 5,
+    delay = 1000
+  ): Promise<void> => {
+    try {
+      await fn();
+    } catch (error) {
+      if (retries > 0) setTimeout(() => retryTransaction(fn, retries - 1, delay), delay);
+      else throw error;
+    }
+  };
+
   const findFirst = async <T extends keyof SelectEntityMap>(
     entity: T,
     options?: { where?: WhereProps<T>; select?: SelectProps<T> }
   ): Promise<SelectEntityReturnMap[T]> => {
-    console.log('find first');
+    console.info('find first');
     let result: SelectEntityReturnMap[T] | null = null;
 
     const { selectColumns, joinColumns } = databaseSelectColumns(entity, options?.select);
@@ -82,7 +95,7 @@ export const useDatabase = (): useDatabaseReturn => {
     entity: T,
     options?: Partial<PaginationProps> & { where?: WhereProps<T>; select?: SelectProps<T> }
   ): Promise<SelectEntityReturnMap[T][]> => {
-    console.log('find');
+    console.info('find');
     const { selectColumns, joinColumns } = databaseSelectColumns(entity, options?.select);
     const { whereData } = databaseWhereTransform(entity, options?.where);
 
@@ -101,7 +114,7 @@ export const useDatabase = (): useDatabaseReturn => {
     entity: T,
     options?: { where?: WhereProps<T> }
   ): Promise<number> => {
-    console.log('total elements');
+    console.info('total elements');
     const { whereData } = databaseWhereTransform(entity, options?.where);
 
     const selectQuery = `SELECT COUNT(${entity}.id) as count FROM ${entity} ${whereData};`;
@@ -115,7 +128,7 @@ export const useDatabase = (): useDatabaseReturn => {
     entity: T,
     { data, select }: { data: CreateProps<T>; select?: SelectProps<T> }
   ): Promise<SelectEntityReturnMap[T]> => {
-    console.log('create');
+    console.info('create');
     const { columns, queryValues } = databaseValues(data);
 
     const query = `
@@ -145,7 +158,7 @@ export const useDatabase = (): useDatabaseReturn => {
     entity: T,
     props: { data: UpdateProps<T>; where?: WhereProps<T> }
   ): Promise<void> => {
-    console.log('update');
+    console.info('update');
     const { whereData } = databaseWhereTransform(entity, props?.where);
 
     const query = `
@@ -156,10 +169,12 @@ export const useDatabase = (): useDatabaseReturn => {
     })}, updatedAt = CURRENT_TIMESTAMP ${whereData}
     `;
 
-    console.log(query);
-
-    await database.withExclusiveTransactionAsync(async (transaction) => {
-      await transaction.execAsync(query);
+    await retryTransaction(async () => {
+      if (await database.isInTransactionAsync()) throw new Error('Transaction in progress');
+      else
+        await database.withExclusiveTransactionAsync(async (transaction) => {
+          await transaction.execAsync(query);
+        });
     });
   };
 
@@ -171,7 +186,9 @@ export const useDatabase = (): useDatabaseReturn => {
       ...params
     }: Partial<PaginationProps> & { data: UpdateProps<T>[]; where?: WhereProps<T> }
   ): Promise<void> => {
-    console.log('upsert');
+    console.info('upsert');
+
+    if (data.length < 1) return;
 
     const { columns } = databaseValues(data[0]);
     const { whereData } = databaseWhereTransform(entity, where);
@@ -209,20 +226,20 @@ export const useDatabase = (): useDatabaseReturn => {
 
     const query = `INSERT INTO ${entity} (${columns}) VALUES ${values} ON CONFLICT(apiId) DO UPDATE SET ${updateColumns}, updatedAt = CURRENT_TIMESTAMP;`;
 
-    if (await database.isInTransactionAsync())
-      setTimeout(() => upsert(entity, { data, where, ...params }), 1000);
-    else
-      await database.withExclusiveTransactionAsync(async (transaction) => {
-        await transaction.execAsync(deleteQuery);
-        await transaction.execAsync(query);
-      });
+    await retryTransaction(async () => {
+      if (await database.isInTransactionAsync()) throw new Error('Transaction in progress');
+      else
+        await database.withExclusiveTransactionAsync(async (transaction) => {
+          await transaction.execAsync(`${deleteQuery};${query}`);
+        });
+    });
   };
 
   const upsertOne = async <T extends keyof SelectEntityMap>(
     entity: T,
     { data, conflict }: { data: UpdateProps<T>; conflict: string }
   ): Promise<void> => {
-    console.log('upsert one ');
+    console.info('upsert one ');
 
     const { columns, queryValues } = databaseValues(data);
 
@@ -237,19 +254,20 @@ export const useDatabase = (): useDatabaseReturn => {
     )}) ON CONFLICT(${conflict}) DO UPDATE SET ${updateColumns}, updatedAt = CURRENT_TIMESTAMP;
     `;
 
-    if (await database.isInTransactionAsync())
-      setTimeout(() => upsertOne(entity, { conflict, data }), 1000);
-    else
-      await database.withExclusiveTransactionAsync(async (transaction) => {
-        await transaction.execAsync(query);
-      });
+    await retryTransaction(async () => {
+      if (await database.isInTransactionAsync()) throw new Error('Transaction in progress');
+      else
+        await database.withExclusiveTransactionAsync(async (transaction) => {
+          await transaction.execAsync(query);
+        });
+    });
   };
 
   const createMany = async <T extends keyof SelectEntityMap>(
     entity: T,
     { data }: { data: CreateProps<T>[] }
   ): Promise<void> => {
-    console.log('create many');
+    console.info('create many');
     const { columns } = databaseValues(data[0]);
 
     const query = `
@@ -261,8 +279,12 @@ export const useDatabase = (): useDatabaseReturn => {
     )}
     `;
 
-    await database.withExclusiveTransactionAsync(async (transaction) => {
-      await transaction.execAsync(query);
+    await retryTransaction(async () => {
+      if (await database.isInTransactionAsync()) throw new Error('Transaction in progress');
+      else
+        await database.withExclusiveTransactionAsync(async (transaction) => {
+          await transaction.execAsync(query);
+        });
     });
   };
 
@@ -270,23 +292,31 @@ export const useDatabase = (): useDatabaseReturn => {
     entity: T,
     options?: { where?: WhereProps<T> }
   ): Promise<void> => {
-    console.log('delete');
+    console.info('delete');
     const { whereData } = databaseWhereTransform(entity, options?.where);
 
     const query = `DELETE FROM ${entity} ${whereData}`;
 
-    await database.withExclusiveTransactionAsync(async (transaction) => {
-      await transaction.execAsync(query);
+    await retryTransaction(async () => {
+      if (await database.isInTransactionAsync()) throw new Error('Transaction in progress');
+      else
+        await database.withExclusiveTransactionAsync(async (transaction) => {
+          await transaction.execAsync(query);
+        });
     });
   };
 
   const deleteTable = async <T extends keyof SelectEntityMap>(entity: T): Promise<void> => {
-    console.log('delete table');
+    console.info('delete table');
 
     const query = `DROP TABLE IF EXISTS ${entity}`;
 
-    await database.withExclusiveTransactionAsync(async (transaction) => {
-      await transaction.execAsync(query);
+    await retryTransaction(async () => {
+      if (await database.isInTransactionAsync()) throw new Error('Transaction in progress');
+      else
+        await database.withExclusiveTransactionAsync(async (transaction) => {
+          await transaction.execAsync(query);
+        });
     });
   };
 

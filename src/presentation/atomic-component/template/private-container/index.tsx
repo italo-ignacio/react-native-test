@@ -23,18 +23,18 @@ export const PrivateContainer: FC<PrivateContainerProps> = ({
   const { canGoBack, goBack, navigate } = useRouter();
   const dispatch = useDispatch();
 
-  const { bluetoothState, connectedDevice, startScan } = useBluetooth();
+  const { bluetoothState, connected, startScan } = useBluetooth();
   const { hasInternetConnection } = useAppSelector((state) => state.netInfo);
 
   const getBluetoothIcon = (): 'bluetooth-connected' | 'bluetooth-disabled' | 'bluetooth' => {
     if (bluetoothState === 'off') return 'bluetooth-disabled';
-    if (connectedDevice !== null) return 'bluetooth-connected';
+    if (connected.device !== null) return 'bluetooth-connected';
     return 'bluetooth';
   };
 
   useEffect(() => {
-    if (bluetoothState === 'on' && connectedDevice === null) startScan();
-  }, [bluetoothState, connectedDevice]);
+    if (bluetoothState === 'on' && connected.device === null) startScan();
+  }, [bluetoothState, connected.device]);
 
   return (
     <View className={'flex-1 justify-end items-start'} {...gap(8)}>

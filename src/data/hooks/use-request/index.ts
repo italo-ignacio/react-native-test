@@ -19,20 +19,20 @@ interface makeRequestProps extends Omit<ApiProps, 'id' | 'isFormData' | 'queryPa
 }
 
 export const useRequest = (): {
-  findRequest: (params: queryProps) => Promise<unknown>;
+  findRequest: <T>(params: queryProps) => Promise<T>;
   makeRequest: (params: makeRequestProps) => Promise<unknown>;
 } => {
   const { transformApiResponseToDatabase, findOnDatabase } = useDatabaseData();
   const database = useDatabase();
 
-  const findRequest = async ({
+  const findRequest = async <T>({
     route,
     apiRoute,
     ids,
     limit,
     page,
     params
-  }: queryProps): Promise<unknown> => {
+  }: queryProps): Promise<T> => {
     const { hasInternetConnection } = store.getState().netInfo;
 
     let data;
@@ -55,7 +55,7 @@ export const useRequest = (): {
     } else if (!hasInternetConnection && entity)
       data = await findOnDatabase(entity as keyof SelectEntityMap, { ...params, ids, limit, page });
 
-    return data;
+    return data as T;
   };
 
   const makeRequest = async ({

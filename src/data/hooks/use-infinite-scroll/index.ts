@@ -2,7 +2,14 @@
 import { useEffect, useState } from 'react';
 import { useInfiniteQuery } from 'react-query';
 import { useRequest } from '../use-request';
-import type { FetchNextPageOptions, InfiniteQueryObserverResult } from 'react-query';
+import type {
+  FetchNextPageOptions,
+  InfiniteData,
+  InfiniteQueryObserverResult,
+  QueryObserverResult,
+  RefetchOptions,
+  RefetchQueryFilters
+} from 'react-query';
 import type { QueryList, QueryName } from 'main/config';
 
 interface useInfiniteScrollProps {
@@ -17,9 +24,13 @@ export interface infiniteScrollProps {
   fetchNextPage: (
     options?: FetchNextPageOptions | undefined
   ) => Promise<InfiniteQueryObserverResult<unknown>>;
+  refetch: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined
+  ) => Promise<QueryObserverResult<InfiniteData<unknown>, unknown>>;
   hasNextPage: boolean | undefined;
   isFetchingNextPage: boolean;
   isFetching: boolean;
+  isError: boolean;
 }
 export const useInfiniteScroll = <T>({
   route,
@@ -45,10 +56,8 @@ export const useInfiniteScroll = <T>({
     });
   };
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching } = useInfiniteQuery(
-    [queryName, ...Object.values(filter)],
-    fetchItems,
-    {
+  const { data, fetchNextPage, hasNextPage, refetch, isFetchingNextPage, isFetching, isError } =
+    useInfiniteQuery([queryName, ...Object.values(filter)], fetchItems, {
       getNextPageParam(response, pages) {
         const { totalPages } = response as unknown as { totalPages: number };
 
@@ -56,8 +65,7 @@ export const useInfiniteScroll = <T>({
 
         return undefined;
       }
-    }
-  );
+    });
 
   useEffect(() => {
     if (isFetchingNextPage) setIsFetchingNextPage2(true);
@@ -84,7 +92,9 @@ export const useInfiniteScroll = <T>({
     data: newData,
     fetchNextPage,
     hasNextPage: hasNextPage === undefined ? true : hasNextPage,
+    isError,
     isFetching,
-    isFetchingNextPage: isFetchingNextPage2
+    isFetchingNextPage: isFetchingNextPage2,
+    refetch
   };
 };

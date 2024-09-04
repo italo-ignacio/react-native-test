@@ -5,6 +5,7 @@ import { QueryName, apiPaths } from 'main/config';
 import { api } from 'infra/http';
 import { callToast, hasConnection, listToSelect, resolverError } from 'main/utils';
 import { queryClient } from 'infra/lib';
+import { useAppSelector } from 'store';
 import { useCallback, useState } from 'react';
 import { useDebounce, useInfiniteScroll } from 'data/hooks';
 import { useFocusEffect } from '@react-navigation/native';
@@ -15,7 +16,7 @@ import type { VehicleBrand } from 'domain/models';
 export const ModelRegister: FC = () => {
   const [name, setName] = useState('');
   const [selectValue, setSelectValue] = useState<SelectValues | null>(null);
-
+  const { hasInternetConnection } = useAppSelector((state) => state.netInfo);
   const [search, setSearch] = useState('');
   const [searchDebounce, setSearchDebounce] = useState('');
 
@@ -49,7 +50,6 @@ export const ModelRegister: FC = () => {
       });
 
       callToast.success('Cadastrado com sucesso');
-      queryClient.invalidateQueries(QueryName.vehicleModel);
       setName('');
       setSelectValue(null);
       Keyboard.dismiss();
@@ -69,7 +69,7 @@ export const ModelRegister: FC = () => {
   useFocusEffect(
     useCallback(() => {
       queryClient.invalidateQueries(QueryName.vehicleBrand);
-    }, [queryClient])
+    }, [queryClient, hasInternetConnection])
   );
 
   return (

@@ -1,6 +1,6 @@
 import { Button, ScrollView, View } from 'react-native';
 import { PrivateContainer } from 'presentation/atomic-component/template';
-import { selectAllOfflineQueue, selectAllVehicleModel } from 'domain/models';
+import { selectAllOfflineQueue } from 'domain/models';
 import { useAppSelector } from 'store';
 import { useDatabase } from 'data/hooks';
 import type { FC } from 'react';
@@ -34,58 +34,6 @@ export const Home: FC = () => {
             console.log(list);
           }}
           title={'Find'}
-        />
-
-        <Button
-          onPress={async (): Promise<void> => {
-            const list = await database.find('vehicle_models', {
-              limit: 1,
-              page: 1,
-              select: {
-                apiId: true,
-                createdAt: true,
-                id: true,
-                name: true,
-                vehicleBrand: {
-                  apiId: true,
-                  createdAt: true,
-                  id: true,
-                  imageName: true,
-                  name: true
-                }
-              }
-            });
-
-            console.log(list);
-          }}
-          title={'Find1'}
-        />
-
-        <Button
-          onPress={async (): Promise<void> => {
-            const list = await database.find('vehicle_models', {
-              select: selectAllVehicleModel
-            });
-
-            console.log(list);
-          }}
-          title={'Find2'}
-        />
-
-        <Button
-          onPress={async (): Promise<void> => {
-            const list = await database.create('vehicle_brands', {
-              data: {
-                name: '123'
-              },
-              select: {
-                apiId: true
-              }
-            });
-
-            console.log(list);
-          }}
-          title={'create'}
         />
       </ScrollView>
     </PrivateContainer>

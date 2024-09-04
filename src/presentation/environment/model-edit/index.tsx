@@ -5,6 +5,7 @@ import { QueryName, apiPaths } from 'main/config';
 import { api } from 'infra/http';
 import { callToast, hasConnection, listToSelect, resolverError } from 'main/utils';
 import { queryClient } from 'infra/lib';
+import { useAppSelector } from 'store';
 import { useCallback, useState } from 'react';
 import { useDebounce, useInfiniteScroll } from 'data/hooks';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
@@ -15,7 +16,7 @@ import type { VehicleBrand, VehicleModel } from 'domain/models';
 export const ModelEdit: FC = () => {
   const { params } = useRoute();
   const vehicleModel = params as VehicleModel;
-
+  const { hasInternetConnection } = useAppSelector((state) => state.netInfo);
   const [name, setName] = useState(vehicleModel.name);
   const [selectValue, setSelectValue] = useState<SelectValues | null>({
     item: vehicleModel.vehicleBrand,
@@ -74,7 +75,7 @@ export const ModelEdit: FC = () => {
   useFocusEffect(
     useCallback(() => {
       queryClient.invalidateQueries(QueryName.vehicleBrand);
-    }, [queryClient])
+    }, [queryClient, hasInternetConnection])
   );
 
   return (

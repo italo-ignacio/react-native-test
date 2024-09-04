@@ -11,6 +11,7 @@ import type { ReactElement } from 'react';
 export const tabsMock = [
   {
     component: HomeRoutes,
+    mainRoute: paths.home,
     name: paths.homeRoutes,
     onlyAdmin: false,
     tabBarIcon: ({ focused }: { focused: boolean }): ReactElement => (
@@ -24,6 +25,7 @@ export const tabsMock = [
   },
   {
     component: VehicleRoutes,
+    mainRoute: paths.vehicle,
     name: paths.vehicleRoutes,
     onlyAdmin: false,
     tabBarIcon: ({ focused }: { focused: boolean }): ReactElement => (
@@ -37,6 +39,7 @@ export const tabsMock = [
   },
   {
     component: BrandRoutes,
+    mainRoute: paths.brand,
     name: paths.brandRoutes,
     onlyAdmin: true,
     tabBarIcon: ({ focused }: { focused: boolean }): ReactElement => (
@@ -50,6 +53,7 @@ export const tabsMock = [
   },
   {
     component: ModelRoutes,
+    mainRoute: paths.modelRoutes,
     name: paths.modelRoutes,
     onlyAdmin: true,
     tabBarIcon: ({ focused }: { focused: boolean }): ReactElement => (
@@ -63,6 +67,7 @@ export const tabsMock = [
   },
   {
     component: Profile,
+    mainRoute: paths.profile,
     name: paths.profile,
     onlyAdmin: false,
     tabBarIcon: ({ focused }: { focused: boolean }): ReactElement => (

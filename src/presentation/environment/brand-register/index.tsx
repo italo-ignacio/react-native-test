@@ -2,10 +2,9 @@ import { Button, LabelInput } from 'presentation/atomic-component/atom';
 import { type FC, useState } from 'react';
 import { Keyboard, View } from 'react-native';
 import { PrivateContainer } from 'presentation/atomic-component/template';
-import { QueryName, apiPaths } from 'main/config';
 import { api } from 'infra/http';
+import { apiPaths } from 'main/config';
 import { callToast, hasConnection, resolverError } from 'main/utils';
-import { queryClient } from 'infra/lib';
 
 export const BrandRegister: FC = () => {
   const [name, setName] = useState('');
@@ -28,7 +27,6 @@ export const BrandRegister: FC = () => {
       });
 
       callToast.success('Cadastrado com sucesso');
-      queryClient.invalidateQueries(QueryName.vehicleBrand);
       setName('');
       Keyboard.dismiss();
     } catch (error) {

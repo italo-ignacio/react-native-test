@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Button } from '../button';
 import { FlatList, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from 'presentation/style';
+import { gap } from 'main/utils';
 import { useRef, useState } from 'react';
 import type { FC, ReactElement } from 'react';
 import type { infiniteScrollProps } from 'data/hooks';
@@ -14,7 +16,7 @@ interface FetchOnScrollProps {
 }
 
 export const FetchOnScroll: FC<FetchOnScrollProps> = ({
-  query: { isFetchingNextPage, hasNextPage, isFetching, fetchNextPage },
+  query: { isFetchingNextPage, hasNextPage, isFetching, fetchNextPage, refetch, isError },
   data,
   renderItem,
   hideSeparator,
@@ -38,8 +40,15 @@ export const FetchOnScroll: FC<FetchOnScrollProps> = ({
       ItemSeparatorComponent={
         hideSeparator ? null : (): ReactElement => <View className={'bg-gray-250 h-0.5'} />
       }
+      ListEmptyComponent={
+        isFetching || isFetchingNextPage ? null : (
+          <View className={'bg-white border border-gray-350 p-3 rounded-md items-center'}>
+            <Text>Nenhum item foi encontrado</Text>
+          </View>
+        )
+      }
       ListFooterComponent={
-        hasNextPage ? (
+        hasNextPage && !isError ? (
           <TouchableOpacity
             onPress={(): void => {
               if (fetchNextPage && hasNextPage && !isFetchingNextPage) fetchNextPage();
@@ -60,6 +69,24 @@ export const FetchOnScroll: FC<FetchOnScrollProps> = ({
         ) : (
           <View className={hideSeparator ? '' : 'bg-gray-250'} />
         )
+      }
+      ListHeaderComponent={
+        isError ? (
+          <View
+            {...gap(12)}
+            className={'bg-white border border-gray-350 p-3 rounded-md items-center'}
+          >
+            <Text>Erro ao buscar items</Text>
+
+            <Button
+              onPress={(): void => {
+                refetch();
+              }}
+              size={'small'}
+              text={'Tentar novamente'}
+            />
+          </View>
+        ) : null
       }
       data={data}
       keyExtractor={keyExtractor}

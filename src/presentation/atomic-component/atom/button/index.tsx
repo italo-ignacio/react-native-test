@@ -6,7 +6,7 @@ import type { BaseSyntheticEvent, FC, ReactNode } from 'react';
 import type { IconNames } from 'domain/protocol';
 import type { TouchableOpacityProps } from 'react-native';
 
-interface ButtonProps {
+export interface ButtonProps {
   text: string;
   variant?: 'default' | 'delete' | 'secondary';
   isLoading?: boolean;
