@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TableName } from 'domain/enums';
-import type { Vehicle, VehicleBrand, VehicleValues, WhereCondition } from 'domain/models';
+import type { Vehicle, VehicleValues, WhereCondition } from 'domain/models';
 
 export const convertVehicleWhere = (params: {
   search?: string;
   ids?: { id?: number; apiId?: number };
-}): WhereCondition<VehicleBrand> => {
-  let where: WhereCondition<VehicleBrand> = {};
+}): WhereCondition<Vehicle> => {
+  let where: WhereCondition<Vehicle> = {};
 
   if (params.search)
     where = {
-      name: { operator: 'LIKE', value: `%${params.search}%` }
+      serialNumber: { operator: 'LIKE', value: `${params.search}` }
     };
 
   if (params.ids?.apiId) where = { ...where, apiId: { operator: '=', value: params.ids?.apiId } };
@@ -29,7 +29,8 @@ export const convertVehicleData = (
 
   let newData: Vehicle[] = [];
 
-  if (hasPagination) newData = data.content;
+  if (Array.isArray(data)) newData = data;
+  else if (hasPagination) newData = data.content;
   else newData = [data];
 
   return {

@@ -27,10 +27,7 @@ export const ProfileForm: FC = () => {
   }, [user]);
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className={'flex flex-col w-full'}
-    >
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View
         className={
           'flex flex-col w-full divide-y px-2 rounded-md divide-gray-350 bg-white border border-gray-350'

@@ -30,7 +30,7 @@ export const apiPaths = {
   vehicleBrand: '/vehicle-brand',
   vehicle: '/vehicle',
   register: '/user',
-  vehicleModelByBrand: (brandId?: number): string => `/vehicle-brand/${brandId ?? 1}/vehicle-model`,
+  vehicleModelByBrand: (brandId: number): string => `/vehicle-brand/${brandId}/vehicle-model`,
   vehicleModel: '/vehicle-model',
   default: 'default'
 };

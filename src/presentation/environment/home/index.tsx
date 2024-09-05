@@ -1,6 +1,5 @@
 import { Button, ScrollView, View } from 'react-native';
 import { PrivateContainer } from 'presentation/atomic-component/template';
-import { selectAllOfflineQueue } from 'domain/models';
 import { useAppSelector } from 'store';
 import { useDatabase } from 'data/hooks';
 import type { FC } from 'react';
@@ -15,8 +14,9 @@ export const Home: FC = () => {
         <Button
           onPress={async (): Promise<void> => {
             console.log(await database.delete('offline_queue', {}));
-            console.log(await database.delete('vehicle_brands', {}));
-            console.log(await database.delete('vehicle_models', {}));
+
+            // console.log(await database.delete('vehicle_brands', {}));
+            // console.log(await database.delete('vehicle_models', {}));
           }}
           title={'Delete'}
         />
@@ -25,13 +25,16 @@ export const Home: FC = () => {
 
         <Button
           onPress={async (): Promise<void> => {
-            const list = await database.find('offline_queue', {
-              limit: 1,
-              page: 1,
-              select: selectAllOfflineQueue
-            });
+            const offlineQueue = await database.find('offline_queue');
 
-            console.log(list);
+            console.log('offlineQueue', offlineQueue.length);
+            console.log('offlineQueue', offlineQueue);
+            const vehicleBrands = await database.find('vehicle_brands');
+
+            console.log('vehicleBrands', vehicleBrands.length);
+            const vehicleModels = await database.find('vehicle_models');
+
+            console.log('vehicleModels', vehicleModels.length);
           }}
           title={'Find'}
         />

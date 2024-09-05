@@ -29,7 +29,7 @@ export const RegisterVehicleModal: FC = () => {
 
         <View>
           <Text className={'text-primary font-semibold text-center'}>
-            Conecte-se ao dispositivo OBD para registrar um veículo
+            Conecte-se ao dispositivo OBD para registrar o veículo
           </Text>
         </View>
 

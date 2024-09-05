@@ -2,6 +2,8 @@ import { BrandImage } from 'presentation/atomic-component/atom/brand-image';
 import { Button } from 'presentation/atomic-component/atom/button';
 import { Text, View } from 'react-native';
 import { gap } from 'main/utils';
+import { paths } from 'main/config';
+import { useRouter } from 'data/hooks';
 import type { FC } from 'react';
 import type { Vehicle } from 'domain/models';
 
@@ -11,6 +13,8 @@ interface VehicleCardProps {
 }
 
 export const VehicleCard: FC<VehicleCardProps> = ({ vehicle, isFirst }) => {
+  const { navigate } = useRouter();
+
   return (
     <View
       className={`flex flex-row justify-between items-start rounded-md py-4 px-3 w-full bg-white border border-gray-300 ${
@@ -37,7 +41,9 @@ export const VehicleCard: FC<VehicleCardProps> = ({ vehicle, isFirst }) => {
           />
 
           <Button
-            onPress={(): void => console.log('aaa')}
+            onPress={(): void =>
+              navigate(paths.vehicleRoutes, { params: vehicle, screen: paths.vehicleEdit })
+            }
             rightIcon={'navigate-next'}
             size={'small'}
             text={'Ver Mais '}

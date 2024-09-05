@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TableName } from 'domain/enums';
+import { store } from 'store';
 import type { VehicleModel, VehicleModelValues, WhereCondition } from 'domain/models';
 
 export const convertVehicleModelWhere = (params: {
   search?: number;
   ids?: { id?: number; apiId?: number };
   brandId?: number;
-  apiBrandId?: number;
 }): WhereCondition<VehicleModel> => {
   let where: WhereCondition<VehicleModel> = {};
 
@@ -19,14 +19,16 @@ export const convertVehicleModelWhere = (params: {
   if (params.ids?.apiId) where = { ...where, apiId: { operator: '=', value: params.ids?.apiId } };
   else if (params.ids?.id) where = { ...where, id: { operator: '=', value: params.ids?.id } };
 
+  const { hasInternetConnection } = store.getState().netInfo;
+
   if (params.brandId)
-    where = { ...where, vehicleBrandId: { operator: '=', value: params.brandId } };
-  else if (params.apiBrandId)
     where = {
       ...where,
       vehicleBrandId: {
         operator: '=',
-        value: `SELECT id FROM ${TableName.vehicleBrand} WHERE apiId = ${params.apiBrandId}`
+        value: hasInternetConnection
+          ? `SELECT id FROM ${TableName.vehicleBrand} WHERE apiId = ${params.brandId}`
+          : params.brandId
       }
     };
 
@@ -47,7 +49,8 @@ export const convertVehicleModelData = (
 
   let newData: VehicleModel[] = [];
 
-  if (hasPagination) newData = data.content;
+  if (Array.isArray(data)) newData = data;
+  else if (hasPagination) newData = data.content;
   else newData = [data];
 
   return {

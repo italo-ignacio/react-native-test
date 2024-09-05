@@ -67,7 +67,7 @@ export const PrivateContainer: FC<PrivateContainerProps> = ({
               color={'white'}
               name={getBluetoothIcon()}
               onPress={(): void => {
-                navigate(paths.bluetooth);
+                navigate(paths.vehicleRoutes, { screen: paths.bluetooth });
               }}
               size={24}
             />

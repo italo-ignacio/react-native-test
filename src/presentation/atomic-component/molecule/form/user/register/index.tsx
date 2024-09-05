@@ -16,11 +16,7 @@ export const RegisterForm: FC = () => {
 
   return (
     <ScrollView>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className={'flex flex-col w-full'}
-        {...gap(16)}
-      >
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} {...gap(16)}>
         <InputController
           control={control}
           error={errors.fullName?.message}

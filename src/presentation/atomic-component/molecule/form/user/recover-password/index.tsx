@@ -12,11 +12,7 @@ export const RecoverPasswordForm: FC = () => {
   } = useRecoverPassword();
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className={'flex flex-col w-full'}
-      {...gap(22)}
-    >
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} {...gap(22)}>
       <LabelInput
         autoCapitalize={'none'}
         inputMode={'email'}

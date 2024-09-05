@@ -69,9 +69,9 @@ export const DeviceCard: FC<DeviceCardProps> = ({ device, state, isLoading, onPr
   return (
     <TouchableOpacity
       activeOpacity={0.7}
-      className={
-        'flex flex-row justify-between items-center rounded-md p-1 px-1.5 py-4 w-full bg-white border border-gray-300'
-      }
+      className={`flex flex-row justify-between items-center rounded-md p-1 px-1.5 py-4 w-full bg-white border ${
+        device.name?.toLowerCase()?.includes('obd') ? 'border-primary' : 'border-gray-350'
+      }`}
       disabled={isLoading}
       onPress={onPress}
     >

@@ -10,17 +10,17 @@ export const useFindVehicleModelQuery = ({
   useFindQuery<VehicleModel[]>({ ...props, route: 'vehicleModel' });
 
 export const useFindVehicleModelByBrandQuery = ({
-  params: { apiBrandId },
+  params: { brandId },
   ...props
 }: useFindQueryProps & {
   params: {
-    brandId?: number;
-    apiBrandId?: number;
+    brandId: number;
   };
 }): UseQueryResult<VehicleModel[]> =>
   useFindQuery<VehicleModel[]>({
     ...props,
-    apiRoute: apiPaths.vehicleModelByBrand(apiBrandId),
+    apiRoute: apiPaths.vehicleModelByBrand(brandId),
+    params: { brandId },
     route: 'vehicleModel'
   });
 

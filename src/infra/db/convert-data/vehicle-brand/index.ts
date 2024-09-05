@@ -28,7 +28,8 @@ export const convertVehicleBrandData = (
 
   let newData: VehicleBrand[] = [];
 
-  if (hasPagination) newData = data.content;
+  if (Array.isArray(data)) newData = data;
+  else if (hasPagination) newData = data.content;
   else newData = [data];
 
   return {

@@ -5,7 +5,7 @@ const vehicleTable = `
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     apiId INTEGER UNIQUE,
     licensePlate VARCHAR(12) NOT NULL,
-    typeOfFuel INTEGER NOT NULL,
+    typeOfFuel VARCHAR(45) NOT NULL,
     serialNumber VARCHAR(45) NOT NULL,
     vehicleModelId INTEGER REFERENCES ${TableName.vehicleModel}(id),
     createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

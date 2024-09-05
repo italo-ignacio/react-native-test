@@ -1,4 +1,4 @@
-import { BluetoothProvider } from 'data/hooks';
+import { BluetoothProvider, useRouter } from 'data/hooks';
 import { Tab } from 'main/tabs';
 import { colors } from 'presentation/style';
 import { paths } from 'main/config';
@@ -8,6 +8,8 @@ import type { FC } from 'react';
 
 export const PrivateRoutes: FC = () => {
   const { user } = useAppSelector((state) => state.persist);
+
+  const { navigate } = useRouter();
 
   // const dispatch = useDispatch();
 
@@ -50,6 +52,12 @@ export const PrivateRoutes: FC = () => {
             <Tab.Screen
               key={item.name}
               component={item.component}
+              listeners={{
+                tabPress(event): void {
+                  event.preventDefault();
+                  navigate(item.name, { screen: item.mainRoute });
+                }
+              }}
               name={item.name}
               options={{
                 ...options,

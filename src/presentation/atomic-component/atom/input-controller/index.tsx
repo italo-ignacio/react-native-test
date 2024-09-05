@@ -10,11 +10,13 @@ type InputProps<T extends FieldValues> = LabelInputProps & {
   name: Path<T>;
   error?: string;
   hideMessage?: boolean;
+  disabled?: boolean;
 };
 
 export const InputController = <T extends FieldValues>({
   control,
   name,
+  disabled,
   hideMessage,
   ...props
 }: InputProps<T>): ReactElement => {
@@ -24,7 +26,14 @@ export const InputController = <T extends FieldValues>({
       name={name}
       render={({ field: { onChange, onBlur, value } }): ReactElement => (
         <>
-          <LabelInput onBlur={onBlur} onChangeText={onChange} value={value} {...props} />
+          <LabelInput
+            disabled={disabled}
+            onBlur={onBlur}
+            onChangeText={onChange}
+            value={value}
+            {...props}
+          />
+
           {props?.error && !hideMessage ? <Text className={'text-red'}>{props.error}</Text> : null}
         </>
       )}

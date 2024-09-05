@@ -14,8 +14,11 @@ export const fetchApi = async <T>(params: ApiProps): Promise<T> => {
   const body: any = params.isFormData ? params.body : JSON.stringify(params.body);
   const headers = {};
 
-  if (accessToken && (params.route !== apiPaths.login || params.route !== apiPaths.register))
-    Object.assign(headers, { Authorization: `Bearer ${accessToken}` });
+  if (
+    (accessToken && (params.route !== apiPaths.login || params.route !== apiPaths.register)) ||
+    params.token
+  )
+    Object.assign(headers, { Authorization: `Bearer ${params.token ?? accessToken}` });
 
   if (!params.isFormData)
     Object.assign(headers, {

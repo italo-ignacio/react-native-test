@@ -4,5 +4,6 @@ export interface ApiProps {
   id?: number;
   method: 'DELETE' | 'GET' | 'PATCH' | 'POST' | 'PUT';
   queryParams?: unknown;
+  token?: string;
   isFormData?: boolean;
 }

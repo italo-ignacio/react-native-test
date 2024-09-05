@@ -53,7 +53,7 @@ export const tabsMock = [
   },
   {
     component: ModelRoutes,
-    mainRoute: paths.modelRoutes,
+    mainRoute: paths.model,
     name: paths.modelRoutes,
     onlyAdmin: true,
     tabBarIcon: ({ focused }: { focused: boolean }): ReactElement => (

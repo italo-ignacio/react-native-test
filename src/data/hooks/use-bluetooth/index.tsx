@@ -32,7 +32,7 @@ export type stateDevice = {
 export interface connectedData {
   device: Device | null;
   vehicle: Vehicle | null;
-  vin?: string;
+  vin: string | null;
 }
 
 interface BluetoothContextProps {
@@ -69,7 +69,11 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
   const [isScanning, setIsScanning] = useState(false);
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [state, setState] = useState<stateDevice>(null);
-  const [connected, setConnected] = useState<connectedData>({ device: null, vehicle: null });
+  const [connected, setConnected] = useState<connectedData>({
+    device: null,
+    vehicle: null,
+    vin: null
+  });
   const { findRequest } = useRequest();
 
   useEffect(() => {
@@ -81,7 +85,7 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
         setIsScanning(false);
         setIsMonitoring(false);
         setState(null);
-        setConnected({ device: null, vehicle: null });
+        setConnected({ device: null, vehicle: null, vin: null });
       }
     }, true);
 
@@ -291,7 +295,6 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
     subscription: Subscription
   ): Promise<void> => {
     try {
-      subscription.remove();
       const vin = convertOBDResponseToVIN(vinData);
 
       const vehicle = await findRequest<Vehicle | undefined>({
@@ -310,8 +313,10 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
       setState({ connection: 'isConnected', device });
     } catch (error) {
       setState({ connection: 'notConnected', device });
-      setConnected({ device: null, vehicle: null });
+      setConnected({ device: null, vehicle: null, vin: null });
       console.error('failed to connect', error);
+    } finally {
+      subscription.remove();
     }
   };
 
@@ -385,7 +390,7 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
         );
       } catch (error) {
         setState({ connection: 'notConnected', device });
-        setConnected({ device: null, vehicle: null });
+        setConnected({ device: null, vehicle: null, vin: null });
         console.error('failed to connect', error);
       }
   };
@@ -398,7 +403,7 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
   const disconnectFromDevice = (): void => {
     if (connected.device) {
       bleManager.cancelDeviceConnection(connected.device.id);
-      setConnected({ device: null, vehicle: null });
+      setConnected({ device: null, vehicle: null, vin: null });
       setState(null);
     }
   };

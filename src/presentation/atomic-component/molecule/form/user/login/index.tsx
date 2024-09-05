@@ -15,11 +15,7 @@ export const LoginForm: FC = () => {
   const [hidePassword, setHidePassword] = useState(true);
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className={'flex flex-col w-full'}
-      {...gap(10)}
-    >
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} {...gap(10)}>
       <InputController
         autoCapitalize={'none'}
         control={control}

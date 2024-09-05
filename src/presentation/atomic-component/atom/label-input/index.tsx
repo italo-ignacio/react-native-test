@@ -1,3 +1,4 @@
+/* eslint-disable no-extra-parens */
 import { MaterialIcons } from '@expo/vector-icons';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { colors } from 'presentation/style';
@@ -16,7 +17,10 @@ export type LabelInputProps = TextInputProps & {
   isRequired?: boolean;
   label?: string;
   error?: string;
+  disabled?: boolean;
+  isSelect?: boolean;
   maxWidth?: DimensionValue;
+  onTextPress?: () => void;
   leftIcon?: {
     name: IconNames;
     style?: StyleProp<ViewStyle>;
@@ -37,7 +41,10 @@ export const LabelInput: FC<LabelInputProps> = ({
   label,
   rightIcon,
   isRequired,
+  isSelect,
+  disabled,
   error,
+  onTextPress,
   maxWidth,
   leftIcon,
   ...rest
@@ -81,12 +88,26 @@ export const LabelInput: FC<LabelInputProps> = ({
           </TouchableOpacity>
         ) : null}
 
-        <TextInput
-          className={'w-full'}
-          placeholderTextColor={colors.placeholder}
-          style={{ maxWidth: `${getMaxWidth()}%` }}
-          {...rest}
-        />
+        {disabled ? (
+          <Text
+            className={`py-[4.5px] w-full ${
+              rest.value?.length
+                ? `${isSelect ? 'text-gray-800' : 'text-gray-350'}`
+                : 'text-gray-300'
+            }`}
+            onPress={onTextPress}
+            style={{ maxWidth: `${getMaxWidth()}%` }}
+          >
+            {rest.value?.length ? rest.value : rest.placeholder}
+          </Text>
+        ) : (
+          <TextInput
+            className={'w-full'}
+            placeholderTextColor={colors.placeholder}
+            {...rest}
+            style={{ ...((rest?.style as object) ?? {}), maxWidth: `${getMaxWidth()}%` }}
+          />
+        )}
 
         {rightIcon ? (
           <TouchableOpacity

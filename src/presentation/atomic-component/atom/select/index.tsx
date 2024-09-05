@@ -12,6 +12,9 @@ import {
 } from 'react-native';
 import { LabelInput } from '../label-input';
 import { SelectItem } from '../select-item';
+import { setSelectOpen } from 'store/net-info/slice';
+import { useAppSelector } from 'store';
+import { useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import type { FC, ReactElement } from 'react';
 import type { infiniteScrollProps } from 'data/hooks';
@@ -23,6 +26,7 @@ export interface SelectValues {
 }
 
 interface SelectProps {
+  id: string;
   options: SelectValues[];
   value: SelectValues | SelectValues[] | null;
   label?: string;
@@ -33,15 +37,22 @@ interface SelectProps {
   placeholder?: string;
   query?: infiniteScrollProps;
   isMultiple?: boolean;
+  hideKeyboard?: boolean;
   isRequired?: boolean;
+  error?: string;
+  hideMessage?: boolean;
 }
 
 export const Select: FC<SelectProps> = ({
   options,
   value,
+  id,
   isRequired,
   isMultiple,
   query,
+  hideKeyboard,
+  error,
+  hideMessage,
   renderChildren,
   renderItem,
   onChange,
@@ -52,8 +63,22 @@ export const Select: FC<SelectProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
 
-  const handleFocus = (): void => {
+  const dispatch = useDispatch();
+
+  const { selectOpen } = useAppSelector((state) => state.netInfo);
+
+  const openSelect = (): void => {
+    dispatch(setSelectOpen(id));
     setIsFocused(true);
+  };
+
+  const closeSelect = (): void => {
+    dispatch(setSelectOpen(null));
+    setIsFocused(false);
+  };
+
+  const handleFocus = (): void => {
+    openSelect();
     setInputValue('');
     if (onSearch) onSearch('');
   };
@@ -61,7 +86,8 @@ export const Select: FC<SelectProps> = ({
   const handleBlur = (): void => {
     if (value && !Array.isArray(value)) setInputValue(value.label);
     else setInputValue('');
-    setIsFocused(false);
+
+    closeSelect();
   };
 
   const handleSelectItem = (item: SelectValues | null): void => {
@@ -85,31 +111,60 @@ export const Select: FC<SelectProps> = ({
     else setInputValue('');
   }, [value]);
 
+  useEffect(() => {
+    if (selectOpen !== id) setIsFocused(false);
+  }, [selectOpen]);
+
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className={'z-10 max-h-[300px]'}
-    >
-      <LabelInput
-        isRequired={isRequired}
-        label={label}
-        onBlur={handleBlur}
-        onChangeText={(text): void => {
-          setInputValue(text);
-          if (onSearch) onSearch(text);
-        }}
-        onFocus={handleFocus}
-        placeholder={placeholder}
-        rightIcon={{
-          name: isFocused ? 'arrow-drop-up' : 'arrow-drop-down',
-          onPress: (): void => setIsFocused(!isFocused),
-          size: 24
-        }}
-        value={inputValue}
-      />
+    <View style={{ position: 'relative' }}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <LabelInput
+          disabled={hideKeyboard}
+          error={error}
+          isRequired={isRequired}
+          isSelect
+          label={label}
+          onBlur={handleBlur}
+          onChangeText={(text): void => {
+            setInputValue(text);
+            if (onSearch) onSearch(text);
+          }}
+          onFocus={handleFocus}
+          onTextPress={
+            hideKeyboard
+              ? (): void => {
+                  if (isFocused) closeSelect();
+                  else openSelect();
+                  if (onSearch) onSearch('');
+                }
+              : undefined
+          }
+          placeholder={placeholder}
+          rightIcon={{
+            name: isFocused ? 'arrow-drop-up' : 'arrow-drop-down',
+            onPress(): void {
+              if (isFocused) closeSelect();
+              else openSelect();
+              if (onSearch) onSearch('');
+            },
+            size: 24
+          }}
+          value={inputValue}
+        />
+
+        {error && !hideMessage ? <Text className={'text-red mt-2'}>{error}</Text> : null}
+      </KeyboardAvoidingView>
 
       {isFocused ? (
-        <View className={'p-0.5 bg-gray-300'}>
+        <View
+          className={'p-0.5 w-full bg-gray-300 max-h-[300px]'}
+          style={{
+            flex: 1,
+            position: 'absolute',
+            top: 67,
+            zIndex: 99999
+          }}
+        >
           {query ? (
             <FetchOnScroll
               data={options ?? []}
@@ -165,6 +220,6 @@ export const Select: FC<SelectProps> = ({
           )}
         </View>
       ) : null}
-    </KeyboardAvoidingView>
+    </View>
   );
 };

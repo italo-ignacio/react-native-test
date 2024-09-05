@@ -2,8 +2,9 @@ import { Button, DeviceCard } from 'presentation/atomic-component/atom';
 import { FlatList, Text, View } from 'react-native';
 import { PrivateContainer } from 'presentation/atomic-component/template';
 import { gap } from 'main/utils';
-import { useBluetooth } from 'data/hooks';
-import { useEffect } from 'react';
+import { paths } from 'main/config';
+import { useBluetooth, useRouter } from 'data/hooks';
+import { useEffect, useState } from 'react';
 import type { FC, ReactElement } from 'react';
 
 export const Bluetooth: FC = () => {
@@ -20,6 +21,9 @@ export const Bluetooth: FC = () => {
     stopScan
   } = useBluetooth();
 
+  const [first, setFirst] = useState(true);
+  const { navigate } = useRouter();
+
   useEffect(() => {
     const permission = async (): Promise<void> => {
       await requestPermissions();
@@ -29,8 +33,15 @@ export const Bluetooth: FC = () => {
   }, []);
 
   useEffect(() => {
-    if (bluetoothState === 'on') startScan();
+    if (bluetoothState === 'on' && !isScanning) startScan();
   }, [bluetoothState]);
+
+  useEffect(() => {
+    if (first) setFirst(false);
+    else if (connected.vehicle !== null) navigate(paths.vehicleRoutes, { screen: paths.vehicle });
+    else if (connected.vehicle === null && connected.vin !== null)
+      navigate(paths.vehicleRoutes, { screen: paths.vehicleRegister });
+  }, [connected]);
 
   return (
     <PrivateContainer headerTitle={'Dispositivos'}>
@@ -66,10 +77,10 @@ export const Bluetooth: FC = () => {
                 <DeviceCard
                   key={item.id}
                   device={item}
-                  onPress={(): void => {
+                  onPress={async (): Promise<void> => {
                     if (state?.connection !== 'isConnecting')
                       if (connected?.device?.id === item.id) disconnectFromDevice();
-                      else connectToDevice(item);
+                      else await connectToDevice(item);
                   }}
                   state={state}
                 />

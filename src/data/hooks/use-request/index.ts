@@ -19,7 +19,7 @@ interface makeRequestProps extends Omit<ApiProps, 'id' | 'isFormData' | 'queryPa
 }
 
 export const useRequest = (): {
-  findRequest: <T>(params: queryProps) => Promise<T>;
+  findRequest: <T>(params: queryProps & { token?: string }) => Promise<T>;
   makeRequest: (params: makeRequestProps) => Promise<unknown>;
 } => {
   const { transformApiResponseToDatabase, findOnDatabase } = useDatabaseData();
@@ -31,8 +31,9 @@ export const useRequest = (): {
     ids,
     limit,
     page,
+    token,
     params
-  }: queryProps): Promise<T> => {
+  }: queryProps & { token?: string }): Promise<T> => {
     const { hasInternetConnection } = store.getState().netInfo;
 
     let data;
@@ -42,7 +43,8 @@ export const useRequest = (): {
       data = await api.get({
         id: ids?.apiId,
         queryParams: { limit, page, ...params },
-        route: apiRoute ?? apiPaths[route]
+        route: apiRoute ?? apiPaths[route],
+        token
       });
 
       if (entity)
@@ -147,9 +149,14 @@ export const useRequest = (): {
             data: { ...dataValue, entityId }
           });
 
-          await database.upsertOne(entity, {
-            conflict: 'apiId',
-            data: { apiId: entityId, ...(body as object) }
+          await database.update(entity, {
+            data: { ...(body as object) },
+            where: {
+              apiId: {
+                operator: '=',
+                value: entityId
+              }
+            }
           });
         }
     }
