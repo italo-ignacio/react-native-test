@@ -13,3 +13,4 @@ export * from './use-router-tab';
 export * from './use-bluetooth';
 export * from './use-infinite-scroll';
 export * from './use-request';
+export * from './use-focus';

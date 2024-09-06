@@ -18,7 +18,7 @@ import type {
   WhereProps
 } from 'domain/models';
 
-interface useDatabaseReturn {
+export interface useDatabaseReturn {
   create: <T extends keyof SelectEntityMap>(
     entity: T,
     props: { data: CreateProps<T>; select?: SelectProps<T> }
@@ -178,6 +178,26 @@ export const useDatabase = (): useDatabaseReturn => {
     });
   };
 
+  const deleteData = async <T extends keyof SelectEntityMap>(
+    entity: T,
+    options?: { where?: WhereProps<T> }
+  ): Promise<void> => {
+    console.info('delete');
+    const { whereData } = databaseWhereTransform(entity, options?.where);
+
+    const query = `DELETE FROM ${entity} ${whereData}`;
+
+    console.log(query);
+
+    await retryTransaction(async () => {
+      if (await database.isInTransactionAsync()) throw new Error('Transaction in progress');
+      else
+        await database.withExclusiveTransactionAsync(async (transaction) => {
+          await transaction.execAsync(query);
+        });
+    });
+  };
+
   const upsert = async <T extends keyof SelectEntityMap>(
     entity: T,
     {
@@ -188,7 +208,10 @@ export const useDatabase = (): useDatabaseReturn => {
   ): Promise<void> => {
     console.info('upsert');
 
-    if (data.length < 1) return;
+    if (data.length < 1) {
+      if (params?.page === 1) await deleteData(entity, { where });
+      return;
+    }
 
     const { columns } = databaseValues(data[0]);
     const { whereData } = databaseWhereTransform(entity, where);
@@ -278,24 +301,6 @@ export const useDatabase = (): useDatabaseReturn => {
         )}) ${index + 1 === data.length ? ';' : ''}`
     )}
     `;
-
-    await retryTransaction(async () => {
-      if (await database.isInTransactionAsync()) throw new Error('Transaction in progress');
-      else
-        await database.withExclusiveTransactionAsync(async (transaction) => {
-          await transaction.execAsync(query);
-        });
-    });
-  };
-
-  const deleteData = async <T extends keyof SelectEntityMap>(
-    entity: T,
-    options?: { where?: WhereProps<T> }
-  ): Promise<void> => {
-    console.info('delete');
-    const { whereData } = databaseWhereTransform(entity, options?.where);
-
-    const query = `DELETE FROM ${entity} ${whereData}`;
 
     await retryTransaction(async () => {
       if (await database.isInTransactionAsync()) throw new Error('Transaction in progress');

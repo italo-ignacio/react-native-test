@@ -37,7 +37,7 @@ export interface FastSelectEntityReturnMap {
   offline_queue: OfflineQueue;
 }
 
-type FilterOperator = '!=' | '<' | '<=' | '=' | '>' | '>=' | 'LIKE' | 'NOT IN';
+type FilterOperator = '!=' | '<' | '<=' | '=' | '>' | '>=' | 'IN' | 'LIKE' | 'NOT IN';
 
 export type WhereCondition<T> = {
   [K in keyof T]?: {

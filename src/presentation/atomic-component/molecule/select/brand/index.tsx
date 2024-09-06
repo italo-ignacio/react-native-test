@@ -2,11 +2,8 @@ import { BrandImage, Select } from 'presentation/atomic-component/atom';
 import { QueryName } from 'main/config';
 import { Text, TouchableOpacity } from 'react-native';
 import { listToSelect } from 'main/utils';
-import { queryClient } from 'infra/lib';
-import { useAppSelector } from 'store';
-import { useCallback, useState } from 'react';
-import { useDebounce, useInfiniteScroll } from 'data/hooks';
-import { useFocusEffect } from '@react-navigation/native';
+import { useDebounce, useFocus, useInfiniteScroll } from 'data/hooks';
+import { useState } from 'react';
 import type { Dispatch, FC, ReactElement, SetStateAction } from 'react';
 import type { SelectValues } from 'presentation/atomic-component/atom';
 import type { VehicleBrand } from 'domain/models';
@@ -27,8 +24,6 @@ export const BrandSelect: FC<BrandSelectProps> = ({
   const [search, setSearch] = useState('');
   const [searchDebounce, setSearchDebounce] = useState('');
 
-  const { hasInternetConnection } = useAppSelector((state) => state.netInfo);
-
   const { data, ...query } = useInfiniteScroll<VehicleBrand>({
     filters: { search },
     limit: 50,
@@ -44,11 +39,7 @@ export const BrandSelect: FC<BrandSelectProps> = ({
     500
   );
 
-  useFocusEffect(
-    useCallback(() => {
-      queryClient.invalidateQueries(QueryName.vehicleBrand);
-    }, [queryClient, hasInternetConnection])
-  );
+  useFocus(QueryName.vehicleBrand);
 
   return (
     <Select

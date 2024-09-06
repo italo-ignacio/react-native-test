@@ -83,7 +83,11 @@ export const databaseWhereTransform = (entity: string, where?: object): { whereD
         const formattedValue =
           typeof value === 'number'
             ? value
-            : `${String(value).startsWith('SELECT') ? `(${value})` : `"${value}"`}`;
+            : `${
+                String(value).startsWith('SELECT')
+                  ? `(${value})`
+                  : `${String(value).startsWith('(') ? `${value}` : `"${value}"`}`
+              }`;
 
         return `${entity}.${key} ${operator} ${formattedValue}`;
       }

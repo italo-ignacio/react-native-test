@@ -1,14 +1,16 @@
-import { BluetoothProvider, useRouter } from 'data/hooks';
+import { BluetoothProvider, useRequest, useRouter } from 'data/hooks';
+import { type FC, useEffect } from 'react';
 import { Tab } from 'main/tabs';
 import { colors } from 'presentation/style';
 import { paths } from 'main/config';
 import { tabsMock } from 'main/mock/tabs';
 import { useAppSelector } from 'store';
-import type { FC } from 'react';
 
 export const PrivateRoutes: FC = () => {
   const { user } = useAppSelector((state) => state.persist);
+  const { hasInternetConnection } = useAppSelector((state) => state.netInfo);
 
+  const { synchronizeDb } = useRequest();
   const { navigate } = useRouter();
 
   // const dispatch = useDispatch();
@@ -22,6 +24,10 @@ export const PrivateRoutes: FC = () => {
   //     unsubscribe();
   //   };
   // }, []);
+
+  useEffect(() => {
+    if (hasInternetConnection) synchronizeDb();
+  }, [hasInternetConnection]);
 
   const options = {
     tabBarActiveBackgroundColor: colors.blue.mid,

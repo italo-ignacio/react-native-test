@@ -8,7 +8,7 @@ import type { TouchableOpacityProps } from 'react-native';
 
 export interface ButtonProps {
   text: string;
-  variant?: 'default' | 'delete' | 'secondary';
+  variant?: 'default' | 'delete' | 'outlined' | 'secondary';
   isLoading?: boolean;
   buttonProps?: TouchableOpacityProps;
   size?: 'normal' | 'small';
@@ -43,6 +43,10 @@ export const Button: FC<ButtonProps> = ({
       buttonColor = colors.red;
       buttonTextColor = colors.white;
       break;
+    case 'outlined':
+      buttonColor = colors.transparent;
+      buttonTextColor = colors.primary;
+      break;
     default:
       buttonColor = colors.transparent;
       buttonTextColor = colors.primary;
@@ -55,7 +59,7 @@ export const Button: FC<ButtonProps> = ({
       className={`flex flex-row items-center justify-center rounded-full ${
         buttonProps?.className
       } ${size === 'small' ? 'p-1' : 'p-2'} ${
-        variant === 'secondary' ? 'border border-primary' : ''
+        variant === 'secondary' || variant === 'outlined' ? 'border border-primary' : ''
       } px-5`}
       disabled={isLoading}
       onPress={onPress}

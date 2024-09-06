@@ -1,11 +1,9 @@
-import { type Dispatch, type FC, type SetStateAction, useCallback } from 'react';
 import { QueryName } from 'main/config';
 import { Select } from 'presentation/atomic-component/atom';
 import { listToSelect } from 'main/utils';
-import { queryClient } from 'infra/lib';
-import { useAppSelector } from 'store';
 import { useFindVehicleModelByBrandQuery } from 'infra/cache';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocus } from 'data/hooks';
+import type { Dispatch, FC, SetStateAction } from 'react';
 import type { SelectValues } from 'presentation/atomic-component/atom';
 
 interface ModelByBrandSelectProps {
@@ -25,13 +23,7 @@ export const ModelByBrandSelect: FC<ModelByBrandSelectProps> = ({
 }) => {
   const data = useFindVehicleModelByBrandQuery({ params: { brandId } });
 
-  const { hasInternetConnection } = useAppSelector((state) => state.netInfo);
-
-  useFocusEffect(
-    useCallback(() => {
-      queryClient.invalidateQueries(QueryName.vehicleModel);
-    }, [queryClient, hasInternetConnection])
-  );
+  useFocus(QueryName.vehicleModel);
 
   return (
     <Select

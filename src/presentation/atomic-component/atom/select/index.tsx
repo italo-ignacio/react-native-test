@@ -1,15 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-extra-parens */
 import { FetchOnScroll } from '../fetch-on-scroll';
-import {
-  FlatList,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  Text,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { FlatList, Keyboard, Text, TouchableOpacity, View } from 'react-native';
 import { LabelInput } from '../label-input';
 import { SelectItem } from '../select-item';
 import { setSelectOpen } from 'store/net-info/slice';
@@ -117,43 +109,41 @@ export const Select: FC<SelectProps> = ({
 
   return (
     <View style={{ position: 'relative' }}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <LabelInput
-          disabled={hideKeyboard}
-          error={error}
-          isRequired={isRequired}
-          isSelect
-          label={label}
-          onBlur={handleBlur}
-          onChangeText={(text): void => {
-            setInputValue(text);
-            if (onSearch) onSearch(text);
-          }}
-          onFocus={handleFocus}
-          onTextPress={
-            hideKeyboard
-              ? (): void => {
-                  if (isFocused) closeSelect();
-                  else openSelect();
-                  if (onSearch) onSearch('');
-                }
-              : undefined
-          }
-          placeholder={placeholder}
-          rightIcon={{
-            name: isFocused ? 'arrow-drop-up' : 'arrow-drop-down',
-            onPress(): void {
-              if (isFocused) closeSelect();
-              else openSelect();
-              if (onSearch) onSearch('');
-            },
-            size: 24
-          }}
-          value={inputValue}
-        />
+      <LabelInput
+        disabled={hideKeyboard}
+        error={error}
+        isRequired={isRequired}
+        isSelect
+        label={label}
+        onBlur={handleBlur}
+        onChangeText={(text): void => {
+          setInputValue(text);
+          if (onSearch) onSearch(text);
+        }}
+        onFocus={handleFocus}
+        onTextPress={
+          hideKeyboard
+            ? (): void => {
+                if (isFocused) closeSelect();
+                else openSelect();
+                if (onSearch) onSearch('');
+              }
+            : undefined
+        }
+        placeholder={placeholder}
+        rightIcon={{
+          name: isFocused ? 'arrow-drop-up' : 'arrow-drop-down',
+          onPress(): void {
+            if (isFocused) closeSelect();
+            else openSelect();
+            if (onSearch) onSearch('');
+          },
+          size: 24
+        }}
+        value={inputValue}
+      />
 
-        {error && !hideMessage ? <Text className={'text-red mt-2'}>{error}</Text> : null}
-      </KeyboardAvoidingView>
+      {error && !hideMessage ? <Text className={'text-red mt-2'}>{error}</Text> : null}
 
       {isFocused ? (
         <View

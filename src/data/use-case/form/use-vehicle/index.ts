@@ -49,6 +49,8 @@ export const useVehicle = ({ vehicle }: useVehicleProps): formReturn<VehicleRequ
           typeOfFuel: data.typeOfFuel,
           vehicleModelId: data.vehicleModelId
         });
+      console.log(body);
+      console.log({ apiId: vehicle?.apiId, id: vehicle?.id });
 
       if (Object.keys(body).length)
         await makeRequest({

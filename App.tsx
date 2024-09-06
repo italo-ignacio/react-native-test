@@ -1,10 +1,10 @@
 import 'expo-dev-client';
+import { LogBox, SafeAreaView, StatusBar } from 'react-native';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
 import { QueryClientProvider } from 'react-query';
 import { Routes } from 'main/routes';
 import { SQLiteProvider } from 'expo-sqlite';
-import { SafeAreaView, StatusBar } from 'react-native';
 import { SplashScreen } from 'presentation/environment';
 import { fontsToImport } from 'presentation/style/fonts';
 import { initializeDatabase } from 'infra/db';
@@ -21,7 +21,9 @@ const App: FC = () => {
   setTimeout(() => {
     setIsLoading(false);
   }, 3000);
-
+  LogBox.ignoreLogs([
+    'VirtualizedLists should never be nested inside plain ScrollViews with the same orientation'
+  ]);
   return (
     <SQLiteProvider databaseName={'database.db'} onInit={initializeDatabase}>
       <QueryClientProvider client={queryClient}>

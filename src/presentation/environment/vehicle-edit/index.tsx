@@ -1,8 +1,9 @@
 import { BrandImage, Button, DefaultCard } from 'presentation/atomic-component/atom';
-import { Entypo, FontAwesome5, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { DeleteVehicleModal } from 'presentation/atomic-component/molecule/modal';
+import { Entypo, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { type FC, useState } from 'react';
 import { PrivateContainer } from 'presentation/atomic-component/template';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { TranslateTypeOfFuel, type Vehicle } from 'domain/models';
 import { VehicleForm } from 'presentation/atomic-component/molecule/form';
 import { colors } from 'presentation/style';
@@ -29,7 +30,9 @@ export const VehicleEdit: FC = () => {
       </View>
 
       {isEdit ? (
-        <VehicleForm vehicle={vehicle} />
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <VehicleForm vehicle={vehicle} />
+        </ScrollView>
       ) : (
         <>
           <DefaultCard
@@ -83,17 +86,7 @@ export const VehicleEdit: FC = () => {
 
           <View {...gap(12)}>
             <Text className={'text-primary text-base font-semibold'}>Ações</Text>
-
-            <TouchableOpacity
-              activeOpacity={0.7}
-              className={
-                'flex flex-row items-center bg-white border border-gray-350 p-4 py-3 rounded-md'
-              }
-              {...gap(12)}
-            >
-              <MaterialIcons color={colors.primary} name={'delete'} size={20} />
-              <Text className={'text-primary text-base'}>Excluir Veículo</Text>
-            </TouchableOpacity>
+            <DeleteVehicleModal vehicle={vehicle} />
           </View>
         </>
       )}

@@ -1,5 +1,6 @@
 import { AntDesign, Feather, MaterialIcons } from '@expo/vector-icons';
 import { type FC, type ReactNode, useEffect } from 'react';
+import { SynchronizeModal } from 'presentation/atomic-component/molecule/modal';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { colors } from 'presentation/style';
 import { gap } from 'main/utils';
@@ -38,6 +39,8 @@ export const PrivateContainer: FC<PrivateContainerProps> = ({
 
   return (
     <View className={'flex-1 justify-end items-start'} {...gap(8)}>
+      <SynchronizeModal />
+
       <View
         className={`${
           headerSubtitle ? 'h-[150px]' : 'h-[80px]'

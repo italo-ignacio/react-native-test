@@ -56,11 +56,7 @@ export const VehicleForm: FC<VehicleFormProps> = ({ vehicle }) => {
         });
       }
     } else if (connected.vin) setValue('serialNumber', connected.vin);
-    else if (connected.vin === null) {
-      setValue('serialNumber', 'DJ62J218');
-      return;
-      navigate(paths.vehicleRoutes, { screen: paths.bluetooth });
-    }
+    else if (connected.vin === null) navigate(paths.vehicleRoutes, { screen: paths.bluetooth });
   }, [vehicle, connected]);
 
   return (

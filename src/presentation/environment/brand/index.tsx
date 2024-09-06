@@ -7,11 +7,8 @@ import {
 import { PrivateContainer } from 'presentation/atomic-component/template';
 import { QueryName, paths } from 'main/config';
 import { Text, View } from 'react-native';
-import { queryClient } from 'infra/lib';
-import { useAppSelector } from 'store';
-import { useCallback, useState } from 'react';
-import { useDebounce, useInfiniteScroll, useRouter } from 'data/hooks';
-import { useFocusEffect } from '@react-navigation/native';
+import { useDebounce, useFocus, useInfiniteScroll, useRouter } from 'data/hooks';
+import { useState } from 'react';
 import type { FC, ReactElement } from 'react';
 import type { VehicleBrand } from 'domain/models';
 
@@ -19,8 +16,6 @@ export const Brand: FC = () => {
   const [search, setSearch] = useState('');
   const [searchDebounce, setSearchDebounce] = useState('');
   const { navigate } = useRouter();
-
-  const { hasInternetConnection } = useAppSelector((state) => state.netInfo);
 
   useDebounce(
     () => {
@@ -37,11 +32,7 @@ export const Brand: FC = () => {
     route: 'vehicleBrand'
   });
 
-  useFocusEffect(
-    useCallback(() => {
-      queryClient.invalidateQueries(QueryName.vehicleBrand);
-    }, [queryClient, hasInternetConnection])
-  );
+  useFocus(QueryName.vehicleBrand);
 
   return (
     <PrivateContainer headerTitle={'Marcas'}>

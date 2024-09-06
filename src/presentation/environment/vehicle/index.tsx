@@ -1,14 +1,11 @@
 import { Button, FetchOnScroll, VehicleCard } from 'presentation/atomic-component/atom';
-import { type FC, type ReactElement, useCallback } from 'react';
 import { PrivateContainer } from 'presentation/atomic-component/template';
 import { QueryName, paths } from 'main/config';
 import { RegisterVehicleModal } from 'presentation/atomic-component/molecule/modal';
 import { Text, View } from 'react-native';
 import { gap } from 'main/utils';
-import { queryClient } from 'infra/lib';
-import { useAppSelector } from 'store';
-import { useBluetooth, useInfiniteScroll, useRouter } from 'data/hooks';
-import { useFocusEffect } from '@react-navigation/native';
+import { useBluetooth, useFocus, useInfiniteScroll, useRouter } from 'data/hooks';
+import type { FC, ReactElement } from 'react';
 import type { Vehicle } from 'domain/models';
 
 export const VehicleContainer: FC = () => {
@@ -21,13 +18,8 @@ export const VehicleContainer: FC = () => {
 
   const { connected } = useBluetooth();
   const { navigate } = useRouter();
-  const { hasInternetConnection } = useAppSelector((state) => state.netInfo);
 
-  useFocusEffect(
-    useCallback(() => {
-      queryClient.invalidateQueries(QueryName.vehicle);
-    }, [queryClient, hasInternetConnection])
-  );
+  useFocus(QueryName.vehicle);
 
   return (
     <PrivateContainer headerTitle={'Meus Veículos'}>
