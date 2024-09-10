@@ -21,9 +21,11 @@ const App: FC = () => {
   setTimeout(() => {
     setIsLoading(false);
   }, 3000);
+
   LogBox.ignoreLogs([
     'VirtualizedLists should never be nested inside plain ScrollViews with the same orientation'
   ]);
+
   return (
     <SQLiteProvider databaseName={'database.db'} onInit={initializeDatabase}>
       <QueryClientProvider client={queryClient}>

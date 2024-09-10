@@ -1,7 +1,7 @@
 /* eslint-disable max-params */
 /* eslint-disable @typescript-eslint/init-declarations */
 import {
-  type SelectEntityMap,
+  type EntityMap,
   selectAllVehicle,
   selectAllVehicleBrand,
   selectAllVehicleModel
@@ -18,20 +18,20 @@ import { useDatabase } from 'data/hooks/use-database';
 
 export const useDatabaseData = (): {
   transformApiResponseToDatabase: (
-    entity: keyof SelectEntityMap,
+    entity: keyof EntityMap,
     data: never,
     params: object & { ids?: { id?: number; apiId?: number } },
     pagination: { limit?: number; page?: number }
   ) => Promise<void>;
   findOnDatabase: (
-    entity: keyof SelectEntityMap,
+    entity: keyof EntityMap,
     params: object & { ids?: { id?: number; apiId?: number }; limit?: number; page?: number }
   ) => unknown;
 } => {
   const database = useDatabase();
 
   const transformApiResponseToDatabase = async (
-    entity: keyof SelectEntityMap,
+    entity: keyof EntityMap,
     data: never,
     params: object & { ids?: { id?: number; apiId?: number } },
     pagination: { limit?: number; page?: number }
@@ -67,7 +67,7 @@ export const useDatabaseData = (): {
   };
 
   const findOnDatabase = async (
-    entity: keyof SelectEntityMap,
+    entity: keyof EntityMap,
     {
       limit,
       page,

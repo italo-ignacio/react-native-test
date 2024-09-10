@@ -60,10 +60,32 @@ const offlineQueueTable = `
   )
 `;
 
+const obdDataTable = `
+  CREATE TABLE IF NOT EXISTS ${TableName.obdData} (
+    id INTEGER PRIMARY KEY NOT NULL,
+    code VARCHAR(10) NOT NULL,
+    value REAL NOT NULL, 
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )
+`;
+
+const averageObdDataTable = `
+  CREATE TABLE IF NOT EXISTS ${TableName.obdDataAverage} (
+    id INTEGER PRIMARY KEY NOT NULL,
+    code VARCHAR(10) NOT NULL,
+    value REAL NOT NULL, 
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )
+`;
+
 export const initializeTables = [
   offlineQueueTable,
   vehicleBrandsTable,
+  obdDataTable,
   vehicleModelsTable,
+  averageObdDataTable,
   vehicleTable,
   vehicleDiagnosticsTable
 ];

@@ -1,19 +1,23 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/init-declarations */
+/* eslint-disable prefer-const */
 /* eslint-disable no-return-await */
-/* eslint-disable max-statements */
 /* eslint-disable max-lines */
 /* eslint-disable consistent-return */
+/* eslint-disable max-statements */
 /* eslint-disable max-lines-per-function */
 import * as ExpoDevice from 'expo-device';
 import { BleManager, State } from 'react-native-ble-plx';
-import { CharacteristicType } from 'domain/enums';
+import { CharacteristicType, TableName } from 'domain/enums';
 import { PermissionsAndroid, Platform } from 'react-native';
 import { convertOBDResponseToVIN } from 'main/utils';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { useDatabase } from '../use-database';
 import { useRequest } from '../use-request';
 import base64 from 'react-native-base64';
 import decodeCharacteristicResponse from 'data/bluetooth/decode-characteristic-response';
 import type { BleError, Characteristic, Device, Subscription } from 'react-native-ble-plx';
-import type { Dispatch, ReactNode, SetStateAction } from 'react';
+import type { ReactNode } from 'react';
 import type { Vehicle } from 'domain/models';
 
 const SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
@@ -49,11 +53,12 @@ interface BluetoothContextProps {
   connected: connectedData;
   isScanning: boolean;
   isMonitoring: boolean;
-  setIsMonitoring: Dispatch<SetStateAction<boolean>>;
   state: stateDevice;
   bluetoothState: 'off' | 'on';
-  startMonitor: (code: CharacteristicType) => Promise<void>;
-  stopMonitor: (code: CharacteristicType | 'all') => void;
+  startMonitor: () => void;
+  stopMonitor: () => void;
+  monitorObd: (code: CharacteristicType) => Promise<void>;
+  endMonitor: (code: CharacteristicType | 'all') => void;
 }
 
 const BluetoothContext = createContext<BluetoothContextProps>({} as BluetoothContextProps);
@@ -62,18 +67,19 @@ export const useBluetooth = (): BluetoothContextProps => {
   return useContext(BluetoothContext);
 };
 
+const resetConnection = { device: null, vehicle: null, vin: null };
+
 export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNode => {
   const bleManager = useMemo(() => new BleManager(), []);
   const [bluetoothState, setBluetoothState] = useState<'off' | 'on'>('off');
   const [allDevices, setAllDevices] = useState<Device[]>([]);
+  const [data, setData] = useState<{ [key in CharacteristicType]?: number | string }>({});
   const [isScanning, setIsScanning] = useState(false);
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [state, setState] = useState<stateDevice>(null);
-  const [connected, setConnected] = useState<connectedData>({
-    device: null,
-    vehicle: null,
-    vin: null
-  });
+  const [connected, setConnected] = useState<connectedData>(resetConnection);
+  const database = useDatabase();
+
   const { findRequest } = useRequest();
 
   useEffect(() => {
@@ -85,7 +91,7 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
         setIsScanning(false);
         setIsMonitoring(false);
         setState(null);
-        setConnected({ device: null, vehicle: null, vin: null });
+        setConnected(resetConnection);
       }
     }, true);
 
@@ -126,6 +132,7 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
       fineLocationPermission === 'granted'
     );
   };
+
   const requestPermissions = async (): Promise<boolean> => {
     if (Platform.OS === 'android') {
       if ((ExpoDevice.platformApiLevel ?? -1) < 31) {
@@ -147,8 +154,9 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
     return true;
   };
 
-  const isDuplicatedDevice = (devices: Device[], nextDevice: Device): boolean =>
-    devices.findIndex((device) => nextDevice.id === device.id) > -1;
+  const isDuplicatedDevice = (devices: Device[], nextDevice: Device): boolean => {
+    return devices.findIndex((device) => nextDevice.id === device.id) > -1;
+  };
 
   const startScan = async (): Promise<void> => {
     const isPermissionsEnabled = await requestPermissions();
@@ -171,6 +179,14 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
     }
   };
 
+  const startMonitor = (): void => {
+    setIsMonitoring(true);
+  };
+
+  const stopMonitor = (): void => {
+    setIsMonitoring(false);
+  };
+
   let characteristicMonitoring: {
     [key in CharacteristicType]?: {
       characteristic: Characteristic;
@@ -178,10 +194,10 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
     };
   } = {};
 
-  const startMonitor = async (code: CharacteristicType): Promise<void> => {
-    const oldCharacteristic = characteristicMonitoring[code]?.characteristic;
+  const dbList: { code: CharacteristicType; value: number }[] = [];
 
-    console.log('aaaa');
+  const monitorObd = async (code: CharacteristicType): Promise<void> => {
+    const oldCharacteristic = characteristicMonitoring[code]?.characteristic;
 
     if (oldCharacteristic) await oldCharacteristic.writeWithoutResponse(base64.encode(code));
     else {
@@ -190,8 +206,6 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
         READ_CHARACTERISTIC,
         base64.encode(code)
       );
-
-      console.log(characteristic);
 
       const monitor = characteristic?.monitor(
         (error: BleError | null, characteristicMonitor: Characteristic | null) => {
@@ -204,13 +218,15 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
 
           const decodedValue = decodeCharacteristicResponse(code, value);
 
-          console.log({ decodedValue, value });
+          console.info({ decodedValue, value });
 
-          // if (data[code] !== value && value !== undefined && value !== null)
-          //   setData((prevState) => ({
-          //     ...prevState,
-          //     [code]: value
-          //   }));
+          if (data[code] !== decodedValue && decodedValue !== undefined && decodedValue !== null) {
+            setData((prevState) => ({
+              ...prevState,
+              [code]: decodedValue
+            }));
+            dbList.push({ code, value: Number(decodedValue) });
+          }
         }
       );
 
@@ -221,7 +237,81 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
     }
   };
 
-  const stopMonitor = (code: CharacteristicType | 'all'): void => {
+  const saveObdData = async (): Promise<void> => {
+    if (dbList.length)
+      try {
+        await database.createMany('obd_data', {
+          data: dbList
+        });
+
+        dbList.splice(0, dbList.length);
+      } catch (error) {
+        console.log(error);
+      }
+  };
+
+  const saveAverageObdData = async (): Promise<void> => {
+    const periodEnd = new Date();
+    const periodStart = new Date(periodEnd.getTime() - 5 * 60 * 1000);
+
+    const periodStartStr = periodStart.toISOString().slice(0, 19).replace('T', ' ');
+    const periodEndStr = periodEnd.toISOString().slice(0, 19).replace('T', ' ');
+
+    try {
+      await database.executeSql(async (tx) => {
+        const list = await tx.getAllAsync<{ value: number; code: CharacteristicType }>(
+          `SELECT AVG(value) as value, code FROM ${TableName.obdData} WHERE createdAt BETWEEN "${periodStartStr}" AND "${periodEndStr}" GROUP BY code`
+        );
+
+        if (list?.length) {
+          await database.createMany('obd_data_average', {
+            data: list
+          });
+          await database.delete('obd_data');
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  let intervals: NodeJS.Timeout[] = [];
+
+  const monitorCodes = [
+    { code: CharacteristicType.engineSpeed, interval: 500 },
+    { code: CharacteristicType.mafAirFlowRate, interval: 5000 }
+  ];
+
+  useEffect(() => {
+    let sendToDb: NodeJS.Timeout | number | string | undefined;
+    let sendAverageToDb: NodeJS.Timeout | number | string | undefined;
+
+    if (isMonitoring) {
+      monitorCodes.forEach(({ code, interval }) => {
+        intervals.push(
+          setInterval(() => {
+            if (isMonitoring && connected.device) monitorObd(code);
+          }, interval)
+        );
+      });
+
+      sendToDb = setInterval(async () => {
+        await saveObdData();
+      }, 5000);
+
+      sendAverageToDb = setInterval(async () => {
+        await saveAverageObdData();
+      }, 5 * 60 * 1000);
+    }
+
+    return () => {
+      intervals.forEach((interval) => clearInterval(interval));
+      if (sendToDb) clearInterval(sendToDb);
+      if (sendAverageToDb) clearInterval(sendAverageToDb);
+    };
+  }, [isMonitoring]);
+
+  const endMonitor = (code: CharacteristicType | 'all'): void => {
     if (code === 'all')
       for (const element of Object.values(characteristicMonitoring)) {
         const oldCharacteristic = element.monitor;
@@ -295,9 +385,15 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
     subscription: Subscription
   ): Promise<void> => {
     try {
+      console.log({ vinData });
+
+      // "line1": "5A 42 35 35 58 39", "line2": "38 38 35 32 39 33",
+
       const vin = convertOBDResponseToVIN(vinData);
 
-      const vehicle = await findRequest<Vehicle | undefined>({
+      console.log({ vin });
+
+      const vehicle = await findRequest<Vehicle[] | undefined>({
         apiRoute: '/vehicle/my',
         limit: 1,
         page: 1,
@@ -305,7 +401,7 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
         route: 'vehicle'
       });
 
-      if (vehicle) setConnected({ device, vehicle, vin });
+      if (vehicle?.[0]) setConnected({ device, vehicle: vehicle[0], vin });
       else setConnected({ device, vehicle: null, vin });
 
       await bleManager.stopDeviceScan();
@@ -313,7 +409,7 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
       setState({ connection: 'isConnected', device });
     } catch (error) {
       setState({ connection: 'notConnected', device });
-      setConnected({ device: null, vehicle: null, vin: null });
+      setConnected(resetConnection);
       console.error('failed to connect', error);
     } finally {
       subscription.remove();
@@ -367,8 +463,7 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
             base64.encode(CharacteristicType.vin)
           );
 
-        // eslint-disable-next-line prefer-const
-        let vinData = { line1: '', line2: '' };
+        let vinData = { line1: '', line2: '', line3: true };
 
         const subscription = characteristic?.monitor(
           (error: BleError | null, characteristicMonitor: Characteristic | null) => {
@@ -384,13 +479,15 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
             else if (value?.startsWith('2:'))
               Object.assign(vinData, { ...vinData, line2: value.slice(3) });
 
-            if (vinData.line1.length > 0 && vinData.line2.length > 0)
+            if (vinData.line1.length > 0 && vinData.line2.length > 0 && vinData.line3) {
+              Object.assign(vinData, { ...vinData, line3: false });
               finishConnection(vinData, newDeviceConnection, subscription);
+            }
           }
         );
       } catch (error) {
         setState({ connection: 'notConnected', device });
-        setConnected({ device: null, vehicle: null, vin: null });
+        setConnected(resetConnection);
         console.error('failed to connect', error);
       }
   };
@@ -403,7 +500,7 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
   const disconnectFromDevice = (): void => {
     if (connected.device) {
       bleManager.cancelDeviceConnection(connected.device.id);
-      setConnected({ device: null, vehicle: null, vin: null });
+      setConnected(resetConnection);
       setState(null);
     }
   };
@@ -415,10 +512,11 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
       connectToDevice,
       connected,
       disconnectFromDevice,
+      endMonitor,
       isMonitoring,
       isScanning,
+      monitorObd,
       requestPermissions,
-      setIsMonitoring,
       startMonitor,
       startScan,
       state,
@@ -432,13 +530,14 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
       disconnectFromDevice,
       connected,
       bluetoothState,
+      endMonitor,
       isMonitoring,
       startMonitor,
+      monitorObd,
       stopMonitor,
       isScanning,
       writeInObd,
       requestPermissions,
-      setIsMonitoring,
       startScan,
       state,
       stopScan

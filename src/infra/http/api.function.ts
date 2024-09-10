@@ -6,7 +6,8 @@ import { removeUndefined } from 'main/utils';
 import { store } from 'store';
 import type { ApiProps } from 'domain/protocol';
 
-const baseUrl = 'http://10.107.160.196:8080/api/v1';
+// const baseUrl = 'http://10.107.160.196:8080/api/v1';
+const baseUrl = 'http://92.112.179.83:8080/api/v1';
 
 export const fetchApi = async <T>(params: ApiProps): Promise<T> => {
   const { accessToken } = store.getState().persist;
@@ -30,6 +31,10 @@ export const fetchApi = async <T>(params: ApiProps): Promise<T> => {
   const queryParams = params.queryParams
     ? `?${new URLSearchParams(removeUndefined(params.queryParams))}`
     : '';
+
+  console.log(`${baseUrl}${params.route}${id}${queryParams}`);
+
+  console.log({ body, headers, method: params.method });
 
   const response = await fetch(`${baseUrl}${params.route}${id}${queryParams}`, {
     body,

@@ -10,52 +10,53 @@ import {
 import { useSQLiteContext } from 'expo-sqlite';
 import type {
   CreateProps,
+  EntityMap,
   PaginationProps,
-  SelectEntityMap,
-  SelectEntityReturnMap,
   SelectProps,
   UpdateProps,
   WhereProps
 } from 'domain/models';
+import type { SQLiteDatabase } from 'expo-sqlite';
 
 export interface useDatabaseReturn {
-  create: <T extends keyof SelectEntityMap>(
+  create: <T extends keyof EntityMap>(
     entity: T,
     props: { data: CreateProps<T>; select?: SelectProps<T> }
-  ) => Promise<SelectEntityReturnMap[T]>;
-  findFirst: <T extends keyof SelectEntityMap>(
+  ) => Promise<EntityMap[T]>;
+  findFirst: <T extends keyof EntityMap>(
     entity: T,
     props?: { where?: WhereProps<T>; select?: SelectProps<T> }
-  ) => Promise<SelectEntityReturnMap[T]>;
-  find: <T extends keyof SelectEntityMap>(
+  ) => Promise<EntityMap[T]>;
+  find: <T extends keyof EntityMap>(
     entity: T,
     props?: Partial<PaginationProps> & { where?: WhereProps<T>; select?: SelectProps<T> }
-  ) => Promise<SelectEntityReturnMap[T][]>;
-  createMany: <T extends keyof SelectEntityMap>(
+  ) => Promise<EntityMap[T][]>;
+  createMany: <T extends keyof EntityMap>(
     entity: T,
     props: { data: CreateProps<T>[] }
   ) => Promise<void>;
-  delete: <T extends keyof SelectEntityMap>(
+  delete: <T extends keyof EntityMap>(
     entity: T,
     options?: { where?: WhereProps<T> }
   ) => Promise<void>;
-  update: <T extends keyof SelectEntityMap>(
+  update: <T extends keyof EntityMap>(
     entity: T,
     props: { data: UpdateProps<T>; where?: WhereProps<T> }
   ) => Promise<void>;
-  upsert: <T extends keyof SelectEntityMap>(
+  upsert: <T extends keyof EntityMap>(
     entity: T,
     props: { data: UpdateProps<T>[] }
   ) => Promise<void>;
-  totalElements: <T extends keyof SelectEntityMap>(
+  totalElements: <T extends keyof EntityMap>(
     entity: T,
     options?: { where?: WhereProps<T> }
   ) => Promise<number>;
-  deleteTable: <T extends keyof SelectEntityMap>(entity: T) => Promise<void>;
-  upsertOne: <T extends keyof SelectEntityMap>(
+  deleteTable: <T extends keyof EntityMap>(entity: T) => Promise<void>;
+  upsertOne: <T extends keyof EntityMap>(
     entity: T,
     props: { data: UpdateProps<T>; conflict: string }
   ) => Promise<void>;
+  executeSql: (task: (txn: SQLiteDatabase) => Promise<void>) => Promise<void>;
 }
 
 export const useDatabase = (): useDatabaseReturn => {
@@ -74,12 +75,12 @@ export const useDatabase = (): useDatabaseReturn => {
     }
   };
 
-  const findFirst = async <T extends keyof SelectEntityMap>(
+  const findFirst = async <T extends keyof EntityMap>(
     entity: T,
     options?: { where?: WhereProps<T>; select?: SelectProps<T> }
-  ): Promise<SelectEntityReturnMap[T]> => {
+  ): Promise<EntityMap[T]> => {
     console.info('find first');
-    let result: SelectEntityReturnMap[T] | null = null;
+    let result: EntityMap[T] | null = null;
 
     const { selectColumns, joinColumns } = databaseSelectColumns(entity, options?.select);
     const { whereData } = databaseWhereTransform(entity, options?.where);
@@ -88,13 +89,13 @@ export const useDatabase = (): useDatabaseReturn => {
 
     result = await database.getFirstAsync(selectQuery);
 
-    return formatResult(result, options?.select) as SelectEntityReturnMap[T];
+    return formatResult(result, options?.select) as EntityMap[T];
   };
 
-  const find = async <T extends keyof SelectEntityMap>(
+  const find = async <T extends keyof EntityMap>(
     entity: T,
     options?: Partial<PaginationProps> & { where?: WhereProps<T>; select?: SelectProps<T> }
-  ): Promise<SelectEntityReturnMap[T][]> => {
+  ): Promise<EntityMap[T][]> => {
     console.info('find');
     const { selectColumns, joinColumns } = databaseSelectColumns(entity, options?.select);
     const { whereData } = databaseWhereTransform(entity, options?.where);
@@ -107,10 +108,10 @@ export const useDatabase = (): useDatabaseReturn => {
 
     const result = await database.getAllAsync(selectQuery);
 
-    return formatListResult(result, options?.select) as SelectEntityReturnMap[T][];
+    return formatListResult(result, options?.select) as EntityMap[T][];
   };
 
-  const totalElements = async <T extends keyof SelectEntityMap>(
+  const totalElements = async <T extends keyof EntityMap>(
     entity: T,
     options?: { where?: WhereProps<T> }
   ): Promise<number> => {
@@ -124,10 +125,10 @@ export const useDatabase = (): useDatabaseReturn => {
     return result.count;
   };
 
-  const create = async <T extends keyof SelectEntityMap>(
+  const create = async <T extends keyof EntityMap>(
     entity: T,
     { data, select }: { data: CreateProps<T>; select?: SelectProps<T> }
-  ): Promise<SelectEntityReturnMap[T]> => {
+  ): Promise<EntityMap[T]> => {
     console.info('create');
     const { columns, queryValues } = databaseValues(data);
 
@@ -148,13 +149,13 @@ export const useDatabase = (): useDatabaseReturn => {
 
       const result = await database.getFirstAsync(selectQuery);
 
-      return formatResult(result, select) as SelectEntityReturnMap[T];
+      return formatResult(result, select) as EntityMap[T];
     }
 
-    return undefined as unknown as SelectEntityReturnMap[T];
+    return undefined as unknown as EntityMap[T];
   };
 
-  const update = async <T extends keyof SelectEntityMap>(
+  const update = async <T extends keyof EntityMap>(
     entity: T,
     props: { data: UpdateProps<T>; where?: WhereProps<T> }
   ): Promise<void> => {
@@ -178,7 +179,7 @@ export const useDatabase = (): useDatabaseReturn => {
     });
   };
 
-  const deleteData = async <T extends keyof SelectEntityMap>(
+  const deleteData = async <T extends keyof EntityMap>(
     entity: T,
     options?: { where?: WhereProps<T> }
   ): Promise<void> => {
@@ -186,8 +187,6 @@ export const useDatabase = (): useDatabaseReturn => {
     const { whereData } = databaseWhereTransform(entity, options?.where);
 
     const query = `DELETE FROM ${entity} ${whereData}`;
-
-    console.log(query);
 
     await retryTransaction(async () => {
       if (await database.isInTransactionAsync()) throw new Error('Transaction in progress');
@@ -198,7 +197,7 @@ export const useDatabase = (): useDatabaseReturn => {
     });
   };
 
-  const upsert = async <T extends keyof SelectEntityMap>(
+  const upsert = async <T extends keyof EntityMap>(
     entity: T,
     {
       data,
@@ -258,7 +257,7 @@ export const useDatabase = (): useDatabaseReturn => {
     });
   };
 
-  const upsertOne = async <T extends keyof SelectEntityMap>(
+  const upsertOne = async <T extends keyof EntityMap>(
     entity: T,
     { data, conflict }: { data: UpdateProps<T>; conflict: string }
   ): Promise<void> => {
@@ -286,7 +285,7 @@ export const useDatabase = (): useDatabaseReturn => {
     });
   };
 
-  const createMany = async <T extends keyof SelectEntityMap>(
+  const createMany = async <T extends keyof EntityMap>(
     entity: T,
     { data }: { data: CreateProps<T>[] }
   ): Promise<void> => {
@@ -311,7 +310,7 @@ export const useDatabase = (): useDatabaseReturn => {
     });
   };
 
-  const deleteTable = async <T extends keyof SelectEntityMap>(entity: T): Promise<void> => {
+  const deleteTable = async <T extends keyof EntityMap>(entity: T): Promise<void> => {
     console.info('delete table');
 
     const query = `DROP TABLE IF EXISTS ${entity}`;
@@ -325,11 +324,19 @@ export const useDatabase = (): useDatabaseReturn => {
     });
   };
 
+  const executeSql = async (task: (txn: SQLiteDatabase) => Promise<void>): Promise<void> => {
+    await retryTransaction(async () => {
+      if (await database.isInTransactionAsync()) throw new Error('Transaction in progress');
+      else await task(database);
+    });
+  };
+
   return {
     create,
     createMany,
     delete: deleteData,
     deleteTable,
+    executeSql,
     find,
     findFirst,
     totalElements,

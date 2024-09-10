@@ -6,3 +6,5 @@ export * from './vehicle-diagnostics';
 export * from './vehicle-model';
 export * from './offline-queue';
 export * from './database';
+export * from './obd-data';
+export * from './obd-data-average';

@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-type-alias */
+import type { ObdData } from '../obd-data';
+import type { ObdDataAverage } from '../obd-data-average';
 import type { OfflineQueue } from '../offline-queue';
 import type { Vehicle, VehicleValues } from '../vehicle';
 import type { VehicleBrand, VehicleBrandValues } from '../vehicle-brand';
@@ -11,30 +13,18 @@ export interface CreateEntityMap {
   vehicle_brands: Omit<VehicleBrandValues, 'id'>;
   vehicle_diagnostics: Omit<VehicleDiagnosticsValues, 'id'>;
   offline_queue: Omit<OfflineQueue, 'id'>;
+  obd_data: Omit<ObdData, 'id'>;
+  obd_data_average: Omit<ObdDataAverage, 'id'>;
 }
 
-export interface SelectEntityMap {
+export interface EntityMap {
   vehicles: Vehicle;
   vehicle_models: VehicleModel;
   vehicle_brands: VehicleBrand;
   vehicle_diagnostics: VehicleDiagnostics;
   offline_queue: OfflineQueue;
-}
-
-export interface SelectEntityReturnMap {
-  vehicles: Vehicle;
-  vehicle_models: VehicleModel;
-  vehicle_brands: VehicleBrand;
-  vehicle_diagnostics: VehicleDiagnostics;
-  offline_queue: OfflineQueue;
-}
-
-export interface FastSelectEntityReturnMap {
-  vehicles: Vehicle;
-  vehicle_models: VehicleModel;
-  vehicle_brands: VehicleBrand;
-  vehicle_diagnostics: VehicleDiagnostics;
-  offline_queue: OfflineQueue;
+  obd_data: ObdData;
+  obd_data_average: ObdDataAverage;
 }
 
 type FilterOperator = '!=' | '<' | '<=' | '=' | '>' | '>=' | 'IN' | 'LIKE' | 'NOT IN';
@@ -52,22 +42,22 @@ export interface WhereEntityMap {
   vehicle_brands: WhereCondition<VehicleBrand>;
   vehicle_diagnostics: WhereCondition<VehicleDiagnostics>;
   offline_queue: WhereCondition<OfflineQueue>;
+  obd_data: WhereCondition<ObdData>;
+  obd_data_average: WhereCondition<ObdDataAverage>;
 }
 
-export type CreateProps<T extends keyof SelectEntityMap> = CreateEntityMap[T];
+export type CreateProps<T extends keyof EntityMap> = CreateEntityMap[T];
 
-export type UpdateProps<T extends keyof SelectEntityMap> = Partial<CreateEntityMap[T]>;
+export type UpdateProps<T extends keyof EntityMap> = Partial<CreateEntityMap[T]>;
 
-export type WhereProps<T extends keyof SelectEntityMap> = Partial<WhereEntityMap[T]>;
+export type WhereProps<T extends keyof EntityMap> = Partial<WhereEntityMap[T]>;
 
 export interface PaginationProps {
   limit: number;
   page: number;
 }
 
-export type SelectProps2<T extends keyof SelectEntityMap> = Partial<
-  Record<keyof SelectEntityMap[T], boolean>
->;
+export type SelectProps2<T extends keyof EntityMap> = Partial<Record<keyof EntityMap[T], boolean>>;
 
 type SelectPropsObject<T> = T extends object
   ? {
@@ -75,6 +65,6 @@ type SelectPropsObject<T> = T extends object
     }
   : boolean;
 
-export type SelectProps<T extends keyof SelectEntityMap> = {
-  [K in keyof SelectEntityMap[T]]?: SelectPropsObject<SelectEntityMap[T][K]>;
+export type SelectProps<T extends keyof EntityMap> = {
+  [K in keyof EntityMap[T]]?: SelectPropsObject<EntityMap[T][K]>;
 };

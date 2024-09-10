@@ -12,7 +12,7 @@ import { useDispatch } from 'react-redux';
 import type { ApiProps } from 'domain/protocol';
 import type { Ids } from 'domain/enums';
 import type { QueryList } from 'main/config';
-import type { SelectEntityMap } from 'domain/models';
+import type { EntityMap } from 'domain/models';
 import type { queryProps } from 'infra/cache/queries/default-query';
 
 interface makeRequestProps extends Omit<ApiProps, 'id' | 'isFormData' | 'queryParams'> {
@@ -143,13 +143,13 @@ export const useRequest = (): {
 
       if (entity)
         await transformApiResponseToDatabase(
-          entity as keyof SelectEntityMap,
+          entity as keyof EntityMap,
           data as never,
           { ...params, ids },
           { limit, page }
         );
     } else if (!hasInternetConnection && entity)
-      data = await findOnDatabase(entity as keyof SelectEntityMap, { ...params, ids, limit, page });
+      data = await findOnDatabase(entity as keyof EntityMap, { ...params, ids, limit, page });
 
     return data as T;
   };
@@ -164,7 +164,7 @@ export const useRequest = (): {
     const { hasInternetConnection } = store.getState().netInfo;
 
     let data;
-    const entity = TableName[route as keyof typeof TableName] as keyof SelectEntityMap;
+    const entity = TableName[route as keyof typeof TableName] as keyof EntityMap;
 
     if (hasInternetConnection)
       data = await api.request({

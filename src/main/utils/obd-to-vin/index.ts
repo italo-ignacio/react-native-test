@@ -1,19 +1,13 @@
-export const convertOBDResponseToVIN = (vinData: { line1: string; line2: string }): string => {
-  const hexToAscii = (hex: string): string => {
-    let ascii = '';
+export const convertOBDResponseToVIN = (response: { line1: string; line2: string }): string => {
+  const combinedHex = response.line1.replace(/\s+/gu, '') + response.line2.replace(/\s+/gu, '');
 
-    for (let index = 0; index < hex.length; index += 2) {
-      const hexCode = hex.slice(index, 2);
+  let vin = '';
 
-      ascii += String.fromCharCode(parseInt(hexCode, 16));
-    }
-    return ascii;
-  };
+  for (let index = 0; index < combinedHex.length; index += 2) {
+    const hexPair = combinedHex.slice(index, index + 2);
 
-  const vinPart1 = hexToAscii(vinData.line1.replace(/[0-9]: /u, '').replace(/\s+/gu, ''));
-  const vinPart2 = hexToAscii(vinData.line2.replace(/[0-9]: /u, '').replace(/\s+/gu, ''));
-
-  const vin = vinPart1 + vinPart2;
+    vin += String.fromCharCode(parseInt(hexPair, 16));
+  }
 
   return vin;
 };

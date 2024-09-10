@@ -1,4 +1,4 @@
-import type { CreateProps, OfflineQueue, SelectEntityMap } from 'domain/models';
+import type { CreateProps, OfflineQueue, EntityMap } from 'domain/models';
 import type { Ids } from 'domain/enums';
 import type { useDatabaseReturn } from '../use-database';
 
@@ -10,7 +10,7 @@ const replaceOfflineQueue = async ({
 }: {
   database: useDatabaseReturn;
   entityId?: number;
-  entity: keyof SelectEntityMap;
+  entity: keyof EntityMap;
   dataValue: Omit<OfflineQueue, 'id'>;
 }): Promise<void> => {
   await database.delete('offline_queue', {
@@ -39,11 +39,11 @@ export const postMethodRequest = async ({
 }: {
   database: useDatabaseReturn;
   body: unknown;
-  entity: keyof SelectEntityMap;
+  entity: keyof EntityMap;
   dataValue: Omit<OfflineQueue, 'id'>;
 }): Promise<void> => {
   const localItem = await database.create(entity, {
-    data: body as CreateProps<keyof SelectEntityMap>,
+    data: body as CreateProps<keyof EntityMap>,
     select: { id: true }
   });
 
@@ -63,7 +63,7 @@ export const deleteMethodRequest = async ({
 }: {
   ids: Ids;
   database: useDatabaseReturn;
-  entity: keyof SelectEntityMap;
+  entity: keyof EntityMap;
   dataValue: Omit<OfflineQueue, 'id'>;
 }): Promise<void> => {
   const entityId = ids?.apiId ? ids?.apiId : ids?.id;
@@ -89,7 +89,7 @@ export const putMethodRequest = async ({
 }: {
   ids?: Ids;
   database: useDatabaseReturn;
-  entity: keyof SelectEntityMap;
+  entity: keyof EntityMap;
   dataValue: Omit<OfflineQueue, 'id'>;
   body: unknown;
 }): Promise<void> => {
@@ -116,7 +116,7 @@ export const putMethodRequest = async ({
   else await replaceOfflineQueue({ dataValue, database, entity, entityId });
 
   await database.update(entity, {
-    data: body as CreateProps<keyof SelectEntityMap>,
+    data: body as CreateProps<keyof EntityMap>,
     where: ids?.apiId
       ? {
           apiId: {
