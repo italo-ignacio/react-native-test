@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-loop-func */
+/* eslint-disable no-await-in-loop */
+/* eslint-disable max-depth */
 /* eslint-disable no-undef */
 /* eslint-disable @typescript-eslint/init-declarations */
 /* eslint-disable prefer-const */
@@ -43,6 +46,7 @@ interface BluetoothContextProps {
   startScan: () => void;
   stopScan: () => void;
   connectToDevice: (deviceId: Device) => Promise<void>;
+  findVehicleByVin: (vin: string, device?: Device) => Promise<void>;
   writeInObd: (
     code: CharacteristicType,
     device?: Device | null
@@ -52,6 +56,7 @@ interface BluetoothContextProps {
   allDevices: Device[];
   connected: connectedData;
   isScanning: boolean;
+  data: { [key in CharacteristicType]?: number | string };
   isMonitoring: boolean;
   state: stateDevice;
   bluetoothState: 'off' | 'on';
@@ -180,7 +185,7 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
   };
 
   const startMonitor = (): void => {
-    setIsMonitoring(true);
+    if (connected.device && connected.vehicle) setIsMonitoring(true);
   };
 
   const stopMonitor = (): void => {
@@ -195,8 +200,9 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
   } = {};
 
   const dbList: { code: CharacteristicType; value: number }[] = [];
+  const toSend: { [key in CharacteristicType]?: string[] } = {};
 
-  const monitorObd = async (code: CharacteristicType): Promise<void> => {
+  const monitorObd = async (code: CharacteristicType, timesForSend?: number): Promise<void> => {
     const oldCharacteristic = characteristicMonitoring[code]?.characteristic;
 
     if (oldCharacteristic) await oldCharacteristic.writeWithoutResponse(base64.encode(code));
@@ -218,14 +224,21 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
 
           const decodedValue = decodeCharacteristicResponse(code, value);
 
-          console.info({ decodedValue, value });
+          console.info(`Code: ${code} - Decoded: ${decodedValue} - value: ${value}`);
 
           if (data[code] !== decodedValue && decodedValue !== undefined && decodedValue !== null) {
             setData((prevState) => ({
               ...prevState,
               [code]: decodedValue
             }));
-            dbList.push({ code, value: Number(decodedValue) });
+
+            if (typeof timesForSend === 'number') toSend[code]?.push(' ');
+            else dbList.push({ code, value: Number(decodedValue) });
+
+            if (typeof timesForSend === 'number' && toSend[code]?.length === timesForSend) {
+              dbList.push({ code, value: Number(decodedValue) });
+              toSend[code]?.splice(0, toSend[code]?.length);
+            }
           }
         }
       );
@@ -278,26 +291,30 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
   let intervals: NodeJS.Timeout[] = [];
 
   const monitorCodes = [
-    { code: CharacteristicType.engineSpeed, interval: 500 },
-    { code: CharacteristicType.mafAirFlowRate, interval: 5000 }
+    { code: CharacteristicType.engineSpeed, interval: 1000, timesForSend: 20 },
+    { code: CharacteristicType.vehicleSpeed, interval: 1000, timesForSend: 20 },
+    { code: CharacteristicType.engineFuelRate, interval: 5000, timesForSend: 2 },
+    { code: CharacteristicType.monitorStatus, interval: 5000, timesForSend: 2 },
+    { code: CharacteristicType.mafAirFlowRate, interval: 5000, timesForSend: 2 }
   ];
 
   useEffect(() => {
     let sendToDb: NodeJS.Timeout | number | string | undefined;
     let sendAverageToDb: NodeJS.Timeout | number | string | undefined;
 
-    if (isMonitoring) {
-      monitorCodes.forEach(({ code, interval }) => {
+    if (connected.device === null || connected.vehicle === null) setIsMonitoring(false);
+    else if (isMonitoring) {
+      monitorCodes.forEach(({ code, interval, timesForSend }) => {
         intervals.push(
           setInterval(() => {
-            if (isMonitoring && connected.device) monitorObd(code);
+            if (isMonitoring && connected.device) monitorObd(code, timesForSend);
           }, interval)
         );
       });
 
       sendToDb = setInterval(async () => {
         await saveObdData();
-      }, 5000);
+      }, 30 * 1000);
 
       sendAverageToDb = setInterval(async () => {
         await saveAverageObdData();
@@ -379,30 +396,33 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
     // );
   };
 
+  const findVehicleByVin = async (vin: string, device?: Device): Promise<void> => {
+    const vehicle = await findRequest<{ content: Vehicle[] } | undefined>({
+      apiRoute: '/vehicle/my',
+      limit: 1,
+      page: 1,
+      params: { search: vin },
+      route: 'vehicle'
+    });
+
+    console.log(vehicle);
+
+    if (vehicle?.content?.[0])
+      setConnected({ device: device ?? connected.device, vehicle: vehicle?.content?.[0], vin });
+    else setConnected({ device: device ?? connected.device, vehicle: null, vin });
+  };
+
   const finishConnection = async (
     vinData: { line1: string; line2: string },
     device: Device,
     subscription: Subscription
   ): Promise<void> => {
     try {
-      console.log({ vinData });
-
-      // "line1": "5A 42 35 35 58 39", "line2": "38 38 35 32 39 33",
+      console.log(vinData);
 
       const vin = convertOBDResponseToVIN(vinData);
 
-      console.log({ vin });
-
-      const vehicle = await findRequest<Vehicle[] | undefined>({
-        apiRoute: '/vehicle/my',
-        limit: 1,
-        page: 1,
-        params: { search: vin },
-        route: 'vehicle'
-      });
-
-      if (vehicle?.[0]) setConnected({ device, vehicle: vehicle[0], vin });
-      else setConnected({ device, vehicle: null, vin });
+      await findVehicleByVin(vin, device);
 
       await bleManager.stopDeviceScan();
       setIsScanning(false);
@@ -411,9 +431,9 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
       setState({ connection: 'notConnected', device });
       setConnected(resetConnection);
       console.error('failed to connect', error);
-    } finally {
-      subscription.remove();
     }
+
+    subscription.remove();
   };
 
   const connectToDevice = async (device: Device): Promise<void> => {
@@ -449,13 +469,6 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
         const protocol = protocols[0];
         const commands = ['ATZ\r', 'ATE0\r', 'ATH0\r', 'ATL0\r', `ATSP${protocol}\r`];
 
-        for await (const command of commands)
-          await newDeviceConnection.writeCharacteristicWithoutResponseForService(
-            SERVICE_UUID,
-            WRITE_CHARACTERISTIC,
-            base64.encode(command)
-          );
-
         const characteristic =
           await newDeviceConnection?.writeCharacteristicWithoutResponseForService(
             SERVICE_UUID,
@@ -463,24 +476,29 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
             base64.encode(CharacteristicType.vin)
           );
 
+        for await (const command of commands)
+          await characteristic.writeWithoutResponse(base64.encode(command));
+
+        await characteristic?.writeWithoutResponse(base64.encode(CharacteristicType.vin));
+
         let vinData = { line1: '', line2: '', line3: true };
 
         const subscription = characteristic?.monitor(
           (error: BleError | null, characteristicMonitor: Characteristic | null) => {
             if (error) {
               console.error(error);
-              return 'No response';
+              return;
             }
 
             const value = base64.decode(characteristicMonitor?.value ?? '');
 
-            if (value?.startsWith('1:'))
-              Object.assign(vinData, { ...vinData, line1: value.slice(3) });
-            else if (value?.startsWith('2:'))
-              Object.assign(vinData, { ...vinData, line2: value.slice(3) });
+            console.log({ value });
+
+            if (value?.startsWith('1:')) vinData.line1 = value.slice(3);
+            else if (value?.startsWith('2:')) vinData.line2 = value.slice(3);
 
             if (vinData.line1.length > 0 && vinData.line2.length > 0 && vinData.line3) {
-              Object.assign(vinData, { ...vinData, line3: false });
+              vinData.line3 = false;
               finishConnection(vinData, newDeviceConnection, subscription);
             }
           }
@@ -491,6 +509,84 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
         console.error('failed to connect', error);
       }
   };
+
+  // const connectToDevice = async (device: Device): Promise<void> => {
+  //   if (state?.connection !== 'isConnecting')
+  //     try {
+  //       setState({ connection: 'isConnecting', device });
+
+  //       const deviceConnection = await bleManager.connectToDevice(device.id);
+
+  //       const newDeviceConnection = await deviceConnection.discoverAllServicesAndCharacteristics();
+
+  //       // const fiat 500 = 'ATSP7';
+  //       // const eco sport = 'ATSP0';
+
+  //       // ATZ: Reinicia o adaptador OBD2.
+  //       // ATE0: Desliga o eco para evitar respostas duplicadas.
+  //       // ATH0: Desliga a exibição de cabeçalhos.
+  //       // ATL0: Desliga a exibição de linhas.
+  //       // ATSP{number 0-9}: Define o protocolo ISO desejada.
+
+  //       // ATSP0: Protocolo automático
+  //       // ATSP1: SAE J1850 PWM (41.6 kbaud)
+  //       // ATSP2: SAE J1850 VPW (10.4 kbaud)
+  //       // ATSP3: ISO 9141-2 (5 baud init, 10.4 kbaud)
+  //       // ATSP4: ISO 14230-4 KWP (5 baud init, 10.4 kbaud)
+  //       // ATSP5: ISO 14230-4 KWP (fast init, 10.4 kbaud)
+  //       // ATSP6: ISO 15765-4 CAN (11 bit ID, 500 kbaud)
+  //       // ATSP7: ISO 15765-4 CAN (29 bit ID, 500 kbaud)
+  //       // ATSP8: ISO 15765-4 CAN (11 bit ID, 250 kbaud)
+  //       // ATSP9: ISO 15765-4 CAN (29 bit ID, 250 kbaud)
+
+  //       const protocols = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  //       const protocol = protocols[0];
+  //       const commands = ['ATZ\r', 'ATE0\r', 'ATH0\r', 'ATL0\r', `ATSP${protocol}\r`];
+
+  //       for await (const command of commands)
+  //         await newDeviceConnection.writeCharacteristicWithoutResponseForService(
+  //           SERVICE_UUID,
+  //           WRITE_CHARACTERISTIC,
+  //           base64.encode(command)
+  //         );
+
+  //       const characteristic =
+  //         await newDeviceConnection?.writeCharacteristicWithoutResponseForService(
+  //           SERVICE_UUID,
+  //           READ_CHARACTERISTIC,
+  //           base64.encode(CharacteristicType.vin)
+  //         );
+
+  //       let vinData = { line1: '', line2: '', line3: true };
+
+  //       const subscription = characteristic?.monitor(
+  //         (error: BleError | null, characteristicMonitor: Characteristic | null) => {
+  //           if (error) {
+  //             console.error(error);
+  //             return 'No response';
+  //           }
+
+  //           const value = base64.decode(characteristicMonitor?.value ?? '');
+
+  //           console.log({ value });
+
+  //           if (value?.startsWith('1:'))
+  //             Object.assign(vinData, { ...vinData, line1: value.slice(3) });
+  //           else if (value?.startsWith('2:'))
+  //             Object.assign(vinData, { ...vinData, line2: value.slice(3) });
+
+  //           if (vinData.line1.length > 0 && vinData.line2.length > 0 && vinData.line3) {
+  //             Object.assign(vinData, { ...vinData, line3: false });
+  //             finishConnection(vinData, newDeviceConnection, subscription);
+  //           }
+  //         }
+  //       );
+  //     } catch (error) {
+  //       setState({ connection: 'notConnected', device });
+  //       setConnected(resetConnection);
+  //       console.error('failed to connect', error);
+  //     }
+  // };
 
   const stopScan = async (): Promise<void> => {
     await bleManager.stopDeviceScan();
@@ -511,8 +607,10 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
       bluetoothState,
       connectToDevice,
       connected,
+      data,
       disconnectFromDevice,
       endMonitor,
+      findVehicleByVin,
       isMonitoring,
       isScanning,
       monitorObd,
@@ -530,9 +628,11 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
       disconnectFromDevice,
       connected,
       bluetoothState,
+      data,
       endMonitor,
       isMonitoring,
       startMonitor,
+      findVehicleByVin,
       monitorObd,
       stopMonitor,
       isScanning,

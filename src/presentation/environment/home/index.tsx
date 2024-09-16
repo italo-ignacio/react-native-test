@@ -7,7 +7,7 @@ import type { FC } from 'react';
 export const Home: FC = () => {
   const { user } = useAppSelector((state) => state.persist);
   const database = useDatabase();
-  const { startMonitor, stopMonitor, isMonitoring } = useBluetooth();
+  const { startMonitor, stopMonitor, isMonitoring, findVehicleByVin } = useBluetooth();
 
   return (
     <PrivateContainer headerSubtitle={`${user?.firstName} ${user?.firstName}`} headerTitle={'Olá,'}>

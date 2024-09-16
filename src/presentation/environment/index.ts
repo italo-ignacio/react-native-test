@@ -6,6 +6,7 @@ export * from './register';
 export * from './update-password';
 export * from './profile';
 export * from './vehicle';
+export * from './vehicle-active-diagnostic';
 export * from './vehicle-diagnostic';
 export * from './vehicle-edit';
 export * from './vehicle-register';

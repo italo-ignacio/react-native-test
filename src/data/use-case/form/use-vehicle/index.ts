@@ -1,8 +1,8 @@
 import { callToast, resolverError } from 'main/utils';
 import { paths } from 'main/config';
 import { store } from 'store';
+import { useBluetooth, useRequest, useRouter } from 'data/hooks';
 import { useForm } from 'react-hook-form';
-import { useRequest, useRouter } from 'data/hooks';
 import { vehicleSchema } from 'validation/schema';
 import { yupResolver } from '@hookform/resolvers/yup';
 import type { SubmitHandler } from 'react-hook-form';
@@ -19,8 +19,9 @@ export const useVehicle = ({ vehicle }: useVehicleProps): formReturn<VehicleRequ
     resolver: yupResolver(vehicleSchema)
   });
   const { navigate } = useRouter();
-
+  const { findVehicleByVin } = useBluetooth();
   const { makeRequest } = useRequest();
+
   const onSubmit: SubmitHandler<VehicleRequest> = async (data) => {
     try {
       const body = {};
@@ -49,8 +50,6 @@ export const useVehicle = ({ vehicle }: useVehicleProps): formReturn<VehicleRequ
           typeOfFuel: data.typeOfFuel,
           vehicleModelId: data.vehicleModelId
         });
-      console.log(body);
-      console.log({ apiId: vehicle?.apiId, id: vehicle?.id });
 
       if (Object.keys(body).length)
         await makeRequest({
@@ -61,6 +60,7 @@ export const useVehicle = ({ vehicle }: useVehicleProps): formReturn<VehicleRequ
         });
 
       callToast.success(`${vehicle ? 'Atualizado' : 'Cadastrado'} com sucesso`);
+      await findVehicleByVin(data.serialNumber);
       navigate(paths.vehicleRoutes, { screen: paths.vehicle });
     } catch (err) {
       resolverError(err);

@@ -15,3 +15,4 @@ export * from './convert-list';
 export * from './has-connection';
 export * from './obd-to-vin';
 export * from './validate';
+export * from './sleep';

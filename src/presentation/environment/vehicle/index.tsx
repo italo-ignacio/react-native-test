@@ -27,7 +27,7 @@ export const VehicleContainer: FC = () => {
         <Text className={'text-primary text-base font-semibold'}>Veículo Conectado</Text>
 
         {connected.vehicle ? (
-          <VehicleCard vehicle={connected.vehicle} />
+          <VehicleCard isConnected vehicle={connected.vehicle} />
         ) : (
           <View
             className={
@@ -46,7 +46,7 @@ export const VehicleContainer: FC = () => {
             />
 
             <Button
-              onPress={(): void => navigate(paths.vehicleRegister)}
+              onPress={(): void => navigate(paths.vehicleActiveDiagnostic)}
               size={'small'}
               text={'aaaaaaa'}
             />

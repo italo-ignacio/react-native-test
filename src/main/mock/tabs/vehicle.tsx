@@ -1,5 +1,6 @@
 import {
   Bluetooth,
+  VehicleActiveDiagnostic,
   VehicleContainer,
   VehicleDiagnostic,
   VehicleEdit,
@@ -15,6 +16,7 @@ export const VehicleRoutes: FC = () => (
     <Stack.Screen component={VehicleRegister} name={paths.vehicleRegister} />
     <Stack.Screen component={VehicleEdit} name={paths.vehicleEdit} />
     <Stack.Screen component={VehicleDiagnostic} name={paths.vehicleDiagnostic} />
+    <Stack.Screen component={VehicleActiveDiagnostic} name={paths.vehicleActiveDiagnostic} />
     <Stack.Screen component={Bluetooth} name={paths.bluetooth} />
   </Stack.Navigator>
 );

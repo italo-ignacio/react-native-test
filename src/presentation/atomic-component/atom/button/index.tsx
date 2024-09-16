@@ -13,7 +13,7 @@ export interface ButtonProps {
   buttonProps?: TouchableOpacityProps;
   size?: 'normal' | 'small';
   leftIcon?: IconNames;
-  onPress: (e?: BaseSyntheticEvent) => Promise<void> | void;
+  onPress?: (e?: BaseSyntheticEvent) => Promise<void> | void;
   leftComponent?: ReactNode;
   rightIcon?: IconNames;
   rightComponent?: ReactNode;

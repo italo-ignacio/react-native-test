@@ -13,6 +13,7 @@ export const paths = {
   vehicleRegister: 'vehicleRegister',
   vehicleEdit: 'vehicleEdit',
   vehicleDiagnostic: 'vehicleDiagnostic',
+  vehicleActiveDiagnostic: 'vehicleActiveDiagnostic',
   brandRoutes: 'brandRoutes',
   brand: 'brand',
   brandRegister: 'brandRegister',

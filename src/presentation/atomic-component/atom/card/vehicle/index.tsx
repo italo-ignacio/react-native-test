@@ -10,9 +10,10 @@ import type { Vehicle } from 'domain/models';
 interface VehicleCardProps {
   vehicle: Vehicle;
   isFirst?: boolean;
+  isConnected?: boolean;
 }
 
-export const VehicleCard: FC<VehicleCardProps> = ({ vehicle, isFirst }) => {
+export const VehicleCard: FC<VehicleCardProps> = ({ vehicle, isFirst, isConnected }) => {
   const { navigate } = useRouter();
 
   return (
@@ -33,7 +34,7 @@ export const VehicleCard: FC<VehicleCardProps> = ({ vehicle, isFirst }) => {
 
         <View className={'flex flex-row'} {...gap(8)}>
           <Button
-            onPress={(): void => console.log('aaa')}
+            onPress={isConnected ? (): void => navigate(paths.vehicleActiveDiagnostic) : undefined}
             rightIcon={'history'}
             size={'small'}
             text={'Histórico '}
