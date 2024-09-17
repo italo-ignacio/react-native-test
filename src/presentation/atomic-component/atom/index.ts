@@ -10,3 +10,4 @@ export * from './select';
 export * from './fetch-on-scroll-item';
 export * from './select-item';
 export * from './modal';
+export * from './speedometer';

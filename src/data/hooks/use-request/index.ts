@@ -10,9 +10,9 @@ import { useDatabase } from '../use-database';
 import { useDatabaseData } from 'infra/db/use-database-data';
 import { useDispatch } from 'react-redux';
 import type { ApiProps } from 'domain/protocol';
+import type { EntityMap } from 'domain/models';
 import type { Ids } from 'domain/enums';
 import type { QueryList } from 'main/config';
-import type { EntityMap } from 'domain/models';
 import type { queryProps } from 'infra/cache/queries/default-query';
 
 interface makeRequestProps extends Omit<ApiProps, 'id' | 'isFormData' | 'queryParams'> {

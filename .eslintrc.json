@@ -866,6 +866,7 @@
     "/tmp/**",
     "/node_modules",
     "**/data/bluetooth/**",
+    "**/data/speedometer/**",
     "index.js",
     "metro.config.js",
     "tailwind.config.js",

@@ -23,7 +23,8 @@ const App: FC = () => {
   }, 3000);
 
   LogBox.ignoreLogs([
-    'VirtualizedLists should never be nested inside plain ScrollViews with the same orientation'
+    'VirtualizedLists should never be nested inside plain ScrollViews with the same orientation',
+    'Operation was cancelled'
   ]);
 
   return (

@@ -13,7 +13,7 @@ import * as ExpoDevice from 'expo-device';
 import { BleManager, State } from 'react-native-ble-plx';
 import { CharacteristicType, TableName } from 'domain/enums';
 import { PermissionsAndroid, Platform } from 'react-native';
-import { convertOBDResponseToVIN } from 'main/utils';
+import { convertOBDResponseToVIN, sleep } from 'main/utils';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useDatabase } from '../use-database';
 import { useRequest } from '../use-request';
@@ -25,7 +25,8 @@ import type { Vehicle } from 'domain/models';
 
 const SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
 const READ_CHARACTERISTIC = '0000fff1-0000-1000-8000-00805f9b34fb';
-const WRITE_CHARACTERISTIC = '0000fff2-0000-1000-8000-00805f9b34fb';
+
+// const WRITE_CHARACTERISTIC = '0000fff2-0000-1000-8000-00805f9b34fb';
 
 interface BluetoothProviderProps {
   children: ReactNode;
@@ -62,7 +63,7 @@ interface BluetoothContextProps {
   bluetoothState: 'off' | 'on';
   startMonitor: () => void;
   stopMonitor: () => void;
-  monitorObd: (code: CharacteristicType) => Promise<void>;
+  monitorObd: (code: CharacteristicType, timesForSend: number) => Promise<void>;
   endMonitor: (code: CharacteristicType | 'all') => void;
 }
 
@@ -202,7 +203,7 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
   const dbList: { code: CharacteristicType; value: number }[] = [];
   const toSend: { [key in CharacteristicType]?: string[] } = {};
 
-  const monitorObd = async (code: CharacteristicType, timesForSend?: number): Promise<void> => {
+  const monitorObd = async (code: CharacteristicType, timesForSend: number): Promise<void> => {
     const oldCharacteristic = characteristicMonitoring[code]?.characteristic;
 
     if (oldCharacteristic) await oldCharacteristic.writeWithoutResponse(base64.encode(code));
@@ -232,11 +233,18 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
               [code]: decodedValue
             }));
 
-            if (typeof timesForSend === 'number') toSend[code]?.push(' ');
-            else dbList.push({ code, value: Number(decodedValue) });
+            toSend[code]?.push(' ');
 
             if (typeof timesForSend === 'number' && toSend[code]?.length === timesForSend) {
-              dbList.push({ code, value: Number(decodedValue) });
+              if (code === CharacteristicType.mafAirFlowRate)
+                dbList.push({
+                  code,
+                  value:
+                    decodedValue && typeof Number(decodedValue) === 'number'
+                      ? (Number(decodedValue) * 3600) / (14.7 * 710)
+                      : 0
+                });
+              else dbList.push({ code, value: Number(decodedValue) });
               toSend[code]?.splice(0, toSend[code]?.length);
             }
           }
@@ -291,8 +299,8 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
   let intervals: NodeJS.Timeout[] = [];
 
   const monitorCodes = [
-    { code: CharacteristicType.engineSpeed, interval: 1000, timesForSend: 20 },
-    { code: CharacteristicType.vehicleSpeed, interval: 1000, timesForSend: 20 },
+    { code: CharacteristicType.engineSpeed, interval: 500, timesForSend: 20 },
+    { code: CharacteristicType.vehicleSpeed, interval: 500, timesForSend: 20 },
     { code: CharacteristicType.engineFuelRate, interval: 5000, timesForSend: 2 },
     { code: CharacteristicType.monitorStatus, interval: 5000, timesForSend: 2 },
     { code: CharacteristicType.mafAirFlowRate, interval: 5000, timesForSend: 2 }
@@ -368,32 +376,6 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
       );
 
     return undefined;
-
-    // const newCharacteristic =
-    //   await connected.device?.writeCharacteristicWithoutResponseForService(
-    //     SERVICE_UUID,
-    //     READ_CHARACTERISTIC,
-    //     base64.encode(code)
-    //   );
-
-    // const sub = newCharacteristic?.monitor(
-    //   (error: BleError | null, characteristicMonitor: Characteristic | null) => {
-    //     if (error) {
-    //       console.error(error);
-    //       return 'No response';
-    //     }
-
-    //     const decodedValue = base64.decode(characteristicMonitor?.value ?? '');
-
-    //     const value = decodeCharacteristicResponse(code, decodedValue);
-
-    //     console.log({ decodedValue, value });
-
-    //     setTimeout(() => {
-    //       sub?.remove();
-    //     }, 2000);
-    //   }
-    // );
   };
 
   const findVehicleByVin = async (vin: string, device?: Device): Promise<void> => {
@@ -404,8 +386,6 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
       params: { search: vin },
       route: 'vehicle'
     });
-
-    console.log(vehicle);
 
     if (vehicle?.content?.[0])
       setConnected({ device: device ?? connected.device, vehicle: vehicle?.content?.[0], vin });
@@ -418,8 +398,6 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
     subscription: Subscription
   ): Promise<void> => {
     try {
-      console.log(vinData);
-
       const vin = convertOBDResponseToVIN(vinData);
 
       await findVehicleByVin(vin, device);
@@ -445,64 +423,60 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
 
         const newDeviceConnection = await deviceConnection.discoverAllServicesAndCharacteristics();
 
-        // const fiat 500 = 'ATSP7';
-        // const eco sport = 'ATSP0';
-
-        // ATZ: Reinicia o adaptador OBD2.
-        // ATE0: Desliga o eco para evitar respostas duplicadas.
-        // ATH0: Desliga a exibição de cabeçalhos.
-        // ATL0: Desliga a exibição de linhas.
-        // ATSP{number 0-9}: Define o protocolo ISO desejada.
-
-        // ATSP0: Protocolo automático
-        // ATSP1: SAE J1850 PWM (41.6 kbaud)
-        // ATSP2: SAE J1850 VPW (10.4 kbaud)
-        // ATSP3: ISO 9141-2 (5 baud init, 10.4 kbaud)
-        // ATSP4: ISO 14230-4 KWP (5 baud init, 10.4 kbaud)
-        // ATSP5: ISO 14230-4 KWP (fast init, 10.4 kbaud)
-        // ATSP6: ISO 15765-4 CAN (11 bit ID, 500 kbaud)
-        // ATSP7: ISO 15765-4 CAN (29 bit ID, 500 kbaud)
-        // ATSP8: ISO 15765-4 CAN (11 bit ID, 250 kbaud)
-        // ATSP9: ISO 15765-4 CAN (29 bit ID, 250 kbaud)
-
         const protocols = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
         const protocol = protocols[0];
-        const commands = ['ATZ\r', 'ATE0\r', 'ATH0\r', 'ATL0\r', `ATSP${protocol}\r`];
+        const commands = ['ATE0\r', 'ATH0\r', 'ATL0\r', `ATSP${protocol}\r`];
 
         const characteristic =
           await newDeviceConnection?.writeCharacteristicWithoutResponseForService(
             SERVICE_UUID,
             READ_CHARACTERISTIC,
-            base64.encode(CharacteristicType.vin)
+            base64.encode('ATZ\r')
           );
 
         for await (const command of commands)
           await characteristic.writeWithoutResponse(base64.encode(command));
 
-        await characteristic?.writeWithoutResponse(base64.encode(CharacteristicType.vin));
+        let vinData = { line1: '', line2: '' };
+        let vinReceived = false;
 
-        let vinData = { line1: '', line2: '', line3: true };
+        const readVin = async (vinType: string): Promise<void> => {
+          await characteristic?.writeWithoutResponse(base64.encode(vinType));
 
-        const subscription = characteristic?.monitor(
-          (error: BleError | null, characteristicMonitor: Characteristic | null) => {
-            if (error) {
-              console.error(error);
-              return;
+          const subscription = characteristic?.monitor(
+            (error: BleError | null, characteristicMonitor: Characteristic | null) => {
+              if (error) {
+                console.error(error);
+                return;
+              }
+
+              const value = base64.decode(characteristicMonitor?.value ?? '');
+
+              console.log({ value });
+
+              if (value?.startsWith('1:')) vinData.line1 = value.slice(3);
+              else if (value?.startsWith('2:')) vinData.line2 = value.slice(3);
+
+              if (vinData.line1.length > 0 && vinData.line2.length > 0 && !vinReceived) {
+                vinReceived = true;
+                finishConnection(vinData, newDeviceConnection, subscription);
+              }
             }
+          );
 
-            const value = base64.decode(characteristicMonitor?.value ?? '');
+          await sleep(10000);
+          subscription?.remove();
+        };
 
-            console.log({ value });
+        await readVin(CharacteristicType.vin);
 
-            if (value?.startsWith('1:')) vinData.line1 = value.slice(3);
-            else if (value?.startsWith('2:')) vinData.line2 = value.slice(3);
+        if (!vinReceived) await readVin(CharacteristicType.vin2);
 
-            if (vinData.line1.length > 0 && vinData.line2.length > 0 && vinData.line3) {
-              vinData.line3 = false;
-              finishConnection(vinData, newDeviceConnection, subscription);
-            }
-          }
-        );
+        if (!vinReceived) {
+          setState({ connection: 'notConnected', device });
+          setConnected(resetConnection);
+          console.error('Não foi possível obter o VIN do veículo.');
+        }
       } catch (error) {
         setState({ connection: 'notConnected', device });
         setConnected(resetConnection);
