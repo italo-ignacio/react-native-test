@@ -1,12 +1,19 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Button, ScrollView, Text, View } from 'react-native';
 import { CharacteristicType, TranslatedCharacteristic } from 'domain/enums';
 import { PrivateContainer } from 'presentation/atomic-component/template';
-import { Text as TextSvg } from 'react-native-svg';
+import { colors } from 'presentation/style';
 import { convertOBDResponseToVIN, gap } from 'main/utils';
 import { useAppSelector } from 'store';
 import { useBluetooth, useDatabase } from 'data/hooks';
-import Speedometer, { Arc, Background, Indicator, Marks, Needle, Progress } from 'data/speedometer';
+import Speedometer, {
+  Arc,
+  Background,
+  DangerPath,
+  Indicator,
+  Marks,
+  Needle,
+  Progress
+} from 'data/speedometer';
 import type { FC } from 'react';
 
 export const Home: FC = () => {
@@ -17,34 +24,72 @@ export const Home: FC = () => {
   return (
     <PrivateContainer headerSubtitle={`${user?.firstName} ${user?.firstName}`} headerTitle={'Olá,'}>
       <ScrollView>
-        <View {...gap(4)} className={'justify-between bg-blue-mid rounded-md w-[45%] '}>
-          <Text className={'text-center p-3'}>
-            {TranslatedCharacteristic[CharacteristicType.vehicleSpeed]}
-          </Text>
+        <View className={'flex flex-row flex-wrap'} {...gap(4)}>
+          <View
+            {...gap(4)}
+            className={'justify-between bg-blue-mid rounded-md w-[49%] items-center'}
+          >
+            <Text className={'text-center p-3'}>
+              {TranslatedCharacteristic[CharacteristicType.vehicleSpeed]}
+            </Text>
 
-          <Speedometer angle={160} height={180} max={300} value={100} width={150}>
-            <Background angle={180} color={'blue'} />
-            <Arc color={'red'} />
-            <Needle circleColor={'black'} color={'orange'} />
-            <Progress color={'green'} />
-            <Marks fontSize={12} lineColor={'red'} step={25} textColor={'black'} />
+            <Speedometer angle={160} height={130} max={300} value={200} width={150}>
+              <Background angle={180} color={'gray'} />
+              <Arc color={'black'} />
+              <Needle circleColor={colors.primary} color={'#4555e9'} />
+              <Progress color={'blue'} />
+              <Marks fontSize={10} lineColor={'black'} step={25} textColor={'black'} />
 
-            <Indicator fixValue>
-              {(value, textProps) => (
-                <TextSvg
-                  {...textProps}
-                  fill={'#555'}
-                  fontFamily={'squada-one'}
-                  fontSize={30}
-                  x={70}
-                  y={180}
-                >
-                  {value} km/h
-                </TextSvg>
-              )}
-            </Indicator>
-          </Speedometer>
+              <Indicator
+                endText={'km/h'}
+                fill={'#555'}
+                fixValue
+                fontFamily={'squada-one'}
+                fontSize={24}
+                x={20}
+                y={120}
+              />
+            </Speedometer>
+          </View>
+
+          <View
+            {...gap(4)}
+            className={'justify-between bg-blue-mid rounded-md w-[49%] items-center'}
+          >
+            <Text className={'text-center p-3'}>
+              {TranslatedCharacteristic[CharacteristicType.engineSpeed]}
+            </Text>
+
+            <Speedometer angle={160} height={130} max={10000} value={2500} width={150}>
+              <Background angle={180} color={'gray'} />
+              <Arc color={'black'} />
+              <Needle circleColor={colors.primary} color={'#4555e9'} />
+              <Progress color={'blue'} />
+
+              <Marks
+                divider={1000}
+                fontSize={10}
+                lineColor={'black'}
+                step={1000}
+                textColor={'black'}
+              />
+
+              <DangerPath />
+
+              <Indicator
+                endText={'RPM'}
+                fill={'#555'}
+                fixValue
+                fontFamily={'squada-one'}
+                fontSize={24}
+                x={20}
+                y={120}
+              />
+            </Speedometer>
+          </View>
         </View>
+
+        <View className={'mt-4'} />
 
         <Button
           onPress={async (): Promise<void> => {

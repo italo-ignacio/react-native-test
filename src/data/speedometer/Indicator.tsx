@@ -1,44 +1,36 @@
-import React, { useContext } from 'react'
-import { Text, TextProps } from 'react-native-svg'
-import Context from './context'
+import React, { useContext } from 'react';
+import { Text, TextProps } from 'react-native-svg';
+import Context from './context';
 
 interface IndicatorProps extends TextProps {
-  fontSize?: number
-  color?: string
-  fontFamily?: string
-  textAnchor?: TextProps['textAnchor']
-  fixValue: boolean
-  children?: (
-    fixedValue: string,
-    textProps: { transform: string }
-  ) => JSX.Element
+  fontSize?: number;
+  color?: string;
+  fontFamily?: string;
+  textAnchor?: TextProps['textAnchor'];
+  endText?: string;
+  fixValue: boolean;
+  children?: (fixedValue: string, textProps: { transform: string }) => JSX.Element;
 }
 
 export default function Indicator({
   fontSize = 45,
   color = 'white',
   fontFamily,
-  textAnchor = 'middle',
+  endText,
+  textAnchor,
   fixValue = true,
   children,
   ...rest
 }: IndicatorProps) {
-
-  const {
-    value,
-    radius,
-    rotation,
-    fontFamily: globalFontFamily,
-  } = useContext(Context)
+  const { value, radius, rotation, fontFamily: globalFontFamily } = useContext(Context);
 
   const textProps = {
-    transform: `rotate(${360 - rotation}, ${radius}, ${radius})`,
-  }
-  
+    transform: `rotate(${360 - rotation}, ${radius}, ${radius})`
+  };
+
   const fixedValue = fixValue ? Number(value).toFixed() : value.toString();
 
-  if (children) return children(fixedValue, textProps)
-  
+  if (children) return children(fixedValue, textProps);
 
   return (
     <Text
@@ -51,7 +43,7 @@ export default function Indicator({
       fill={color}
       {...rest}
     >
-      {fixedValue}
+      {fixedValue} {endText}
     </Text>
-  )
+  );
 }

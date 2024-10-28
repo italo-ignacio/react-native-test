@@ -425,13 +425,13 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
 
         const protocols = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
         const protocol = protocols[0];
-        const commands = ['ATE0\r', 'ATH0\r', 'ATL0\r', `ATSP${protocol}\r`];
+        const commands = ['ATZ\r', 'ATE0\r', 'ATH0\r', 'ATL0\r', `ATSP${protocol}\r`];
 
         const characteristic =
           await newDeviceConnection?.writeCharacteristicWithoutResponseForService(
             SERVICE_UUID,
             READ_CHARACTERISTIC,
-            base64.encode('ATZ\r')
+            base64.encode(CharacteristicType.vin)
           );
 
         for await (const command of commands)
@@ -464,7 +464,7 @@ export const BluetoothProvider = ({ children }: BluetoothProviderProps): ReactNo
             }
           );
 
-          await sleep(10000);
+          await sleep(15000);
           subscription?.remove();
         };
 

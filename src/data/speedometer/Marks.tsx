@@ -21,6 +21,7 @@ interface MarksProps {
   textColor?: string;
   lineOpacity?: number;
   numbersRadius?: number;
+  divider?: number;
   fontSize?: number;
   lineSize?: number;
   children?: (mark: Mark, index: number) => JSX.Element;
@@ -32,6 +33,7 @@ export default function Marks({
   lineColor = 'white',
   textColor = 'white',
   lineOpacity = 1,
+  divider = 1,
   numbersRadius = 17,
   fontSize = 18,
   lineSize = 12,
@@ -55,8 +57,8 @@ export default function Marks({
       return {
         coordinates: { x1, y1, x2, y2 },
         isEven,
-        textProps: { x, y, transform: `rotate(${360 - rotation}, ${x}, ${y})` },
-        value: Math.round(index * step + min)
+        textProps: { x, y, transform: `rotate(${360 - rotation}, ${x + 4}, ${y + 2})` },
+        value: Math.round((index * step + min) / divider)
       };
     });
   }, [max, min, step, radius, rotation, angle, lineSize]);

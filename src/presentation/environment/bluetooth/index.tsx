@@ -1,4 +1,4 @@
-import { Button, DeviceCard } from 'presentation/atomic-component/atom';
+import { DeviceCard } from 'presentation/atomic-component/atom';
 import { FlatList, Text, View } from 'react-native';
 import { PrivateContainer } from 'presentation/atomic-component/template';
 import { gap } from 'main/utils';
@@ -17,8 +17,7 @@ export const Bluetooth: FC = () => {
     isScanning,
     state,
     disconnectFromDevice,
-    startScan,
-    stopScan
+    startScan
   } = useBluetooth();
 
   const [first, setFirst] = useState(true);
@@ -57,16 +56,6 @@ export const Bluetooth: FC = () => {
         <View {...gap(16)}>
           <View className={'flex flex-row justify-between items-center'}>
             <Text className={'text-primary font-bold text-base'}>Dispositivos Disponíveis</Text>
-
-            <Button
-              leftIcon={isScanning ? 'bluetooth-searching' : 'bluetooth'}
-              onPress={(): void => {
-                if (isScanning) stopScan();
-                else startScan();
-              }}
-              size={'small'}
-              text={isScanning ? ' Buscando' : ' Buscar'}
-            />
           </View>
 
           <View className={'max-h-[71vh]'}>
