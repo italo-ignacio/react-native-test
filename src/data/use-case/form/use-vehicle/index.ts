@@ -60,7 +60,7 @@ export const useVehicle = ({ vehicle }: useVehicleProps): formReturn<VehicleRequ
         });
 
       callToast.success(`${vehicle ? 'Atualizado' : 'Cadastrado'} com sucesso`);
-      await findVehicleByVin(data.serialNumber);
+      if (!vehicle) await findVehicleByVin(data.serialNumber);
       navigate(paths.vehicleRoutes, { screen: paths.vehicle });
     } catch (err) {
       resolverError(err);

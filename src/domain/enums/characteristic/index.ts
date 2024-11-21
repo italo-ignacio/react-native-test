@@ -938,7 +938,7 @@ export const CharacteristicConst = {
   }
 };
 
-export const CharacteristicConst2 = {
+export const ConvertResponseToCode = {
   '41 0C': '010c',
   '41 0D': '010d',
   '41 31': '0131',
@@ -958,7 +958,8 @@ export const CharacteristicConst2 = {
   '41 03': '0103',
   '41 2F': '012f',
   '41 68': '0168'
-};
+} as unknown as Record<string, CharacteristicType>;
+
 export const CharacteristicConst3 = {
   '010c': 'engineSpeed',
   '010d': 'vehicleSpeed',

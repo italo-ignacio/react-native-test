@@ -5,6 +5,7 @@ export interface ObdData {
   id: number;
   code: CharacteristicType;
   value: number;
+  vin: string;
   createdAt?: Date;
 }
 
@@ -12,5 +13,6 @@ export const selectAllObdData: SelectProps<'obd_data'> = {
   code: true,
   createdAt: true,
   id: true,
-  value: true
+  value: true,
+  vin: true
 };
